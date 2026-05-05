@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1B01AF6225F277A70D38069E /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF975FF87C264FBDC79361D /* GameView.swift */; };
+		28EB6B9BCD00CD04B4E53F14 /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 126B771FCC9AB9B855A99118 /* SupabaseConfig.swift */; };
 		290CAA529463F71CE79708DC /* CosmicGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A983D612923C25333C456942 /* CosmicGameScene.swift */; };
 		29E329BCB97A842A793CA95F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2D01510AF0104AB8BC380A /* AudioManager.swift */; };
 		2A72C37EEA78F218FB638299 /* DifficultyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568D06DAAB23CA898F7CEB36 /* DifficultyManager.swift */; };
@@ -17,6 +18,7 @@
 		67AE8400180BDA103B53D5AE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1157B6E1858881547477DC90 /* LaunchScreen.storyboard */; };
 		6B443587C56CCB892A01F51D /* GameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27580A7DF81198E10C520E8 /* GameStore.swift */; };
 		88CDC1D24C621C6EA2945ECF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DB28FD666020F1B0EA9F94C9 /* Assets.xcassets */; };
+		92D117FC15FFF92BF0556513 /* LeaderboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6833BE3C14F20FA146D1807 /* LeaderboardService.swift */; };
 		AA8701BFBC232B15C5E18CFA /* CosmicBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7DE0412F5F5F4695B916EC8 /* CosmicBackground.swift */; };
 		AF3646431D130C67F8406A57 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5AB2F9CAE824B9004EFA28B /* HapticsManager.swift */; };
 		B124B73CBECA9974B51A4986 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C6C901FC9F457FEBC3B7E4C /* RootView.swift */; };
@@ -29,6 +31,7 @@
 
 /* Begin PBXFileReference section */
 		0F79841C9872D38A32C0BBE3 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		126B771FCC9AB9B855A99118 /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
 		16CB77CD9FE9B3FF4FA64914 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		2537D9F3E71A6E8F2F1E814C /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		3C6C901FC9F457FEBC3B7E4C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -48,6 +51,7 @@
 		E7DE0412F5F5F4695B916EC8 /* CosmicBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicBackground.swift; sourceTree = "<group>"; };
 		F0BE2F0ABC155FF172CBD62A /* StarfieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarfieldView.swift; sourceTree = "<group>"; };
 		F5572450112B0C83FA7ABDBC /* GameConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameConfig.swift; sourceTree = "<group>"; };
+		F6833BE3C14F20FA146D1807 /* LeaderboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -94,6 +98,7 @@
 				16CB77CD9FE9B3FF4FA64914 /* Info.plist */,
 				1157B6E1858881547477DC90 /* LaunchScreen.storyboard */,
 				02FB3B99DDA3DA66D1371015 /* App */,
+				33312B738708D31ED3791F00 /* Backend */,
 				B821CA8809E59204838B87F3 /* Game */,
 				2C3B94BF5965D1AB1041C00E /* Models */,
 				1ED7840CD29CB2412287554A /* Views */,
@@ -107,6 +112,15 @@
 				B27580A7DF81198E10C520E8 /* GameStore.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		33312B738708D31ED3791F00 /* Backend */ = {
+			isa = PBXGroup;
+			children = (
+				F6833BE3C14F20FA146D1807 /* LeaderboardService.swift */,
+				126B771FCC9AB9B855A99118 /* SupabaseConfig.swift */,
+			);
+			path = Backend;
 			sourceTree = "<group>";
 		};
 		B3AF771B10FE2BC3574448B5 = {
@@ -226,10 +240,12 @@
 				1B01AF6225F277A70D38069E /* GameView.swift in Sources */,
 				AF3646431D130C67F8406A57 /* HapticsManager.swift in Sources */,
 				F55D7532BC45D8BD19E12008 /* HomeView.swift in Sources */,
+				92D117FC15FFF92BF0556513 /* LeaderboardService.swift in Sources */,
 				39167CBBA521962EA9B8801B /* PhysicsCategory.swift in Sources */,
 				C2A7B6DA78101D2882F03EF0 /* Placeholders.swift in Sources */,
 				B124B73CBECA9974B51A4986 /* RootView.swift in Sources */,
 				DB9E1149617115DFDBDA390D /* StarfieldView.swift in Sources */,
+				28EB6B9BCD00CD04B4E53F14 /* SupabaseConfig.swift in Sources */,
 				DAC2BF3AA30E4856212E9C77 /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -257,6 +273,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_NAME = "accede-pulse";
 				SDKROOT = iphoneos;
+				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+				SUPABASE_URL = "$(SUPABASE_URL)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
@@ -291,6 +309,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_NAME = "accede-pulse";
 				SDKROOT = iphoneos;
+				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+				SUPABASE_URL = "$(SUPABASE_URL)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;

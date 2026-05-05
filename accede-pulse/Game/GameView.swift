@@ -25,8 +25,21 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     }
     nonisolated func sceneDidEnd(score: Int, isNewBest: Bool) {
         let best = UserDefaults.standard.integer(forKey: "cd.bestScore")
+        // Submit to leaderboard and update info when rank comes back
+        let pilotName = UserDefaults.standard.string(forKey: "cd.pilotName") ?? "Pilot Nova"
+        LeaderboardService.shared.submit(score: score, pilotName: pilotName) { result in
+            DispatchQueue.main.async {
+                self.gameOverInfo = GameOverInfo(
+                    score: score, best: best, isNewBest: isNewBest,
+                    globalRank: result.globalRank, rankIsOnline: result.isOnline
+                )
+            }
+        }
+        // Show sheet immediately with score while rank loads
         DispatchQueue.main.async {
-            self.gameOverInfo = GameOverInfo(score: score, best: best, isNewBest: isNewBest)
+            if self.gameOverInfo == nil {
+                self.gameOverInfo = GameOverInfo(score: score, best: best, isNewBest: isNewBest)
+            }
         }
     }
     nonisolated func sceneDidShowGust(upward: Bool) {
@@ -46,6 +59,8 @@ struct GameOverInfo {
     let score: Int
     let best: Int
     let isNewBest: Bool
+    var globalRank: Int? = nil
+    var rankIsOnline: Bool = false
 }
 
 // MARK: - Main GameView
@@ -82,6 +97,7 @@ struct GameView: View {
         }) {
             if let info = coordinator?.gameOverInfo {
                 GameOverSheet(info: info, onRetry: handleRetry, onHome: handleHome)
+                    .environmentObject(store)
             }
         }
     }
@@ -159,7 +175,14 @@ struct GameView: View {
     private func handleHome() {
         showGameOver = false
         if let info = coordinator?.gameOverInfo {
-            store.registerRun(score: info.score)
+            // Only update local stats — score was already submitted to leaderboard in sceneDidEnd
+            store.totalRuns += 1
+            store.totalDistance += max(1, info.score / 4)
+            if info.score > store.bestScore { store.bestScore = info.score }
+            let d = UserDefaults.standard
+            d.set(store.bestScore, forKey: "cd.bestScore")
+            d.set(store.totalRuns, forKey: "cd.totalRuns")
+            d.set(store.totalDistance, forKey: "cd.totalDistance")
         }
         dismiss()
     }
@@ -190,6 +213,7 @@ private struct GustBanner: View {
 
 // MARK: - Game Over Sheet
 struct GameOverSheet: View {
+    @EnvironmentObject private var store: GameStore
     let info: GameOverInfo
     let onRetry: () -> Void
     let onHome: () -> Void
@@ -201,11 +225,12 @@ struct GameOverSheet: View {
             Theme.cosmicBackground.ignoresSafeArea()
             StarfieldView(starCount: 50, showsNebula: true).ignoresSafeArea()
 
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
                 Spacer()
                 crashIcon
                 titleArea
                 scoreCards
+                rankBadge
                 Spacer()
                 actionButtons
                     .padding(.bottom, 32)
@@ -253,13 +278,44 @@ struct GameOverSheet: View {
 
     private var scoreCards: some View {
         HStack(spacing: 14) {
-            ScoreCard(label: "SCORE", value: "\(info.score)",
-                      tint: Theme.auroraCyan)
-            ScoreCard(label: "BEST",  value: "\(info.best)",
-                      tint: Theme.starGold)
+            ScoreCard(label: "SCORE", value: "\(info.score)", tint: Theme.auroraCyan)
+            ScoreCard(label: "BEST",  value: "\(max(info.score, info.best))", tint: Theme.starGold)
         }
         .opacity(appear ? 1 : 0)
         .offset(y: appear ? 0 : 30)
+    }
+
+    @ViewBuilder
+    private var rankBadge: some View {
+        if let rank = info.globalRank {
+            HStack(spacing: 8) {
+                Image(systemName: "globe.americas.fill")
+                    .font(.system(size: 13, weight: .bold))
+                    .foregroundStyle(Theme.nebulaPurple)
+                Text("Global rank")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Theme.textSecondary)
+                Text("#\(rank)")
+                    .font(.system(size: 15, weight: .black, design: .rounded))
+                    .foregroundStyle(Theme.nebulaPurple)
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 10)
+            .background(Theme.nebulaPurple.opacity(0.12),
+                        in: Capsule())
+            .overlay(Capsule().stroke(Theme.nebulaPurple.opacity(0.30), lineWidth: 1))
+            .opacity(appear ? 1 : 0)
+            .transition(.scale(scale: 0.85).combined(with: .opacity))
+        } else if SupabaseConfig.current != nil {
+            // Still loading rank
+            HStack(spacing: 8) {
+                ProgressView().tint(Theme.nebulaPurple).scaleEffect(0.8)
+                Text("Fetching rank…")
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+            .opacity(appear ? 1 : 0)
+        }
     }
 
     private var actionButtons: some View {
@@ -285,7 +341,8 @@ struct GameOverSheet: View {
                     .foregroundStyle(Theme.textSecondary)
                     .frame(maxWidth: .infinity)
                     .frame(height: 48)
-                    .background(Theme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .background(Theme.surface,
+                                in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .stroke(Theme.surfaceStroke, lineWidth: 1)
