@@ -36,6 +36,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         physicsWorld.gravity = CGVector(dx: 0, dy: GameConfig.gravity)
         physicsWorld.contactDelegate = self
+        physicsWorld.speed = 1.0
         backgroundColor = .clear
 
         setupParallaxBg()
@@ -104,20 +105,22 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         player.position = CGPoint(x: size.width * 0.28, y: size.height * 0.5)
 
         let body = SKPhysicsBody(circleOfRadius: GameConfig.playerRadius)
-        body.allowsRotation  = false
-        body.mass            = 0.018
+        body.allowsRotation  = false         // physics won't spin the node
+        body.mass            = GameConfig.playerMass
+        body.linearDamping   = 0.0           // no air drag — pure gravity + impulse
+        body.restitution     = 0.0           // no bounce on wall hits
+        body.friction        = 0.0
         body.categoryBitMask    = PhysicsCategory.player
         body.contactTestBitMask = PhysicsCategory.obstacle | PhysicsCategory.world | PhysicsCategory.scoreGate
         body.collisionBitMask   = PhysicsCategory.obstacle | PhysicsCategory.world
         player.physicsBody = body
 
-        // gentle float animation
-        let up   = SKAction.moveBy(x: 0, y: 5,  duration: 0.9)
+        // Idle hint float — only runs in .ready state; removed on first tap
+        let up   = SKAction.moveBy(x: 0, y: 6,  duration: 1.1)
         up.timingMode = .easeInEaseOut
-        let down = SKAction.moveBy(x: 0, y: -5, duration: 0.9)
-        down.timingMode = .easeInEaseOut
-        let ease = SKAction.sequence([up, down])
-        player.run(.repeatForever(ease), withKey: "idleFloat")
+        let dn   = SKAction.moveBy(x: 0, y: -6, duration: 1.1)
+        dn.timingMode = .easeInEaseOut
+        player.run(.repeatForever(.sequence([up, dn])), withKey: "idleFloat")
 
         addChild(player)
     }
@@ -144,7 +147,10 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         case .ready:
             flow = .playing
             childNode(withName: "hint")?.removeFromParent()
+            // Stop idle float and reset position offset before handing off to physics
             player.removeAction(forKey: "idleFloat")
+            player.position.y = size.height * 0.5   // re-centre after float drift
+            player.zRotation  = 0
             startLoops()
             flap()
         case .playing:
@@ -156,11 +162,14 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     private func flap() {
         guard let body = player.physicsBody else { return }
-        body.velocity.dy = 0
+        // Zero out vertical velocity first so each tap gives a consistent arc
+        body.velocity = CGVector(dx: 0, dy: 0)
         body.applyImpulse(CGVector(dx: 0, dy: GameConfig.flapImpulse))
         HapticsManager.shared.impactLight()
         AudioManager.shared.playFlap()
         spawnThrusterParticles()
+        // Snap tilt upward immediately so the astronaut looks like it's thrusting
+        player.zRotation = 0.28
     }
 
     // MARK: - Loops
@@ -369,14 +378,34 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         let dt = min(currentTime - lastUpdateTime, 1.0 / 30.0)
         lastUpdateTime = currentTime
 
-        if activeWindForce != 0, let body = player.physicsBody {
+        guard let body = player.physicsBody else { return }
+
+        // Apply wind force
+        if activeWindForce != 0 {
             body.velocity.dy += activeWindForce * CGFloat(dt)
         }
 
-        if let dy = player.physicsBody?.velocity.dy {
-            let norm = max(min(dy / 420, 1), -1)
-            player.zRotation = norm * 0.35
+        // Clamp vertical speed to prevent tunnelling and ceiling shots
+        let clampedDy = max(GameConfig.maxFallSpeed,
+                            min(GameConfig.maxRiseSpeed, body.velocity.dy))
+        if body.velocity.dy != clampedDy {
+            body.velocity = CGVector(dx: body.velocity.dx, dy: clampedDy)
         }
+
+        // Smooth tilt: nose up on rise, nose down on fall — stays upright at zero
+        // Range: +0.30 rad (nose up) → -0.55 rad (nose down, more dramatic)
+        let dy = body.velocity.dy
+        let targetRotation: CGFloat
+        if dy >= 0 {
+            // Rising: tilt up proportionally (0 → +0.30)
+            targetRotation = (dy / GameConfig.maxRiseSpeed) * 0.30
+        } else {
+            // Falling: tilt nose down more aggressively (-0.55 at max fall)
+            targetRotation = (dy / GameConfig.maxFallSpeed) * 0.55
+        }
+        // Lerp current rotation towards target for smooth feel (not a snap)
+        let lerpFactor: CGFloat = 1.0 - pow(0.04, CGFloat(dt))
+        player.zRotation = player.zRotation + (targetRotation - player.zRotation) * lerpFactor
     }
 
     // MARK: - Physics contact
