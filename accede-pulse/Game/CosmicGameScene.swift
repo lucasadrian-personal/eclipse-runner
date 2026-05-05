@@ -110,10 +110,10 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         body.linearDamping   = 0.0
         body.restitution     = 0.0
         body.friction        = 0.0
-        body.isDynamic       = false         // frozen until first tap
+        body.isDynamic       = true              // always dynamic — physics world paused instead
         body.categoryBitMask    = PhysicsCategory.player
         body.contactTestBitMask = PhysicsCategory.obstacle | PhysicsCategory.world | PhysicsCategory.scoreGate
-        body.collisionBitMask   = PhysicsCategory.obstacle | PhysicsCategory.world
+        body.collisionBitMask   = PhysicsCategory.world     // only solid collision with floor/ceiling
         player.physicsBody = body
 
         // Idle hint float — only runs in .ready state; removed on first tap
@@ -151,7 +151,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             player.removeAction(forKey: "idleFloat")
             player.position.y = size.height * 0.5
             player.zRotation  = 0
-            player.physicsBody?.isDynamic = true   // unlock physics
+            player.physicsBody?.isDynamic = true
             startLoops()
             flap()
         case .playing:
@@ -264,7 +264,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         body.isDynamic = false
         body.categoryBitMask    = PhysicsCategory.obstacle
         body.contactTestBitMask = PhysicsCategory.player
-        body.collisionBitMask   = PhysicsCategory.player
+        body.collisionBitMask   = PhysicsCategory.none   // contact-only, no physical bounce
         node.physicsBody = body
         return node
     }
@@ -408,13 +408,11 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - Physics contact
     func didBegin(_ contact: SKPhysicsContact) {
-        // Never process contacts once game is over
         guard flow != .gameOver else { return }
 
         let masks = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 
         if masks == (PhysicsCategory.player | PhysicsCategory.scoreGate) {
-            // Only score while actively playing
             guard flow == .playing else { return }
             score += 1
             gameDelegate?.sceneDidScore(score)
@@ -443,17 +441,17 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         guard flow != .gameOver else { return }
         flow = .gameOver
 
-        // Stop all game loops immediately
+        // Stop obstacle spawning and wind
         removeAction(forKey: spawnKey)
         removeAction(forKey: windKey)
         activeWindForce = 0
 
-        // Freeze physics but keep node visible
+        // Freeze player immediately
         player.physicsBody?.velocity = .zero
         player.physicsBody?.isDynamic = false
         player.removeAllActions()
 
-        // Stop all moving obstacle / gate nodes so nothing keeps scrolling
+        // Stop all scrolling nodes
         enumerateChildNodes(withName: "//*") { node, _ in
             node.removeAllActions()
         }
@@ -462,23 +460,22 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         HapticsManager.shared.notification(.error)
         AudioManager.shared.playCrash()
 
-        // Screen flash
+        // White flash overlay (runs on scene clock, not physics)
         let flash = SKSpriteNode(color: .white, size: size)
         flash.position = CGPoint(x: size.width / 2, y: size.height / 2)
-        flash.alpha = 0.55
+        flash.alpha = 0.60
         flash.zPosition = 100
         addChild(flash)
-        flash.run(.sequence([.fadeOut(withDuration: 0.25), .removeFromParent()]))
+        flash.run(.sequence([.fadeOut(withDuration: 0.30), .removeFromParent()]))
 
-        // Persist best score — read BEFORE updating so isNew is accurate
+        // Persist best score
         let previousBest = UserDefaults.standard.integer(forKey: "cd.bestScore")
         let isNew = score > previousBest
-        if isNew {
-            UserDefaults.standard.set(score, forKey: "cd.bestScore")
-        }
+        if isNew { UserDefaults.standard.set(score, forKey: "cd.bestScore") }
         let finalBest = isNew ? score : previousBest
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+        // Notify SwiftUI after brief flash delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) { [weak self] in
             guard let self else { return }
             self.gameDelegate?.sceneDidEnd(score: self.score,
                                            best: finalBest,
