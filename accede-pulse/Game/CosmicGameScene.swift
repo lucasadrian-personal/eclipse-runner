@@ -159,6 +159,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         body.velocity.dy = 0
         body.applyImpulse(CGVector(dx: 0, dy: GameConfig.flapImpulse))
         HapticsManager.shared.impactLight()
+        AudioManager.shared.playFlap()
         spawnThrusterParticles()
     }
 
@@ -385,6 +386,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             score += 1
             gameDelegate?.sceneDidScore(score)
             spawnScoreParticles()
+            AudioManager.shared.playScore()
             HapticsManager.shared.impactMedium()
             // remove gate so it doesn't trigger again
             if contact.bodyA.categoryBitMask == PhysicsCategory.scoreGate {
@@ -418,6 +420,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
         HapticsManager.shared.impactHeavy()
         HapticsManager.shared.notification(.error)
+        AudioManager.shared.playCrash()
 
         // Screen flash
         let flash = SKSpriteNode(color: .white, size: size)

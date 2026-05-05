@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1B01AF6225F277A70D38069E /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF975FF87C264FBDC79361D /* GameView.swift */; };
 		290CAA529463F71CE79708DC /* CosmicGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A983D612923C25333C456942 /* CosmicGameScene.swift */; };
+		29E329BCB97A842A793CA95F /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2D01510AF0104AB8BC380A /* AudioManager.swift */; };
 		2A72C37EEA78F218FB638299 /* DifficultyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568D06DAAB23CA898F7CEB36 /* DifficultyManager.swift */; };
 		335AE12BACBC31C378A22053 /* AstronautView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CDAF75528CE03919D183DDC /* AstronautView.swift */; };
 		39167CBBA521962EA9B8801B /* PhysicsCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E5130ACA0D490F7AF6DAE7 /* PhysicsCategory.swift */; };
@@ -34,6 +35,7 @@
 		568D06DAAB23CA898F7CEB36 /* DifficultyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyManager.swift; sourceTree = "<group>"; };
 		57E5130ACA0D490F7AF6DAE7 /* PhysicsCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsCategory.swift; sourceTree = "<group>"; };
 		5CDAF75528CE03919D183DDC /* AstronautView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstronautView.swift; sourceTree = "<group>"; };
+		8B2D01510AF0104AB8BC380A /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		8BE0E63887CA7363C761A443 /* accede-pulse.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "accede-pulse.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90FBF5496CC78250D68A1716 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		92033246BDE7A646CC6A12B3 /* CosmicDriftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicDriftApp.swift; sourceTree = "<group>"; };
@@ -118,6 +120,7 @@
 		B821CA8809E59204838B87F3 /* Game */ = {
 			isa = PBXGroup;
 			children = (
+				8B2D01510AF0104AB8BC380A /* AudioManager.swift */,
 				A983D612923C25333C456942 /* CosmicGameScene.swift */,
 				568D06DAAB23CA898F7CEB36 /* DifficultyManager.swift */,
 				F5572450112B0C83FA7ABDBC /* GameConfig.swift */,
@@ -213,6 +216,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				335AE12BACBC31C378A22053 /* AstronautView.swift in Sources */,
+				29E329BCB97A842A793CA95F /* AudioManager.swift in Sources */,
 				AA8701BFBC232B15C5E18CFA /* CosmicBackground.swift in Sources */,
 				3BA6074E41E8E78C43002C10 /* CosmicDriftApp.swift in Sources */,
 				290CAA529463F71CE79708DC /* CosmicGameScene.swift in Sources */,
