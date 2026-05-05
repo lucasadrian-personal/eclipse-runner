@@ -47,17 +47,6 @@ struct ComingSoonScreen: View {
 
 // MARK: - Specific placeholders
 
-struct PlayPlaceholderView: View {
-    var body: some View {
-        ComingSoonScreen(
-            title: "Ignition Sequence",
-            subtitle: "The gameplay engine warms up here. Tap to flap, weave through asteroid gates, and chase your high score.",
-            icon: "play.circle.fill",
-            tint: Theme.auroraCyan
-        )
-    }
-}
-
 struct LeaderboardPlaceholderView: View {
     @EnvironmentObject private var store: GameStore
 

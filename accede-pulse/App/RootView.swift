@@ -12,7 +12,7 @@ struct RootView: View {
                      onSettings: { path.append(Route.settings) })
             .navigationDestination(for: Route.self) { route in
                 switch route {
-                case .play: PlayPlaceholderView()
+                case .play: GameView()
                 case .leaderboard: LeaderboardPlaceholderView()
                 case .howToPlay: HowToPlayPlaceholderView()
                 case .settings: SettingsPlaceholderView()

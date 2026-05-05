@@ -7,17 +7,23 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B01AF6225F277A70D38069E /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF975FF87C264FBDC79361D /* GameView.swift */; };
+		290CAA529463F71CE79708DC /* CosmicGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A983D612923C25333C456942 /* CosmicGameScene.swift */; };
+		2A72C37EEA78F218FB638299 /* DifficultyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 568D06DAAB23CA898F7CEB36 /* DifficultyManager.swift */; };
 		335AE12BACBC31C378A22053 /* AstronautView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CDAF75528CE03919D183DDC /* AstronautView.swift */; };
+		39167CBBA521962EA9B8801B /* PhysicsCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57E5130ACA0D490F7AF6DAE7 /* PhysicsCategory.swift */; };
 		3BA6074E41E8E78C43002C10 /* CosmicDriftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92033246BDE7A646CC6A12B3 /* CosmicDriftApp.swift */; };
 		67AE8400180BDA103B53D5AE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1157B6E1858881547477DC90 /* LaunchScreen.storyboard */; };
 		6B443587C56CCB892A01F51D /* GameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27580A7DF81198E10C520E8 /* GameStore.swift */; };
 		88CDC1D24C621C6EA2945ECF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DB28FD666020F1B0EA9F94C9 /* Assets.xcassets */; };
 		AA8701BFBC232B15C5E18CFA /* CosmicBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7DE0412F5F5F4695B916EC8 /* CosmicBackground.swift */; };
+		AF3646431D130C67F8406A57 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5AB2F9CAE824B9004EFA28B /* HapticsManager.swift */; };
 		B124B73CBECA9974B51A4986 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C6C901FC9F457FEBC3B7E4C /* RootView.swift */; };
 		C2A7B6DA78101D2882F03EF0 /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AB8AB3E7363AF28A143AB4 /* Placeholders.swift */; };
 		DAC2BF3AA30E4856212E9C77 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F79841C9872D38A32C0BBE3 /* Theme.swift */; };
 		DB9E1149617115DFDBDA390D /* StarfieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BE2F0ABC155FF172CBD62A /* StarfieldView.swift */; };
 		F55D7532BC45D8BD19E12008 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2537D9F3E71A6E8F2F1E814C /* HomeView.swift */; };
+		FAB348995E3D32F9ED902CB9 /* GameConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5572450112B0C83FA7ABDBC /* GameConfig.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,15 +31,21 @@
 		16CB77CD9FE9B3FF4FA64914 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		2537D9F3E71A6E8F2F1E814C /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		3C6C901FC9F457FEBC3B7E4C /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		568D06DAAB23CA898F7CEB36 /* DifficultyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyManager.swift; sourceTree = "<group>"; };
+		57E5130ACA0D490F7AF6DAE7 /* PhysicsCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsCategory.swift; sourceTree = "<group>"; };
 		5CDAF75528CE03919D183DDC /* AstronautView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstronautView.swift; sourceTree = "<group>"; };
 		8BE0E63887CA7363C761A443 /* accede-pulse.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "accede-pulse.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90FBF5496CC78250D68A1716 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		92033246BDE7A646CC6A12B3 /* CosmicDriftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicDriftApp.swift; sourceTree = "<group>"; };
 		93AB8AB3E7363AF28A143AB4 /* Placeholders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Placeholders.swift; sourceTree = "<group>"; };
+		A983D612923C25333C456942 /* CosmicGameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicGameScene.swift; sourceTree = "<group>"; };
 		B27580A7DF81198E10C520E8 /* GameStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStore.swift; sourceTree = "<group>"; };
+		D5AB2F9CAE824B9004EFA28B /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		DB28FD666020F1B0EA9F94C9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DEF975FF87C264FBDC79361D /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		E7DE0412F5F5F4695B916EC8 /* CosmicBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicBackground.swift; sourceTree = "<group>"; };
 		F0BE2F0ABC155FF172CBD62A /* StarfieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarfieldView.swift; sourceTree = "<group>"; };
+		F5572450112B0C83FA7ABDBC /* GameConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameConfig.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -80,6 +92,7 @@
 				16CB77CD9FE9B3FF4FA64914 /* Info.plist */,
 				1157B6E1858881547477DC90 /* LaunchScreen.storyboard */,
 				02FB3B99DDA3DA66D1371015 /* App */,
+				B821CA8809E59204838B87F3 /* Game */,
 				2C3B94BF5965D1AB1041C00E /* Models */,
 				1ED7840CD29CB2412287554A /* Views */,
 			);
@@ -100,6 +113,19 @@
 				2800B0BED37D1C52E18F8C7B /* accede-pulse */,
 				FC679670CD82BDFF02E37B97 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		B821CA8809E59204838B87F3 /* Game */ = {
+			isa = PBXGroup;
+			children = (
+				A983D612923C25333C456942 /* CosmicGameScene.swift */,
+				568D06DAAB23CA898F7CEB36 /* DifficultyManager.swift */,
+				F5572450112B0C83FA7ABDBC /* GameConfig.swift */,
+				DEF975FF87C264FBDC79361D /* GameView.swift */,
+				D5AB2F9CAE824B9004EFA28B /* HapticsManager.swift */,
+				57E5130ACA0D490F7AF6DAE7 /* PhysicsCategory.swift */,
+			);
+			path = Game;
 			sourceTree = "<group>";
 		};
 		EC31FB82A7A883983FF9CD34 /* Components */ = {
@@ -189,8 +215,14 @@
 				335AE12BACBC31C378A22053 /* AstronautView.swift in Sources */,
 				AA8701BFBC232B15C5E18CFA /* CosmicBackground.swift in Sources */,
 				3BA6074E41E8E78C43002C10 /* CosmicDriftApp.swift in Sources */,
+				290CAA529463F71CE79708DC /* CosmicGameScene.swift in Sources */,
+				2A72C37EEA78F218FB638299 /* DifficultyManager.swift in Sources */,
+				FAB348995E3D32F9ED902CB9 /* GameConfig.swift in Sources */,
 				6B443587C56CCB892A01F51D /* GameStore.swift in Sources */,
+				1B01AF6225F277A70D38069E /* GameView.swift in Sources */,
+				AF3646431D130C67F8406A57 /* HapticsManager.swift in Sources */,
 				F55D7532BC45D8BD19E12008 /* HomeView.swift in Sources */,
+				39167CBBA521962EA9B8801B /* PhysicsCategory.swift in Sources */,
 				C2A7B6DA78101D2882F03EF0 /* Placeholders.swift in Sources */,
 				B124B73CBECA9974B51A4986 /* RootView.swift in Sources */,
 				DB9E1149617115DFDBDA390D /* StarfieldView.swift in Sources */,
