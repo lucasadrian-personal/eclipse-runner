@@ -59,7 +59,7 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     }
 }
 
-struct GameOverInfo {
+struct GameOverInfo: Equatable {
     let score: Int
     let best: Int
     let isNewBest: Bool
@@ -94,8 +94,8 @@ struct GameView: View {
         }
         .navigationBarHidden(true)
         .ignoresSafeArea()
-        .onChange(of: coordinator?.isGameOver) { _, isOver in
-            if isOver == true { showGameOver = true }
+        .onChange(of: coordinator?.gameOverInfo) { _, info in
+            if info != nil { showGameOver = true }
         }
         .sheet(isPresented: $showGameOver, onDismiss: {
             if shouldDismissOnClose { dismiss() }
@@ -171,11 +171,12 @@ struct GameView: View {
 
     // MARK: - Retry / Home
     private func handleRetry() {
-        shouldDismissOnClose = false   // sheet close should NOT pop game view
+        shouldDismissOnClose = false
         showGameOver = false
         guard let old = coordinator else { return }
         let size = old.scene.size
-        coordinator = GameCoordinator(screenSize: size)
+        let newCoord = GameCoordinator(screenSize: size)
+        coordinator = newCoord
     }
 
     private func handleHome() {

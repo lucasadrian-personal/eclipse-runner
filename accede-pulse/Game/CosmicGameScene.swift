@@ -105,11 +105,12 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         player.position = CGPoint(x: size.width * 0.28, y: size.height * 0.5)
 
         let body = SKPhysicsBody(circleOfRadius: GameConfig.playerRadius)
-        body.allowsRotation  = false         // physics won't spin the node
+        body.allowsRotation  = false
         body.mass            = GameConfig.playerMass
-        body.linearDamping   = 0.0           // no air drag — pure gravity + impulse
-        body.restitution     = 0.0           // no bounce on wall hits
+        body.linearDamping   = 0.0
+        body.restitution     = 0.0
         body.friction        = 0.0
+        body.isDynamic       = false         // frozen until first tap
         body.categoryBitMask    = PhysicsCategory.player
         body.contactTestBitMask = PhysicsCategory.obstacle | PhysicsCategory.world | PhysicsCategory.scoreGate
         body.collisionBitMask   = PhysicsCategory.obstacle | PhysicsCategory.world
@@ -147,10 +148,10 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         case .ready:
             flow = .playing
             childNode(withName: "hint")?.removeFromParent()
-            // Stop idle float and reset position offset before handing off to physics
             player.removeAction(forKey: "idleFloat")
-            player.position.y = size.height * 0.5   // re-centre after float drift
+            player.position.y = size.height * 0.5
             player.zRotation  = 0
+            player.physicsBody?.isDynamic = true   // unlock physics
             startLoops()
             flap()
         case .playing:
@@ -162,21 +163,22 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     private func flap() {
         guard let body = player.physicsBody else { return }
-        // Zero out vertical velocity first so each tap gives a consistent arc
         body.velocity = CGVector(dx: 0, dy: 0)
         body.applyImpulse(CGVector(dx: 0, dy: GameConfig.flapImpulse))
         HapticsManager.shared.impactLight()
         AudioManager.shared.playFlap()
         spawnThrusterParticles()
-        // Snap tilt upward immediately so the astronaut looks like it's thrusting
-        player.zRotation = 0.28
+        player.zRotation = 0.20  // gentle nose-up on thrust
     }
 
     // MARK: - Loops
     private func startLoops() {
+        // Grace delay before first obstacle, then spawn→wait cycle
+        let initialWait = SKAction.wait(forDuration: GameConfig.firstSpawnDelay)
         let spawn = SKAction.run { [weak self] in self?.spawnObstaclePair() }
-        let wait  = SKAction.wait(forDuration: GameConfig.obstacleSpawnInterval)
-        run(.repeatForever(.sequence([spawn, wait])), withKey: spawnKey)
+        let interval = SKAction.wait(forDuration: GameConfig.obstacleSpawnInterval)
+        let cycle = SKAction.repeatForever(.sequence([spawn, interval]))
+        run(.sequence([initialWait, cycle]), withKey: spawnKey)
         scheduleWind()
     }
 
@@ -392,19 +394,15 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             body.velocity = CGVector(dx: body.velocity.dx, dy: clampedDy)
         }
 
-        // Smooth tilt: nose up on rise, nose down on fall — stays upright at zero
-        // Range: +0.30 rad (nose up) → -0.55 rad (nose down, more dramatic)
+        // Smooth tilt: nose up on rise (+0.25 rad), nose down on fall (-0.45 rad)
         let dy = body.velocity.dy
         let targetRotation: CGFloat
         if dy >= 0 {
-            // Rising: tilt up proportionally (0 → +0.30)
-            targetRotation = (dy / GameConfig.maxRiseSpeed) * 0.30
+            targetRotation = (dy / GameConfig.maxRiseSpeed) * 0.25
         } else {
-            // Falling: tilt nose down more aggressively (-0.55 at max fall)
-            targetRotation = (dy / GameConfig.maxFallSpeed) * 0.55
+            targetRotation = (dy / GameConfig.maxFallSpeed) * 0.45
         }
-        // Lerp current rotation towards target for smooth feel (not a snap)
-        let lerpFactor: CGFloat = 1.0 - pow(0.04, CGFloat(dt))
+        let lerpFactor: CGFloat = 1.0 - pow(0.06, CGFloat(dt))
         player.zRotation = player.zRotation + (targetRotation - player.zRotation) * lerpFactor
     }
 

@@ -3,19 +3,19 @@ import Foundation
 
 enum GameConfig {
     // ── Physics ─────────────────────────────────────────────────────────────
-    // SpriteKit's physicsWorld works in metres but renders in points.
-    // A strong negative gravity (-28) gives a crisp Flappy-Bird-style arc:
-    // fast fall when you stop tapping, snappy rise on each tap.
-    static let gravity: CGFloat            = -28.0
-    // Impulse is paired with mass=0.022 so one tap = ~1.8 s of rise time.
-    static let flapImpulse: CGFloat        = 310.0
+    // Gravity -9.8 with mass 0.018 and impulse 300 gives a proven Flappy-Bird
+    // feel: snappy upward arc, natural fall. Paired with velocity clamps.
+    static let gravity: CGFloat            = -9.8
+    static let flapImpulse: CGFloat        = 300.0
 
     static let playerRadius: CGFloat       = 18
-    static let playerMass: CGFloat         = 0.022
-    // Clamp maximum downward speed so the astronaut never tunnels through thin gaps.
-    static let maxFallSpeed: CGFloat       = -420
-    // Cap upward speed so a rapid double-tap can't rocket off screen.
-    static let maxRiseSpeed: CGFloat       =  380
+    static let playerMass: CGFloat         = 0.018
+    // Clamp vertical speed to prevent tunnelling and off-screen rockets.
+    static let maxFallSpeed: CGFloat       = -320
+    static let maxRiseSpeed: CGFloat       =  280
+
+    // Grace period before first obstacle arrives (gives player time to settle)
+    static let firstSpawnDelay: TimeInterval = 2.2
 
     static let groundHeight: CGFloat       = 44
 
@@ -35,5 +35,5 @@ enum GameConfig {
     static let windDuration: TimeInterval  = 2.0
     static let windIntervalMin: TimeInterval = 8.0
     static let windIntervalMax: TimeInterval = 12.0
-    static let windForceMagnitude: CGFloat = 110
+    static let windForceMagnitude: CGFloat = 60
 }
