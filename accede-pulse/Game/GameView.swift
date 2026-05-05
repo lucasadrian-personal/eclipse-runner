@@ -5,16 +5,18 @@ import SpriteKit
 @MainActor
 final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     @Published var score: Int = 0
-    @Published var isGameOver: Bool = false
     @Published var gameOverInfo: GameOverInfo? = nil
     @Published var gustUpward: Bool = true
     @Published var showGust: Bool = false
 
     let scene: CosmicGameScene
 
+    /// Called once per run-end so GameView can persist stats via GameStore
+    var onRunEnded: ((Int) -> Void)?
+
     init(screenSize: CGSize) {
         let s = CosmicGameScene(size: screenSize)
-        s.scaleMode  = .resizeFill
+        s.scaleMode   = .resizeFill
         s.anchorPoint = .zero
         self.scene = s
         s.gameDelegate = self
@@ -24,28 +26,17 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     nonisolated func sceneDidScore(_ score: Int) {
         DispatchQueue.main.async { self.score = score }
     }
+
     nonisolated func sceneDidEnd(score: Int, best: Int, isNewBest: Bool) {
-        let pilotName = UserDefaults.standard.string(forKey: "cd.pilotName") ?? "Pilot Nova"
-        // Submit to leaderboard; update info with rank when it returns
-        LeaderboardService.shared.submit(score: score, pilotName: pilotName) { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                self.gameOverInfo = GameOverInfo(
-                    score: score, best: best, isNewBest: isNewBest,
-                    globalRank: result.globalRank, rankIsOnline: result.isOnline
-                )
-                self.isGameOver = true
-            }
-        }
-        // Fallback: show sheet after 1.5 s if leaderboard is slow / offline
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+        DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            if self.gameOverInfo == nil {
-                self.gameOverInfo = GameOverInfo(score: score, best: best, isNewBest: isNewBest)
-                self.isGameOver = true
-            }
+            // Persist stats through GameStore (single source of truth)
+            self.onRunEnded?(score)
+            // Show game-over sheet immediately with local data
+            self.gameOverInfo = GameOverInfo(score: score, best: best, isNewBest: isNewBest)
         }
     }
+
     nonisolated func sceneDidShowGust(upward: Bool) {
         DispatchQueue.main.async {
             self.gustUpward = upward
@@ -63,8 +54,6 @@ struct GameOverInfo: Equatable {
     let score: Int
     let best: Int
     let isNewBest: Bool
-    var globalRank: Int? = nil
-    var rankIsOnline: Bool = false
 }
 
 // MARK: - Main GameView
@@ -79,16 +68,19 @@ struct GameView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack {
-                // Deep space background always behind SpriteView
                 Theme.cosmicBackground.ignoresSafeArea()
-
                 if let coord = coordinator {
                     gameLayer(coord: coord, size: geo.size)
                 }
             }
             .onAppear {
                 if coordinator == nil {
-                    coordinator = GameCoordinator(screenSize: geo.size)
+                    let coord = GameCoordinator(screenSize: geo.size)
+                    // Wire stats persistence through GameStore — single source of truth
+                    coord.onRunEnded = { [weak store] score in
+                        store?.registerRun(score: score)
+                    }
+                    coordinator = coord
                 }
             }
         }
@@ -173,23 +165,18 @@ struct GameView: View {
     private func handleRetry() {
         shouldDismissOnClose = false
         showGameOver = false
+        store.lastRunRank = nil   // reset rank for new run
         guard let old = coordinator else { return }
         let size = old.scene.size
         let newCoord = GameCoordinator(screenSize: size)
+        newCoord.onRunEnded = { [weak store] score in
+            store?.registerRun(score: score)
+        }
         coordinator = newCoord
     }
 
     private func handleHome() {
-        shouldDismissOnClose = true    // sheet close SHOULD pop game view
-        if let info = coordinator?.gameOverInfo {
-            store.totalRuns += 1
-            store.totalDistance += max(1, info.score / 4)
-            if info.score > store.bestScore { store.bestScore = info.score }
-            let d = UserDefaults.standard
-            d.set(store.bestScore, forKey: "cd.bestScore")
-            d.set(store.totalRuns, forKey: "cd.totalRuns")
-            d.set(store.totalDistance, forKey: "cd.totalDistance")
-        }
+        shouldDismissOnClose = true
         showGameOver = false
     }
 }
@@ -285,7 +272,7 @@ struct GameOverSheet: View {
     private var scoreCards: some View {
         HStack(spacing: 14) {
             ScoreCard(label: "SCORE", value: "\(info.score)", tint: Theme.auroraCyan)
-            ScoreCard(label: "BEST",  value: "\(max(info.score, info.best))", tint: Theme.starGold)
+            ScoreCard(label: "BEST",  value: "\(store.bestScore)", tint: Theme.starGold)
         }
         .opacity(appear ? 1 : 0)
         .offset(y: appear ? 0 : 30)
@@ -293,7 +280,7 @@ struct GameOverSheet: View {
 
     @ViewBuilder
     private var rankBadge: some View {
-        if let rank = info.globalRank {
+        if let rank = store.lastRunRank {
             HStack(spacing: 8) {
                 Image(systemName: "globe.americas.fill")
                     .font(.system(size: 13, weight: .bold))
@@ -307,13 +294,11 @@ struct GameOverSheet: View {
             }
             .padding(.horizontal, 18)
             .padding(.vertical, 10)
-            .background(Theme.nebulaPurple.opacity(0.12),
-                        in: Capsule())
+            .background(Theme.nebulaPurple.opacity(0.12), in: Capsule())
             .overlay(Capsule().stroke(Theme.nebulaPurple.opacity(0.30), lineWidth: 1))
             .opacity(appear ? 1 : 0)
             .transition(.scale(scale: 0.85).combined(with: .opacity))
         } else if SupabaseConfig.current != nil {
-            // Still loading rank
             HStack(spacing: 8) {
                 ProgressView().tint(Theme.nebulaPurple).scaleEffect(0.8)
                 Text("Fetching rank…")

@@ -43,20 +43,26 @@ final class GameStore: ObservableObject {
 
     // MARK: - Register run + submit to leaderboard
     func registerRun(score: Int) {
-        totalRuns  += 1
+        totalRuns     += 1
         totalDistance += max(1, score / 4)
         if score > bestScore { bestScore = score }
-        defaults.set(bestScore,      forKey: Keys.best)
-        defaults.set(totalRuns,      forKey: Keys.runs)
-        defaults.set(totalDistance,  forKey: Keys.distance)
+        defaults.set(bestScore,     forKey: Keys.best)
+        defaults.set(totalRuns,     forKey: Keys.runs)
+        defaults.set(totalDistance, forKey: Keys.distance)
+
+        // Reset last rank so sheet shows spinner on new run
+        lastRunRank = nil
+        lastRunIsOnline = false
 
         // Submit to global leaderboard
         let name = pilotName
         LeaderboardService.shared.submit(score: score, pilotName: name) { [weak self] result in
-            guard let self else { return }
-            self.lastRunRank     = result.globalRank
-            self.lastRunIsOnline = result.isOnline
-            if result.isOnline { self.refreshLeaderboard() }
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.lastRunRank     = result.globalRank
+                self.lastRunIsOnline = result.isOnline
+                if result.isOnline { self.refreshLeaderboard() }
+            }
         }
     }
 

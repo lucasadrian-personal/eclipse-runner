@@ -105,12 +105,12 @@ struct HomeView: View {
 
     private var statsRow: some View {
         HStack(spacing: 12) {
-            StatPill(icon: "flame.fill", tint: Theme.nebulaPink,
-                     title: "Runs", value: "\(store.totalRuns)")
-            StatPill(icon: "sparkles", tint: Theme.auroraCyan,
+            StatPill(icon: "flame.fill",  tint: Theme.nebulaPink,
+                     title: "Runs",       value: "\(store.totalRuns)")
+            StatPill(icon: "sparkles",    tint: Theme.auroraCyan,
                      title: "Light-yrs", value: "\(store.totalDistance)")
             StatPill(icon: "trophy.fill", tint: Theme.starGold,
-                     title: "Rank", value: "#4")
+                     title: "Best",       value: "\(store.bestScore)")
         }
     }
 

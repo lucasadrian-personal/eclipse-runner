@@ -460,7 +460,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         HapticsManager.shared.notification(.error)
         AudioManager.shared.playCrash()
 
-        // White flash overlay (runs on scene clock, not physics)
+        // White flash overlay
         let flash = SKSpriteNode(color: .white, size: size)
         flash.position = CGPoint(x: size.width / 2, y: size.height / 2)
         flash.alpha = 0.60
@@ -468,14 +468,23 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         addChild(flash)
         flash.run(.sequence([.fadeOut(withDuration: 0.30), .removeFromParent()]))
 
-        // Persist best score
+        // Death animation: astronaut spins and fades out
+        let spin   = SKAction.rotate(byAngle: .pi * 2.5, duration: 0.55)
+        spin.timingMode = .easeIn
+        let shrink = SKAction.scale(to: 0.25, duration: 0.55)
+        shrink.timingMode = .easeIn
+        let fade   = SKAction.fadeOut(withDuration: 0.45)
+        fade.timingMode = .easeIn
+        player.physicsBody?.allowsRotation = true
+        player.run(.group([spin, shrink, fade]))
+
+        // Read best from UserDefaults (GameStore will update it via registerRun)
         let previousBest = UserDefaults.standard.integer(forKey: "cd.bestScore")
         let isNew = score > previousBest
-        if isNew { UserDefaults.standard.set(score, forKey: "cd.bestScore") }
         let finalBest = isNew ? score : previousBest
 
-        // Notify SwiftUI after brief flash delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.40) { [weak self] in
+        // Notify SwiftUI after death animation completes
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) { [weak self] in
             guard let self else { return }
             self.gameDelegate?.sceneDidEnd(score: self.score,
                                            best: finalBest,
