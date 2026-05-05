@@ -269,6 +269,10 @@ struct SettingsPlaceholderView: View {
     @State private var showSaved = false
     @FocusState private var nameFocused: Bool
 
+    // Persisted toggles — read initial value from managers
+    @State private var soundOn: Bool = !AudioManager.shared.isMuted
+    @State private var hapticsOn: Bool = !HapticsManager.shared.isDisabled
+
     var body: some View {
         ZStack {
             CosmicBackground()
@@ -280,6 +284,7 @@ struct SettingsPlaceholderView: View {
                         .padding(.top, 8)
 
                     pilotSection
+                    audioSection
                     statsSection
                     aboutSection
                     Spacer(minLength: 40)
@@ -351,6 +356,73 @@ struct SettingsPlaceholderView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation { showSaved = false }
         }
+    }
+
+    // MARK: Sound & Haptics
+    private var audioSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader("SOUND & HAPTICS", icon: "speaker.wave.2.fill")
+            VStack(spacing: 0) {
+                toggleRow(
+                    icon: soundOn ? "speaker.wave.2.fill" : "speaker.slash.fill",
+                    tint: Theme.auroraCyan,
+                    label: "Sound Effects",
+                    sublabel: soundOn ? "Flap, score & crash sounds on" : "All sounds muted",
+                    isOn: $soundOn
+                ) {
+                    AudioManager.shared.isMuted = !soundOn
+                    if soundOn { AudioManager.shared.playScore() }
+                }
+                Divider().background(Theme.surfaceStroke).padding(.horizontal, 14)
+                toggleRow(
+                    icon: hapticsOn ? "iphone.radiowaves.left.and.right" : "iphone.slash",
+                    tint: Theme.nebulaPink,
+                    label: "Haptic Feedback",
+                    sublabel: hapticsOn ? "Vibrations enabled" : "Vibrations disabled",
+                    isOn: $hapticsOn
+                ) {
+                    HapticsManager.shared.isDisabled = !hapticsOn
+                    if hapticsOn { HapticsManager.shared.impactMedium() }
+                }
+            }
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(Theme.surfaceStroke, lineWidth: 1)
+            )
+        }
+    }
+
+    private func toggleRow(
+        icon: String,
+        tint: Color,
+        label: String,
+        sublabel: String,
+        isOn: Binding<Bool>,
+        onChange: @escaping () -> Void
+    ) -> some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 36, height: 36)
+                .background(tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Theme.textPrimary)
+                Text(sublabel)
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+            Spacer()
+            Toggle("", isOn: isOn)
+                .labelsHidden()
+                .tint(tint)
+                .onChange(of: isOn.wrappedValue) { _, _ in onChange() }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
     }
 
     // MARK: Stats

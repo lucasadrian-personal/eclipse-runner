@@ -19,6 +19,12 @@ final class AudioManager {
     private let sampleRate: Double = 44_100
     private var isRunning = false
 
+    /// Persisted mute state — when true, all playback is silenced.
+    var isMuted: Bool {
+        get { UserDefaults.standard.bool(forKey: "cd.audioMuted") }
+        set { UserDefaults.standard.set(newValue, forKey: "cd.audioMuted") }
+    }
+
     // MARK: - Init
     private init() {
         setupSession()
@@ -59,7 +65,7 @@ final class AudioManager {
     // MARK: - Public API
 
     func playFlap() {
-        guard isRunning else { return }
+        guard isRunning, !isMuted else { return }
         let buf = buildFlap()
         flapNode.stop()
         flapNode.scheduleBuffer(buf, completionHandler: nil)
@@ -67,7 +73,7 @@ final class AudioManager {
     }
 
     func playScore() {
-        guard isRunning else { return }
+        guard isRunning, !isMuted else { return }
         let buf = buildScore()
         scoreNode.stop()
         scoreNode.scheduleBuffer(buf, completionHandler: nil)
@@ -75,7 +81,7 @@ final class AudioManager {
     }
 
     func playCrash() {
-        guard isRunning else { return }
+        guard isRunning, !isMuted else { return }
         let buf = buildCrash()
         crashNode.stop()
         crashNode.scheduleBuffer(buf, completionHandler: nil)
