@@ -7,7 +7,7 @@ enum GameFlowState { case ready, playing, gameOver }
 // MARK: - Scene events forwarded to SwiftUI
 protocol CosmicGameSceneDelegate: AnyObject {
     func sceneDidScore(_ score: Int)
-    func sceneDidEnd(score: Int, isNewBest: Bool)
+    func sceneDidEnd(score: Int, best: Int, isNewBest: Bool)
     func sceneDidShowGust(upward: Bool)
     func sceneDidHideGust()
 }
@@ -205,6 +205,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
         let safeTop    = size.height - GameConfig.groundHeight - gapH * 0.5 - 30
         let safeBottom = GameConfig.groundHeight + gapH * 0.5 + 30
+        guard safeBottom < safeTop else { return }  // layout not ready yet
         let gapCenterY = CGFloat.random(in: safeBottom...safeTop)
 
         let bottomH = gapCenterY - gapH / 2
@@ -380,15 +381,20 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - Physics contact
     func didBegin(_ contact: SKPhysicsContact) {
+        // Never process contacts once game is over
+        guard flow != .gameOver else { return }
+
         let masks = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
 
         if masks == (PhysicsCategory.player | PhysicsCategory.scoreGate) {
+            // Only score while actively playing
+            guard flow == .playing else { return }
             score += 1
             gameDelegate?.sceneDidScore(score)
             spawnScoreParticles()
             AudioManager.shared.playScore()
             HapticsManager.shared.impactMedium()
-            // remove gate so it doesn't trigger again
+            // Remove gate so it never triggers again
             if contact.bodyA.categoryBitMask == PhysicsCategory.scoreGate {
                 contact.bodyA.node?.removeFromParent()
             } else {
@@ -410,13 +416,20 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         guard flow != .gameOver else { return }
         flow = .gameOver
 
+        // Stop all game loops immediately
         removeAction(forKey: spawnKey)
         removeAction(forKey: windKey)
         activeWindForce = 0
 
+        // Freeze physics but keep node visible
         player.physicsBody?.velocity = .zero
         player.physicsBody?.isDynamic = false
         player.removeAllActions()
+
+        // Stop all moving obstacle / gate nodes so nothing keeps scrolling
+        enumerateChildNodes(withName: "//*") { node, _ in
+            node.removeAllActions()
+        }
 
         HapticsManager.shared.impactHeavy()
         HapticsManager.shared.notification(.error)
@@ -424,21 +437,25 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
         // Screen flash
         let flash = SKSpriteNode(color: .white, size: size)
-        flash.position = CGPoint(x: size.width/2, y: size.height/2)
+        flash.position = CGPoint(x: size.width / 2, y: size.height / 2)
         flash.alpha = 0.55
         flash.zPosition = 100
         addChild(flash)
         flash.run(.sequence([.fadeOut(withDuration: 0.25), .removeFromParent()]))
 
-        let best = UserDefaults.standard.integer(forKey: "cd.bestScore")
-        let isNew = score > best
+        // Persist best score — read BEFORE updating so isNew is accurate
+        let previousBest = UserDefaults.standard.integer(forKey: "cd.bestScore")
+        let isNew = score > previousBest
         if isNew {
             UserDefaults.standard.set(score, forKey: "cd.bestScore")
         }
+        let finalBest = isNew ? score : previousBest
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
             guard let self else { return }
-            self.gameDelegate?.sceneDidEnd(score: self.score, isNewBest: isNew)
+            self.gameDelegate?.sceneDidEnd(score: self.score,
+                                           best: finalBest,
+                                           isNewBest: isNew)
         }
     }
 }

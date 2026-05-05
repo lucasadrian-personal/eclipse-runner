@@ -5,6 +5,7 @@ import SpriteKit
 @MainActor
 final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     @Published var score: Int = 0
+    @Published var isGameOver: Bool = false
     @Published var gameOverInfo: GameOverInfo? = nil
     @Published var gustUpward: Bool = true
     @Published var showGust: Bool = false
@@ -23,22 +24,25 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     nonisolated func sceneDidScore(_ score: Int) {
         DispatchQueue.main.async { self.score = score }
     }
-    nonisolated func sceneDidEnd(score: Int, isNewBest: Bool) {
-        let best = UserDefaults.standard.integer(forKey: "cd.bestScore")
-        // Submit to leaderboard and update info when rank comes back
+    nonisolated func sceneDidEnd(score: Int, best: Int, isNewBest: Bool) {
         let pilotName = UserDefaults.standard.string(forKey: "cd.pilotName") ?? "Pilot Nova"
-        LeaderboardService.shared.submit(score: score, pilotName: pilotName) { result in
+        // Submit to leaderboard; update info with rank when it returns
+        LeaderboardService.shared.submit(score: score, pilotName: pilotName) { [weak self] result in
             DispatchQueue.main.async {
+                guard let self else { return }
                 self.gameOverInfo = GameOverInfo(
                     score: score, best: best, isNewBest: isNewBest,
                     globalRank: result.globalRank, rankIsOnline: result.isOnline
                 )
+                self.isGameOver = true
             }
         }
-        // Show sheet immediately with score while rank loads
-        DispatchQueue.main.async {
+        // Fallback: show sheet after 1.5 s if leaderboard is slow / offline
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            guard let self else { return }
             if self.gameOverInfo == nil {
                 self.gameOverInfo = GameOverInfo(score: score, best: best, isNewBest: isNewBest)
+                self.isGameOver = true
             }
         }
     }
@@ -70,6 +74,7 @@ struct GameView: View {
 
     @State private var coordinator: GameCoordinator? = nil
     @State private var showGameOver = false
+    @State private var shouldDismissOnClose = false
 
     var body: some View {
         GeometryReader { geo in
@@ -89,11 +94,11 @@ struct GameView: View {
         }
         .navigationBarHidden(true)
         .ignoresSafeArea()
-        .onChange(of: coordinator?.gameOverInfo != nil) { _, isOver in
-            if isOver { showGameOver = true }
+        .onChange(of: coordinator?.isGameOver) { _, isOver in
+            if isOver == true { showGameOver = true }
         }
         .sheet(isPresented: $showGameOver, onDismiss: {
-            dismiss()
+            if shouldDismissOnClose { dismiss() }
         }) {
             if let info = coordinator?.gameOverInfo {
                 GameOverSheet(info: info, onRetry: handleRetry, onHome: handleHome)
@@ -166,6 +171,7 @@ struct GameView: View {
 
     // MARK: - Retry / Home
     private func handleRetry() {
+        shouldDismissOnClose = false   // sheet close should NOT pop game view
         showGameOver = false
         guard let old = coordinator else { return }
         let size = old.scene.size
@@ -173,9 +179,8 @@ struct GameView: View {
     }
 
     private func handleHome() {
-        showGameOver = false
+        shouldDismissOnClose = true    // sheet close SHOULD pop game view
         if let info = coordinator?.gameOverInfo {
-            // Only update local stats — score was already submitted to leaderboard in sceneDidEnd
             store.totalRuns += 1
             store.totalDistance += max(1, info.score / 4)
             if info.score > store.bestScore { store.bestScore = info.score }
@@ -184,7 +189,7 @@ struct GameView: View {
             d.set(store.totalRuns, forKey: "cd.totalRuns")
             d.set(store.totalDistance, forKey: "cd.totalDistance")
         }
-        dismiss()
+        showGameOver = false
     }
 }
 
