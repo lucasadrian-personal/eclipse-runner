@@ -18,6 +18,7 @@
 		6A40A4F36E87168D4BEF1829 /* CosmicDriftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */; };
 		797F88C26E278347201969A5 /* SkinCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2A9998ED76EC8729FFC0EF /* SkinCatalog.swift */; };
 		7E5235D9DCC9481D58AAB3E7 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B295D0C2946D82623B871394 /* GameView.swift */; };
+		903D19436607581CA1725C25 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD8E3E414E0DECB1F79B4E2 /* OnboardingView.swift */; };
 		9B007DDEC51AD2A1A338406B /* CosmicGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5276669A4A50B37AED2E8DF3 /* CosmicGameScene.swift */; };
 		9D6C53DDDC745478490DD188 /* LeaderboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8058856B85C31E6AD143BA71 /* LeaderboardService.swift */; };
 		9DB54882F6997EDA401EE209 /* CosmicBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADFC3211534D5ED948C32564 /* CosmicBackground.swift */; };
@@ -50,6 +51,7 @@
 		65962979B79BC978A784F4ED /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		7F47329AC59E5DF836399B18 /* GameConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameConfig.swift; sourceTree = "<group>"; };
 		8058856B85C31E6AD143BA71 /* LeaderboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardService.swift; sourceTree = "<group>"; };
+		9AD8E3E414E0DECB1F79B4E2 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		ADFC3211534D5ED948C32564 /* CosmicBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicBackground.swift; sourceTree = "<group>"; };
 		AF2BBA42B452D6CCEC6712BE /* DailyBurstView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBurstView.swift; sourceTree = "<group>"; };
 		B295D0C2946D82623B871394 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
@@ -88,6 +90,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		4E6CF9A34B29E8475F0C0847 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				9AD8E3E414E0DECB1F79B4E2 /* OnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
 		5595D9FFB95F5A04C8691D00 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -121,6 +131,7 @@
 				9B884E2605C202758F021438 /* Components */,
 				68DBCB78B1589519926C4EB3 /* DailyBurst */,
 				94A39968651927C29168786A /* Home */,
+				4E6CF9A34B29E8475F0C0847 /* Onboarding */,
 				A3C1AD7BA42816371D505308 /* Placeholders */,
 				8E638E3E28998177205DB8BC /* Shop */,
 			);
@@ -275,6 +286,7 @@
 				A3AB4F34326B826F940B2A6A /* HomeView.swift in Sources */,
 				BA9B2074BBA277F6477A4D93 /* L10n.swift in Sources */,
 				9D6C53DDDC745478490DD188 /* LeaderboardService.swift in Sources */,
+				903D19436607581CA1725C25 /* OnboardingView.swift in Sources */,
 				B36F2A8EDC9F9E6C12647969 /* PhysicsCategory.swift in Sources */,
 				AFB0D4225B5606D071B593FC /* Placeholders.swift in Sources */,
 				451373A1553BA6BC8AA56AE9 /* RootView.swift in Sources */,

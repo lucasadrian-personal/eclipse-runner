@@ -564,13 +564,41 @@ struct SettingsPlaceholderView: View {
                 aboutRow(icon: "globe", label: L10n.leaderboard,
                          value: SupabaseConfig.current != nil ? L10n.online : L10n.offline)
                 Divider().background(Theme.surfaceStroke).padding(.horizontal, 14)
-                aboutRow(icon: "tag", label: L10n.version, value: "1.0")
+                aboutRow(icon: "tag", label: L10n.version, value: appVersion)
+                Divider().background(Theme.surfaceStroke).padding(.horizontal, 14)
+                privacyRow
             }
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .stroke(Theme.surfaceStroke, lineWidth: 1)
             )
+        }
+    }
+
+    private var appVersion: String {
+        let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+        let b = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
+        return "\(v) (\(b))"
+    }
+
+    private var privacyRow: some View {
+        Link(destination: URL(string: "https://www.privacypolicies.com/live/eclipse-runner")!) {
+            HStack {
+                Image(systemName: "hand.raised.fill")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Theme.auroraCyan)
+                    .frame(width: 28)
+                Text(L10n.privacyPolicy)
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.textPrimary)
+                Spacer()
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
         }
     }
 

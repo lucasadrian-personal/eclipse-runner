@@ -153,6 +153,7 @@ struct L10n {
     static var online:            String { t("Online",                 "Conectado") }
     static var offline:           String { t("Offline",                "Sin conexión") }
     static var language:          String { t("LANGUAGE",               "IDIOMA") }
+    static var privacyPolicy:     String { t("Privacy Policy",         "Política de Privacidad") }
 
     // MARK: Settings – pilot name validation
     static var pilotNameTaken:     String { t("Pilot name already taken", "Nombre de piloto no disponible") }
@@ -180,6 +181,26 @@ struct L10n {
     static var shopShieldsUnit:   String { t("shields",                  "escudos") }
     static var shopActiveShield:  String { t("Shield active",            "Escudo activo") }
     static var shopUseShield:     String { t("Use Shield",               "Usar Escudo") }
+
+    // MARK: Onboarding
+    static var onboardTitle1:   String { t("Welcome to Eclipse Runner", "Bienvenido a Eclipse Runner") }
+    static var onboardSub1:     String { t("Navigate the cosmos.\nDodge asteroid gates.\nSurvive as long as you can.",
+                                           "Navega el cosmos.\nEsquiva puertas de asteroides.\nSobrevive todo lo que puedas.") }
+    static var onboardTitle2:   String { t("Simple Controls", "Controles simples") }
+    static var onboardSub2:     String { t("Tap to thrust upward.\nRelease and gravity pulls you down.\nTime your taps perfectly.",
+                                           "Toca para impulsarte hacia arriba.\nSuelta para caer con la gravedad.\nCalcula bien tus toques.") }
+    static var onboardTitle3:   String { t("Speed Increases", "La velocidad aumenta") }
+    static var onboardSub3:     String { t("Every 10 points the difficulty ramps up.\nSolar gusts add unpredictable wind.\nStay sharp — the void is relentless.",
+                                           "Cada 10 puntos aumenta la dificultad.\nLos vientos solares añaden imprevisibilidad.\nMantente alerta — el vacío no perdona.") }
+    static var onboardTitle4:   String { t("Daily Burst", "Reto Diario") }
+    static var onboardSub4:     String { t("A new world challenge every day.\nYou get 2 attempts — best score counts.\nClimb the global daily ranking!",
+                                           "Un nuevo reto mundial cada día.\nTienes 2 intentos — cuenta tu mejor puntuación.\n¡Sube en el ranking diario global!") }
+    static var onboardNameTitle:String { t("Choose Your Pilot Name", "Elige tu nombre de piloto") }
+    static var onboardNameSub:  String { t("This is how you'll appear on the\nglobal leaderboard. Make it legendary.",
+                                           "Así apareceréis en el\nranking global. Hazlo legendario.") }
+    static var onboardNext:     String { t("Continue", "Continuar") }
+    static var onboardLaunch:   String { t("Enter the Void 🚀", "Entrar al Vacío 🚀") }
+    static var onboardSkip:     String { t("Skip for now", "Omitir por ahora") }
 
     // MARK: Misc
     static var cancel:            String { t("Cancel",                   "Cancelar") }

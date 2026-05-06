@@ -4,6 +4,7 @@ import SwiftUI
 struct CosmicDriftApp: App {
     @StateObject private var gameStore = GameStore()
     @StateObject private var langManager = LanguageManager.shared
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     init() {
         _ = AudioManager.shared
@@ -11,10 +12,18 @@ struct CosmicDriftApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .environmentObject(gameStore)
-                .environmentObject(langManager)
-                .preferredColorScheme(.dark)
+            Group {
+                if hasCompletedOnboarding {
+                    RootView()
+                } else {
+                    OnboardingView {
+                        hasCompletedOnboarding = true
+                    }
+                }
+            }
+            .environmentObject(gameStore)
+            .environmentObject(langManager)
+            .preferredColorScheme(.dark)
         }
     }
 }
