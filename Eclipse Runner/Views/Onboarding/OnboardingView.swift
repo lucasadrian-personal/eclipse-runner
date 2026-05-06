@@ -73,7 +73,12 @@ struct OnboardingView: View {
     private func tutorialPage(_ page: OnboardingPage) -> some View {
         VStack(spacing: 32) {
             Spacer()
-            iconCircle(icon: page.icon, color: page.iconColor)
+            if currentPage == 0 {
+                AstronautView()
+                    .frame(width: 160, height: 160)
+            } else {
+                iconCircle(icon: page.icon, color: page.iconColor)
+            }
             pageText(title: page.title, subtitle: page.subtitle)
             Spacer()
             bottomControls
