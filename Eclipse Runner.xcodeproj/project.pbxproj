@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		016D243142611A2EA6141A1C /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65962979B79BC978A784F4ED /* AudioManager.swift */; };
 		04DE8A189293F16429E6E74C /* DifficultyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D5797F95126582298FE036 /* DifficultyManager.swift */; };
+		159DEB418231DE3F54618CDA /* DailyBurstService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A4A83B98BCA27C50566BA5E /* DailyBurstService.swift */; };
 		1AA97E468A0294BB97ED7D46 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 205F4FFEBD8AC74341A771B6 /* Assets.xcassets */; };
 		27ED976E883B142E277BF277 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E07F55F5D27C099F908C292B /* HapticsManager.swift */; };
 		3683D16BC538B0E495538388 /* StarfieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00D130490ED5B9835344F78 /* StarfieldView.swift */; };
@@ -26,12 +27,14 @@
 		B36F2A8EDC9F9E6C12647969 /* PhysicsCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75551CBF60FDD8FDBC7A1BE /* PhysicsCategory.swift */; };
 		BA9B2074BBA277F6477A4D93 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F5D179940E869372A9A723 /* L10n.swift */; };
 		C8AF5A519F23465841D3319F /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */; };
+		D1805FB5B0191D7201E2ADBC /* DailyBurstView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2BBA42B452D6CCEC6712BE /* DailyBurstView.swift */; };
 		D85D4F3DA76416B240960E58 /* GameConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F47329AC59E5DF836399B18 /* GameConfig.swift */; };
 		F1C3E1C359DED9EA5C7216E5 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650096945F0C5A4E8B89DAC6 /* Theme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		081C64A2CA3E3DAB304D6D95 /* GameStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStore.swift; sourceTree = "<group>"; };
+		0A4A83B98BCA27C50566BA5E /* DailyBurstService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBurstService.swift; sourceTree = "<group>"; };
 		1A44E3E4AFAE53575A11EB38 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		205F4FFEBD8AC74341A771B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
@@ -44,6 +47,7 @@
 		7F47329AC59E5DF836399B18 /* GameConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameConfig.swift; sourceTree = "<group>"; };
 		8058856B85C31E6AD143BA71 /* LeaderboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardService.swift; sourceTree = "<group>"; };
 		ADFC3211534D5ED948C32564 /* CosmicBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicBackground.swift; sourceTree = "<group>"; };
+		AF2BBA42B452D6CCEC6712BE /* DailyBurstView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBurstView.swift; sourceTree = "<group>"; };
 		B295D0C2946D82623B871394 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		B2CBB13FF5C20A8779C27842 /* AstronautView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstronautView.swift; sourceTree = "<group>"; };
 		B8F5D179940E869372A9A723 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
@@ -91,16 +95,26 @@
 		6175BD63BBA4E73001E56FDF /* Backend */ = {
 			isa = PBXGroup;
 			children = (
+				0A4A83B98BCA27C50566BA5E /* DailyBurstService.swift */,
 				8058856B85C31E6AD143BA71 /* LeaderboardService.swift */,
 				29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */,
 			);
 			path = Backend;
 			sourceTree = "<group>";
 		};
+		68DBCB78B1589519926C4EB3 /* DailyBurst */ = {
+			isa = PBXGroup;
+			children = (
+				AF2BBA42B452D6CCEC6712BE /* DailyBurstView.swift */,
+			);
+			path = DailyBurst;
+			sourceTree = "<group>";
+		};
 		7A32BF114B11384B064DBA01 /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				9B884E2605C202758F021438 /* Components */,
+				68DBCB78B1589519926C4EB3 /* DailyBurst */,
 				94A39968651927C29168786A /* Home */,
 				A3C1AD7BA42816371D505308 /* Placeholders */,
 			);
@@ -237,6 +251,8 @@
 				9DB54882F6997EDA401EE209 /* CosmicBackground.swift in Sources */,
 				6A40A4F36E87168D4BEF1829 /* CosmicDriftApp.swift in Sources */,
 				9B007DDEC51AD2A1A338406B /* CosmicGameScene.swift in Sources */,
+				159DEB418231DE3F54618CDA /* DailyBurstService.swift in Sources */,
+				D1805FB5B0191D7201E2ADBC /* DailyBurstView.swift in Sources */,
 				04DE8A189293F16429E6E74C /* DifficultyManager.swift in Sources */,
 				D85D4F3DA76416B240960E58 /* GameConfig.swift in Sources */,
 				A706A73270E49AA0C2843608 /* GameStore.swift in Sources */,

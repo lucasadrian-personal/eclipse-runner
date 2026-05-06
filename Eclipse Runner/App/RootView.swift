@@ -6,16 +6,27 @@ struct RootView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            HomeView(onPlay: { path.append(Route.play) },
-                     onLeaderboard: { path.append(Route.leaderboard) },
-                     onHowToPlay: { path.append(Route.howToPlay) },
-                     onSettings: { path.append(Route.settings) })
+            HomeView(
+                onPlay:        { path.append(Route.play) },
+                onDailyBurst:  { path.append(Route.dailyBurst) },
+                onLeaderboard: { path.append(Route.leaderboard) },
+                onHowToPlay:   { path.append(Route.howToPlay) },
+                onSettings:    { path.append(Route.settings) }
+            )
             .navigationDestination(for: Route.self) { route in
                 switch route {
-                case .play: GameView()
-                case .leaderboard: LeaderboardPlaceholderView()
-                case .howToPlay: HowToPlayPlaceholderView()
-                case .settings: SettingsPlaceholderView()
+                case .play:
+                    GameView(mode: .normal)
+                case .dailyBurst:
+                    DailyBurstView(onPlay: { path.append(Route.playDaily) })
+                case .playDaily:
+                    GameView(mode: .daily)
+                case .leaderboard:
+                    LeaderboardPlaceholderView()
+                case .howToPlay:
+                    HowToPlayPlaceholderView()
+                case .settings:
+                    SettingsPlaceholderView()
                 }
             }
         }
@@ -24,5 +35,5 @@ struct RootView: View {
 }
 
 enum Route: Hashable {
-    case play, leaderboard, howToPlay, settings
+    case play, dailyBurst, playDaily, leaderboard, howToPlay, settings
 }

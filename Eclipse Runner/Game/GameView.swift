@@ -12,9 +12,11 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     private(set) var scene: CosmicGameScene?
     private(set) var isReady = false
     private weak var store: GameStore?
+    var gameMode: GameMode = .normal
 
-    func setup(screenSize: CGSize, store: GameStore) {
+    func setup(screenSize: CGSize, store: GameStore, mode: GameMode = .normal) {
         self.store = store
+        self.gameMode = mode
         let s = CosmicGameScene(size: screenSize)
         s.scaleMode   = .resizeFill
         s.anchorPoint = .zero
@@ -44,7 +46,11 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     nonisolated func sceneDidEnd(score: Int, best: Int, isNewBest: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            self.store?.registerRun(score: score)
+            if self.gameMode == .daily {
+                self.store?.registerDailyRun(score: score)
+            } else {
+                self.store?.registerRun(score: score)
+            }
             self.gameOverInfo = GameOverInfo(score: score, best: best, isNewBest: isNewBest)
         }
     }
@@ -68,10 +74,15 @@ struct GameOverInfo: Equatable {
     let isNewBest: Bool
 }
 
+// MARK: - Game mode
+enum GameMode { case normal, daily }
+
 // MARK: - Main GameView
 struct GameView: View {
     @EnvironmentObject private var store: GameStore
     @Environment(\.dismiss) private var dismiss
+
+    var mode: GameMode = .normal
 
     @StateObject private var coord: GameCoordinator = GameCoordinator()
     @State private var showGameOver = false
@@ -87,7 +98,7 @@ struct GameView: View {
             }
             .onAppear {
                 if !coord.isReady {
-                    coord.setup(screenSize: geo.size, store: store)
+                    coord.setup(screenSize: geo.size, store: store, mode: mode)
                 }
             }
         }

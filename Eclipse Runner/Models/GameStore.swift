@@ -17,6 +17,14 @@ final class GameStore: ObservableObject {
     @Published var lastRunRank: Int? = nil
     @Published var lastRunIsOnline: Bool = false
 
+    // MARK: Daily Burst
+    @Published var dailyBestScore: Int = 0          // best score today
+    @Published var dailyCompleted: Bool = false      // finished at least one burst today
+    @Published var dailyRank: Int? = nil             // rank after last submission
+    @Published var dailyLeaderboard: [LeaderboardEntry] = []
+    @Published var dailyLeaderboardLoading: Bool = false
+    @Published var lastDailyRank: Int? = nil
+
     private let defaults = UserDefaults.standard
 
     init() {
@@ -25,12 +33,16 @@ final class GameStore: ObservableObject {
         self.totalDistance = defaults.integer(forKey: Keys.distance)
         self.pilotName     = defaults.string(forKey: Keys.pilot) ?? "Pilot Nova"
 
-        // Seed demo data for fresh installs
-        if bestScore  == 0 { bestScore  = 0 }
-        if totalRuns  == 0 { totalRuns  = 0 }
-        leaderboard = LeaderboardEntry.sample
+        // Restore daily state for today
+        let today = DailyBurstService.shared.todayString
+        if defaults.string(forKey: Keys.dailyDate) == today {
+            dailyBestScore = defaults.integer(forKey: Keys.dailyBest)
+            dailyCompleted = defaults.bool(forKey: Keys.dailyDone)
+        }
 
+        leaderboard = LeaderboardEntry.sample
         refreshLeaderboard()
+        refreshDailyLeaderboard()
     }
 
     // MARK: - Pilot name
@@ -50,11 +62,9 @@ final class GameStore: ObservableObject {
         defaults.set(totalRuns,     forKey: Keys.runs)
         defaults.set(totalDistance, forKey: Keys.distance)
 
-        // Reset last rank so sheet shows spinner on new run
         lastRunRank = nil
         lastRunIsOnline = false
 
-        // Submit to global leaderboard
         let name = pilotName
         LeaderboardService.shared.submit(score: score, pilotName: name) { [weak self] result in
             DispatchQueue.main.async {
@@ -66,6 +76,38 @@ final class GameStore: ObservableObject {
         }
     }
 
+    // MARK: - Register Daily Burst run
+    func registerDailyRun(score: Int) {
+        totalRuns     += 1
+        totalDistance += max(1, score / 4)
+        if score > bestScore { bestScore = score }
+        defaults.set(bestScore,     forKey: Keys.best)
+        defaults.set(totalRuns,     forKey: Keys.runs)
+        defaults.set(totalDistance, forKey: Keys.distance)
+
+        // Track daily best locally
+        let today = DailyBurstService.shared.todayString
+        if score > dailyBestScore { dailyBestScore = score }
+        dailyCompleted = true
+        defaults.set(today,          forKey: Keys.dailyDate)
+        defaults.set(dailyBestScore, forKey: Keys.dailyBest)
+        defaults.set(true,           forKey: Keys.dailyDone)
+
+        lastDailyRank = nil
+
+        let name = pilotName
+        // Also submit to global leaderboard
+        LeaderboardService.shared.submit(score: score, pilotName: name) { _ in }
+
+        DailyBurstService.shared.submit(score: score, pilotName: name) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.lastDailyRank = result.rank
+                if result.isOnline { self.refreshDailyLeaderboard() }
+            }
+        }
+    }
+
     // MARK: - Fetch leaderboard
     func refreshLeaderboard() {
         leaderboardLoading = true
@@ -73,26 +115,40 @@ final class GameStore: ObservableObject {
             guard let self else { return }
             self.leaderboardLoading = false
             self.isOnline = SupabaseConfig.current != nil
-
             guard !rows.isEmpty else { return }
-
             let myName = self.pilotName
             self.leaderboard = rows.enumerated().map { idx, row in
-                LeaderboardEntry(
-                    rank: idx + 1,
-                    name: row.pilotName,
-                    score: row.score,
-                    isYou: row.pilotName.lowercased() == myName.lowercased()
-                )
+                LeaderboardEntry(rank: idx + 1, name: row.pilotName,
+                                 score: row.score,
+                                 isYou: row.pilotName.lowercased() == myName.lowercased())
+            }
+        }
+    }
+
+    // MARK: - Fetch daily leaderboard
+    func refreshDailyLeaderboard() {
+        dailyLeaderboardLoading = true
+        DailyBurstService.shared.fetchToday { [weak self] rows in
+            guard let self else { return }
+            self.dailyLeaderboardLoading = false
+            guard !rows.isEmpty else { return }
+            let myName = self.pilotName
+            self.dailyLeaderboard = rows.enumerated().map { idx, row in
+                LeaderboardEntry(rank: idx + 1, name: row.pilotName,
+                                 score: row.score,
+                                 isYou: row.pilotName.lowercased() == myName.lowercased())
             }
         }
     }
 
     private enum Keys {
-        static let best     = "cd.bestScore"
-        static let runs     = "cd.totalRuns"
-        static let distance = "cd.totalDistance"
-        static let pilot    = "cd.pilotName"
+        static let best       = "cd.bestScore"
+        static let runs       = "cd.totalRuns"
+        static let distance   = "cd.totalDistance"
+        static let pilot      = "cd.pilotName"
+        static let dailyDate  = "cd.dailyDate"
+        static let dailyBest  = "cd.dailyBest"
+        static let dailyDone  = "cd.dailyDone"
     }
 }
 

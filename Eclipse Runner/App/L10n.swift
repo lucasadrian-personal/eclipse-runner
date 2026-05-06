@@ -46,6 +46,19 @@ struct L10n {
     static var oneTapControls:    String { t("One-tap controls",          "Control de un toque") }
     static var dailyBurst:        String { t("Daily Burst",               "Reto Diario") }
     static var resetsIn6h:        String { t("Resets in 6h",              "Se reinicia en 6h") }
+    static var dailyBurstSubtitle:String { t("A new challenge every day.\nCompete for the world top spot.",
+                                             "Un nuevo reto cada día.\nCompite por el puesto número 1 mundial.") }
+    static var dailyResetsIn:     String { t("Resets in",                 "Se reinicia en") }
+    static var dailyRankLabel:    String { t("Today Rank",                "Rank de Hoy") }
+    static var dailyStartBurst:   String { t("START BURST",               "EMPEZAR RETO") }
+    static var dailyPlayAgain:    String { t("PLAY AGAIN",                "JUGAR DE NUEVO") }
+    static var dailyCompleted:    String { t("Today's burst completed!",  "¡Reto de hoy completado!") }
+    static var dailyRankingTitle: String { t("Today's World Ranking",     "Ranking Mundial de Hoy") }
+    static var dailyTodayOnly:    String { t("Resets at midnight UTC",    "Se reinicia a medianoche UTC") }
+    static var dailyNoEntries:    String { t("No pilots yet today.\nBe the first to set a score!",
+                                             "Ningún piloto aún hoy.\n¡Sé el primero en puntuar!") }
+    static var dailyBurstSubtitleShort: String { t("New challenge every day",
+                                                    "Nuevo reto cada día") }
 
     // MARK: Stat pills
     static var statRuns:          String { t("Runs",       "Partidas") }

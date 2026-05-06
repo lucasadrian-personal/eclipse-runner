@@ -4,6 +4,7 @@ struct HomeView: View {
     @EnvironmentObject private var store: GameStore
 
     let onPlay: () -> Void
+    let onDailyBurst: () -> Void
     let onLeaderboard: () -> Void
     let onHowToPlay: () -> Void
     let onSettings: () -> Void
@@ -195,11 +196,7 @@ struct HomeView: View {
                           subtitle: L10n.oneTapControls,
                           tint: Theme.auroraMint,
                           action: onHowToPlay)
-            SecondaryTile(icon: "wind",
-                          title: L10n.dailyBurst,
-                          subtitle: L10n.resetsIn6h,
-                          tint: Theme.nebulaPink,
-                          action: onPlay)
+            DailyBurstTile(action: onDailyBurst)
         }
     }
 }
@@ -255,6 +252,59 @@ private struct StatPill: View {
         )
         .animation(.spring(response: 0.35, dampingFraction: 0.72), value: showTooltip)
         .onTapGesture { showTooltip.toggle() }
+    }
+}
+
+private struct DailyBurstTile: View {
+    @EnvironmentObject private var store: GameStore
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Theme.starGold.opacity(0.18))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Theme.starGold)
+                    if store.dailyCompleted {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(Theme.auroraMint)
+                            .frame(width: 38, height: 38, alignment: .topTrailing)
+                            .offset(x: 10, y: -10)
+                    }
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.dailyBurst)
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text(store.dailyCompleted
+                         ? (store.lastDailyRank.map { "#\($0) " + L10n.dailyTodayOnly } ?? L10n.dailyCompleted)
+                         : L10n.dailyBurstSubtitleShort)
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundStyle(store.dailyCompleted ? Theme.starGold : Theme.textSecondary)
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                store.dailyCompleted
+                    ? Theme.starGold.opacity(0.08)
+                    : Theme.surface,
+                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(store.dailyCompleted
+                            ? Theme.starGold.opacity(0.35) : Theme.surfaceStroke, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -343,7 +393,7 @@ struct LeaderboardRow: View {
 
 #Preview {
     NavigationStack {
-        HomeView(onPlay: {}, onLeaderboard: {}, onHowToPlay: {}, onSettings: {})
+        HomeView(onPlay: {}, onDailyBurst: {}, onLeaderboard: {}, onHowToPlay: {}, onSettings: {})
             .environmentObject(GameStore())
     }
 }
