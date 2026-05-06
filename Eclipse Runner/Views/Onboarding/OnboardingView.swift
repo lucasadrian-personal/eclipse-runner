@@ -74,7 +74,7 @@ struct OnboardingView: View {
         VStack(spacing: 32) {
             Spacer()
             if currentPage == 0 {
-                AstronautView()
+                SkinAstronautPreview(skin: SkinCatalog.skin(id: "classic"), size: 160)
                     .frame(width: 160, height: 160)
             } else {
                 iconCircle(icon: page.icon, color: page.iconColor)

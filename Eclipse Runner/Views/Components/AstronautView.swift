@@ -25,7 +25,6 @@ struct AstronautView: View {
                 .frame(width: size, height: size)
                 .shadow(color: Theme.auroraCyan.opacity(0.4), radius: 24, y: 8)
                 .offset(y: float ? -10 : 10)
-                .rotationEffect(.degrees(float ? -4 : 4))
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 2.8).repeatForever(autoreverses: true)) {
