@@ -17,8 +17,8 @@ struct StarfieldView: View {
                 }
 
                 for (i, star) in stars.prefix(starCount).enumerated() {
-                    let x = (star.x * size.width + CGFloat(t * star.driftSpeed * 6)).truncatingRemainder(dividingBy: size.width)
-                    let y = star.y * size.height
+                    let x = star.x * size.width
+                    let y = (star.y * size.height + CGFloat(t * star.driftSpeed * 8)).truncatingRemainder(dividingBy: size.height)
                     let twinkle = 0.55 + 0.45 * sin(t * star.twinkleSpeed + Double(i))
                     let r = star.radius
                     var path = Path()
@@ -31,28 +31,28 @@ struct StarfieldView: View {
     }
 
     private func drawNebula(ctx: inout GraphicsContext, size: CGSize, t: TimeInterval) {
-        let phase = CGFloat(sin(t * 0.15)) * 30
+        let pulse = CGFloat(sin(t * 0.15)) * 0.04
         let blob1 = Path(ellipseIn: CGRect(
-            x: size.width * 0.55 + phase,
+            x: size.width * 0.55,
             y: size.height * 0.18,
-            width: size.width * 0.85,
-            height: size.height * 0.55
+            width: size.width * (0.85 + pulse),
+            height: size.height * (0.55 + pulse)
         ))
         ctx.fill(blob1, with: .radialGradient(
             Gradient(colors: [Theme.nebulaPurple.opacity(0.45), .clear]),
-            center: CGPoint(x: size.width * 0.78 + phase, y: size.height * 0.36),
+            center: CGPoint(x: size.width * 0.78, y: size.height * 0.36),
             startRadius: 0, endRadius: size.width * 0.55
         ))
 
         let blob2 = Path(ellipseIn: CGRect(
-            x: -size.width * 0.25 - phase,
+            x: -size.width * 0.25,
             y: size.height * 0.45,
-            width: size.width * 0.95,
-            height: size.height * 0.5
+            width: size.width * (0.95 + pulse),
+            height: size.height * (0.5 + pulse)
         ))
         ctx.fill(blob2, with: .radialGradient(
             Gradient(colors: [Theme.nebulaPink.opacity(0.32), .clear]),
-            center: CGPoint(x: size.width * 0.18 - phase, y: size.height * 0.65),
+            center: CGPoint(x: size.width * 0.18, y: size.height * 0.65),
             startRadius: 0, endRadius: size.width * 0.55
         ))
     }
