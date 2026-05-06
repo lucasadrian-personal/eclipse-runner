@@ -106,11 +106,14 @@ struct HomeView: View {
     private var statsRow: some View {
         HStack(spacing: 12) {
             StatPill(icon: "flame.fill",  tint: Theme.nebulaPink,
-                     title: "Runs",       value: "\(store.totalRuns)")
+                     title: "Runs",       value: "\(store.totalRuns)",
+                     tooltip: "El total de partidas jugadas. Cada vez que empiezas y terminas una partida cuenta como 1 run.")
             StatPill(icon: "sparkles",    tint: Theme.auroraCyan,
-                     title: "Light-yrs", value: "\(store.totalDistance)")
+                     title: "Light-yrs", value: "\(store.totalDistance)",
+                     tooltip: "Años luz recorridos en total. Cada gate que atraviesas suma 1 año luz a tu odómetro cósmico. ✨")
             StatPill(icon: "trophy.fill", tint: Theme.starGold,
-                     title: "Best",       value: "\(store.bestScore)")
+                     title: "Best",       value: "\(store.bestScore)",
+                     tooltip: "Tu récord personal: el mayor número de gates que cruzaste en una sola partida. 🏆")
         }
     }
 
@@ -208,8 +211,14 @@ private struct StatPill: View {
     let tint: Color
     let title: String
     let value: String
+    let tooltip: String
+
+    @State private var showTooltip = false
 
     var body: some View {
+        let bg = showTooltip ? tint.opacity(0.13) : Theme.surface
+        let border = showTooltip ? tint.opacity(0.45) : Theme.surfaceStroke
+
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.system(size: 14, weight: .bold))
@@ -217,17 +226,35 @@ private struct StatPill: View {
             Text(value)
                 .font(.system(size: 19, weight: .bold, design: .rounded))
                 .foregroundStyle(Theme.textPrimary)
-            Text(title)
-                .font(.system(size: 11, weight: .medium, design: .rounded))
-                .foregroundStyle(Theme.textTertiary)
+            HStack(spacing: 3) {
+                Text(title)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.textTertiary)
+                Image(systemName: showTooltip ? "chevron.up.circle" : "info.circle")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(tint.opacity(0.8))
+            }
+            if showTooltip {
+                Text(tooltip)
+                    .font(.system(size: 11, weight: .regular, design: .rounded))
+                    .foregroundStyle(Theme.textPrimary.opacity(0.85))
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 8)
+                    .padding(.top, 2)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .padding(.horizontal, 6)
+        .background(bg, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Theme.surfaceStroke, lineWidth: 1)
+                .stroke(border, lineWidth: 1)
         )
+        .animation(.spring(response: 0.35, dampingFraction: 0.72), value: showTooltip)
+        .onTapGesture { showTooltip.toggle() }
     }
 }
 
