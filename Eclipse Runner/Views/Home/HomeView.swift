@@ -51,21 +51,23 @@ struct HomeView: View {
                     .foregroundStyle(Theme.textPrimary)
             }
             Spacer()
-            // Shop button with LY balance
-            Button(action: onShop) {
-                HStack(spacing: 5) {
-                    Image(systemName: "warp.drive")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(Theme.starGold)
-                    Text("\(store.totalDistance)")
-                        .font(.system(size: 13, weight: .black, design: .rounded))
-                        .foregroundStyle(Theme.starGold)
+            // Shield badge (only shown when player has shields)
+            if store.shieldCount > 0 {
+                Button(action: onShop) {
+                    HStack(spacing: 5) {
+                        Image(systemName: "shield.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(Theme.auroraCyan)
+                        Text("\(store.shieldCount)")
+                            .font(.system(size: 13, weight: .black, design: .rounded))
+                            .foregroundStyle(Theme.auroraCyan)
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    .background(Theme.auroraCyan.opacity(0.12), in: Capsule())
+                    .overlay(Capsule().stroke(Theme.auroraCyan.opacity(0.3), lineWidth: 1))
                 }
-                .padding(.horizontal, 12).padding(.vertical, 8)
-                .background(Theme.starGold.opacity(0.12), in: Capsule())
-                .overlay(Capsule().stroke(Theme.starGold.opacity(0.3), lineWidth: 1))
+                .padding(.trailing, 8)
             }
-            .padding(.trailing, 8)
             Button(action: onSettings) {
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 18, weight: .semibold))
@@ -132,19 +134,19 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, 8)
 
-                // Shield indicator if active
+                // Shield indicator bottom-right (only if shields, complementary to top bar)
                 if store.shieldCount > 0 {
                     HStack(spacing: 4) {
-                        Image(systemName: "shield.fill")
-                            .font(.system(size: 11, weight: .bold))
+                        Image(systemName: "shield.checkmark.fill")
+                            .font(.system(size: 10, weight: .bold))
                             .foregroundStyle(Theme.auroraCyan)
-                        Text("\(store.shieldCount)")
-                            .font(.system(size: 11, weight: .black, design: .rounded))
+                        Text("Shield ready")
+                            .font(.system(size: 10, weight: .semibold, design: .rounded))
                             .foregroundStyle(Theme.auroraCyan)
                     }
-                    .padding(.horizontal, 10).padding(.vertical, 6)
+                    .padding(.horizontal, 8).padding(.vertical, 5)
                     .background(.ultraThinMaterial, in: Capsule())
-                    .overlay(Capsule().stroke(Theme.auroraCyan.opacity(0.4), lineWidth: 1))
+                    .overlay(Capsule().stroke(Theme.auroraCyan.opacity(0.35), lineWidth: 1))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                     .padding(.bottom, 8)
                 }

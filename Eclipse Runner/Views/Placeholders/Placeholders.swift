@@ -41,6 +41,9 @@ struct LeaderboardPlaceholderView: View {
     @EnvironmentObject private var lang: LanguageManager
     @State private var isRefreshing = false
 
+    // Auto-refresh every 30 seconds while the view is visible
+    private let refreshTimer = Timer.publish(every: 30, tolerance: 5, on: .main, in: .common).autoconnect()
+
     var body: some View {
         ZStack {
             CosmicBackground()
@@ -72,6 +75,7 @@ struct LeaderboardPlaceholderView: View {
             }
         }
         .onAppear { store.refreshLeaderboard() }
+        .onReceive(refreshTimer) { _ in store.refreshLeaderboard() }
     }
 
     // MARK: - Header

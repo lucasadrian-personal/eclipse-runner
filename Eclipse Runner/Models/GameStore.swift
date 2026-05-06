@@ -61,6 +61,9 @@ final class GameStore: ObservableObject {
             dailyBestScore = defaults.integer(forKey: Keys.dailyBest)
             dailyCompleted = defaults.bool(forKey: Keys.dailyDone)
             dailyAttempts  = defaults.integer(forKey: Keys.dailyAttempts)
+            // Restore lastDailyRank only if it belongs to today
+            let savedRank = defaults.integer(forKey: Keys.dailyLastRank)
+            lastDailyRank = savedRank > 0 ? savedRank : nil
         }
 
         leaderboard = []
@@ -168,6 +171,10 @@ final class GameStore: ObservableObject {
             DispatchQueue.main.async {
                 guard let self else { return }
                 self.lastDailyRank = result.rank
+                // Persist rank tied to today's date so it survives app restarts
+                if let rank = result.rank {
+                    self.defaults.set(rank, forKey: Keys.dailyLastRank)
+                }
                 if result.isOnline { self.refreshDailyLeaderboard() }
             }
         }
@@ -226,6 +233,7 @@ final class GameStore: ObservableObject {
         static let dailyBest     = "cd.dailyBest"
         static let dailyDone     = "cd.dailyDone"
         static let dailyAttempts = "cd.dailyAttempts"
+        static let dailyLastRank = "cd.dailyLastRank"
     }
 }
 
