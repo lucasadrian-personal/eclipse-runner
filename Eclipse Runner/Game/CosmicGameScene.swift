@@ -31,6 +31,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
     private var lastUpdateTime: TimeInterval = 0
     private var activeWindForce: CGFloat = 0
     private var windPushUp = true
+    private var lastGapCenterY: CGFloat = -1   // tracks previous gap for reachability
 
     private let spawnKey  = "obstacleSpawn"
     private let windKey   = "windCycle"
@@ -207,21 +208,45 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         let gapH        = snap.currentGapHeight
         let scrollSpeed = GameConfig.baseScrollSpeed * snap.scrollMultiplier
 
-        let safeTop    = size.height - GameConfig.groundHeight - gapH * 0.5 - 30
-        let safeBottom = GameConfig.groundHeight + gapH * 0.5 + 30
-        guard safeBottom < safeTop else { return }  // layout not ready yet
-        let gapCenterY = CGFloat.random(in: safeBottom...safeTop)
+        // Absolute vertical range (respect screen bounds + gap half-size)
+        let hardBottom = GameConfig.groundHeight + gapH * 0.5 + 20
+        let hardTop    = size.height - GameConfig.groundHeight - gapH * 0.5 - 20
+        guard hardBottom < hardTop else { return }
+
+        // --- Reachability constraint ---
+        // Time for this pair to travel from spawn X to player X (≈28% of width)
+        let travelDist = size.width * 0.72 + GameConfig.obstacleWidth * 0.5
+        let travelTime = Double(travelDist / scrollSpeed)
+
+        // Max vertical distance player can cover in travelTime:
+        //   going full-up:  impulse → clamp at maxRiseSpeed for travelTime
+        //   going full-down: gravity pulls down at maxFallSpeed
+        // We use a conservative 80% of theoretical max to keep it challenging but always fair.
+        let maxRise = CGFloat(travelTime) * abs(GameConfig.maxRiseSpeed) * 0.80
+        let maxFall = CGFloat(travelTime) * abs(GameConfig.maxFallSpeed) * 0.80
+
+        // Reference center (previous gap or screen center on first obstacle)
+        let refCenter: CGFloat = lastGapCenterY > 0 ? lastGapCenterY : size.height * 0.5
+
+        // Clamp the new gap center so it's always reachable from previous gap center
+        let reachMin = max(hardBottom, refCenter - maxFall)
+        let reachMax = min(hardTop,   refCenter + maxRise)
+        let clampedMin = min(reachMin, reachMax)  // safety if inverted
+        let clampedMax = max(reachMin, reachMax)
+
+        let gapCenterY = CGFloat.random(in: clampedMin...clampedMax)
+        lastGapCenterY = gapCenterY
 
         let bottomH = gapCenterY - gapH / 2
         let topY    = gapCenterY + gapH / 2
         let topH    = size.height - GameConfig.groundHeight - topY
         let spawnX  = size.width + GameConfig.obstacleWidth
 
-        let bottom = makeAsteroid(height: bottomH)
+        let bottom = makeAsteroid(height: max(bottomH, 1))
         bottom.position = CGPoint(x: spawnX, y: GameConfig.groundHeight + bottomH / 2)
         addChild(bottom)
 
-        let top = makeAsteroid(height: topH)
+        let top = makeAsteroid(height: max(topH, 1))
         top.position = CGPoint(x: spawnX, y: topY + topH / 2)
         addChild(top)
 
@@ -429,6 +454,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
     private func triggerGameOver() {
         guard flow != .gameOver else { return }
         flow = .gameOver
+        lastGapCenterY = -1
 
         // Stop obstacle spawning and wind
         removeAction(forKey: spawnKey)

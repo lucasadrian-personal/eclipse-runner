@@ -90,6 +90,7 @@ struct GameView: View {
     @StateObject private var coord: GameCoordinator = GameCoordinator()
     @State private var showGameOver = false
     @State private var shouldDismissOnClose = false
+    @State private var sceneID: Int = 0
 
     var body: some View {
         GeometryReader { geo in
@@ -126,6 +127,7 @@ struct GameView: View {
         ZStack(alignment: .top) {
             SpriteView(scene: coord.scene!, options: [.allowsTransparency])
                 .ignoresSafeArea()
+                .id(sceneID)
             VStack(spacing: 0) {
                 topHUD
                     .padding(.top, 56)
@@ -180,13 +182,15 @@ struct GameView: View {
     // MARK: - Retry / Home
     private func handleRetry() {
         shouldDismissOnClose = false
-        // Clear gameOverInfo BEFORE dismissing the sheet so the onChange
-        // doesn't re-trigger showGameOver when the sheet is closed.
-        coord.gameOverInfo = nil
         store.lastRunRank = nil
         store.lastDailyRank = nil
+        // Dismiss sheet first, then reset so SpriteView picks up the new scene
         showGameOver = false
-        coord.reset(store: store)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            coord.gameOverInfo = nil
+            coord.reset(store: store)
+            sceneID += 1   // force SpriteView to re-mount with the new scene
+        }
     }
 
     private func handleHome() {
