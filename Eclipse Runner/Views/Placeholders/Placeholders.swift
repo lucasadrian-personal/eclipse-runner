@@ -332,6 +332,9 @@ struct SettingsPlaceholderView: View {
     }
 
     // MARK: Pilot name
+    @State private var nameCheckStatus: PilotNameStatus = .available
+    @State private var nameCheckTask: DispatchWorkItem? = nil
+
     private var pilotSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionHeader(L10n.pilotIdentity, icon: "person.fill")
@@ -350,31 +353,32 @@ struct SettingsPlaceholderView: View {
                         .tint(Theme.auroraCyan)
                         .focused($nameFocused)
                         .submitLabel(.done)
-                        .onSubmit { saveName() }
+                        .onSubmit { trySaveName() }
+                        .onChange(of: nameInput) { _, newVal in
+                            scheduleNameCheck(newVal)
+                        }
 
-                    if showSaved {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(Theme.auroraMint)
-                            .transition(.scale.combined(with: .opacity))
-                    }
+                    nameStatusIcon
                 }
                 .padding(14)
                 .background(Theme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(nameFocused ? Theme.auroraCyan.opacity(0.55) : Theme.surfaceStroke,
-                                lineWidth: 1)
+                        .stroke(fieldBorderColor, lineWidth: 1)
                 )
 
-                Button(action: saveName) {
+                Button(action: trySaveName) {
                     Text(L10n.savePilotName)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
                         .frame(maxWidth: .infinity)
                         .frame(height: 46)
-                        .background(Theme.primaryGradient)
+                        .background(canSave ? AnyShapeStyle(Theme.primaryGradient) : AnyShapeStyle(Theme.surfaceStroke))
                         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
+                .disabled(!canSave)
+
+                nameStatusMessage
             }
 
             Text(L10n.pilotNameHint)
@@ -383,9 +387,67 @@ struct SettingsPlaceholderView: View {
         }
     }
 
-    private func saveName() {
+    private var canSave: Bool {
+        let trimmed = nameInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return false }
+        // Allow saving own current name or if available/offline
+        let isSameName = trimmed.lowercased() == store.pilotName.lowercased()
+        return isSameName || nameCheckStatus == .available || nameCheckStatus == .offline
+    }
+
+    @ViewBuilder private var nameStatusIcon: some View {
+        if showSaved {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(Theme.auroraMint)
+                .transition(.scale.combined(with: .opacity))
+        } else if nameCheckStatus == .taken &&
+                  nameInput.lowercased() != store.pilotName.lowercased() {
+            Image(systemName: "xmark.circle.fill")
+                .foregroundStyle(Theme.nebulaPink)
+                .transition(.scale.combined(with: .opacity))
+        }
+    }
+
+    @ViewBuilder private var nameStatusMessage: some View {
+        let trimmed = nameInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        if nameCheckStatus == .taken && trimmed.lowercased() != store.pilotName.lowercased() {
+            Label(L10n.pilotNameTaken, systemImage: "exclamationmark.triangle.fill")
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundStyle(Theme.nebulaPink)
+                .transition(.opacity)
+        }
+    }
+
+    private var fieldBorderColor: Color {
+        let trimmed = nameInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        if nameCheckStatus == .taken && trimmed.lowercased() != store.pilotName.lowercased() {
+            return Theme.nebulaPink.opacity(0.6)
+        }
+        return nameFocused ? Theme.auroraCyan.opacity(0.55) : Theme.surfaceStroke
+    }
+
+    private func scheduleNameCheck(_ value: String) {
+        nameCheckTask?.cancel()
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.count >= 2, trimmed.lowercased() != store.pilotName.lowercased() else {
+            nameCheckStatus = .available; return
+        }
+        let task = DispatchWorkItem {
+            LeaderboardService.shared.checkPilotName(trimmed) { status in
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    self.nameCheckStatus = status
+                }
+            }
+        }
+        nameCheckTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: task)
+    }
+
+    private func trySaveName() {
+        guard canSave else { return }
         store.savePilotName(nameInput)
         nameFocused = false
+        nameCheckStatus = .available
         withAnimation(.spring()) { showSaved = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             withAnimation { showSaved = false }

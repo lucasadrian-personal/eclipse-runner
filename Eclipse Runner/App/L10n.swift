@@ -154,6 +154,11 @@ struct L10n {
     static var offline:           String { t("Offline",                "Sin conexión") }
     static var language:          String { t("LANGUAGE",               "IDIOMA") }
 
+    // MARK: Settings – pilot name validation
+    static var pilotNameTaken:     String { t("Pilot name already taken", "Nombre de piloto no disponible") }
+    static var pilotNameAvailable: String { t("Name is available",       "Nombre disponible") }
+    static var pilotNameChecking:  String { t("Checking…",               "Comprobando…") }
+
     // MARK: Daily Burst – attempts
     static var dailyAttemptsLeft:  String { t("attempts left",          "intentos restantes") }
     static var dailyNoAttemptsLeft:String { t("No attempts left",       "Sin intentos") }
