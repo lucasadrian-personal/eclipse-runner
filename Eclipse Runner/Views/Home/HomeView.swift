@@ -269,7 +269,13 @@ private struct DailyBurstTile: View {
                     Image(systemName: "bolt.fill")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundStyle(Theme.starGold)
-                    if store.dailyCompleted {
+                    if store.dailyExhausted {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(Theme.textTertiary)
+                            .frame(width: 38, height: 38, alignment: .topTrailing)
+                            .offset(x: 10, y: -10)
+                    } else if store.dailyCompleted {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundStyle(Theme.auroraMint)
@@ -281,12 +287,20 @@ private struct DailyBurstTile: View {
                     Text(L10n.dailyBurst)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.textPrimary)
-                    Text(store.dailyCompleted
-                         ? (store.lastDailyRank.map { "#\($0) " + L10n.dailyTodayOnly } ?? L10n.dailyCompleted)
-                         : L10n.dailyBurstSubtitleShort)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(store.dailyCompleted ? Theme.starGold : Theme.textSecondary)
-                        .lineLimit(1)
+                    Group {
+                        if store.dailyExhausted {
+                            Text(L10n.dailyNoAttemptsLeft)
+                                .foregroundStyle(Theme.textTertiary)
+                        } else if store.dailyCompleted {
+                            Text(store.lastDailyRank.map { "#\($0) · 1 \(L10n.dailyAttemptsLeft)" } ?? "1 \(L10n.dailyAttemptsLeft)")
+                                .foregroundStyle(Theme.starGold)
+                        } else {
+                            Text(L10n.dailyBurstSubtitleShort)
+                                .foregroundStyle(Theme.textSecondary)
+                        }
+                    }
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .lineLimit(1)
                 }
                 Spacer(minLength: 0)
             }

@@ -80,6 +80,7 @@ struct DailyBurstView: View {
                         label: L10n.dailyRankLabel,
                         value: store.lastDailyRank.map { "#\($0)" } ?? "—")
             }
+            attemptsIndicator
             playBurstButton
             if store.dailyCompleted {
                 completedBadge
@@ -115,27 +116,64 @@ struct DailyBurstView: View {
     }
 
     private var playBurstButton: some View {
-        Button(action: onPlay) {
+        let exhausted = store.dailyExhausted
+        let label: String = {
+            if exhausted { return L10n.dailyNoAttemptsLeft }
+            if store.dailyCompleted { return L10n.dailyPlayAgain }
+            return L10n.dailyStartBurst
+        }()
+        let icon: String = {
+            if exhausted { return "xmark.circle.fill" }
+            if store.dailyCompleted { return "arrow.counterclockwise" }
+            return "bolt.fill"
+        }()
+        return Button(action: { if !exhausted { onPlay() } }) {
             HStack(spacing: 10) {
-                Image(systemName: store.dailyCompleted ? "arrow.counterclockwise" : "bolt.fill")
+                Image(systemName: icon)
                     .font(.system(size: 16, weight: .black))
-                Text(store.dailyCompleted ? L10n.dailyPlayAgain : L10n.dailyStartBurst)
+                Text(label)
                     .font(.system(size: 17, weight: .black, design: .rounded))
                     .tracking(2)
             }
-            .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
+            .foregroundStyle(exhausted
+                ? Theme.textTertiary
+                : Color(red: 0.04, green: 0.06, blue: 0.18))
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(
                 ZStack {
-                    LinearGradient(colors: [Theme.starGold, Theme.nebulaPink],
-                                   startPoint: .leading, endPoint: .trailing)
-                    LinearGradient(colors: [Color.white.opacity(0.3), .clear],
-                                   startPoint: .top, endPoint: .center)
+                    if exhausted {
+                        Theme.surfaceStroke
+                    } else {
+                        LinearGradient(colors: [Theme.starGold, Theme.nebulaPink],
+                                       startPoint: .leading, endPoint: .trailing)
+                        LinearGradient(colors: [Color.white.opacity(0.3), .clear],
+                                       startPoint: .top, endPoint: .center)
+                    }
                 }
             )
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .shadow(color: Theme.starGold.opacity(0.5), radius: 16, y: 8)
+            .shadow(color: exhausted ? .clear : Theme.starGold.opacity(0.5), radius: 16, y: 8)
+        }
+        .disabled(exhausted)
+    }
+
+    private var attemptsIndicator: some View {
+        HStack(spacing: 10) {
+            ForEach(0..<GameStore.dailyMaxAttempts, id: \.self) { i in
+                Circle()
+                    .fill(i < store.dailyAttempts ? Theme.textTertiary : Theme.starGold)
+                    .frame(width: 10, height: 10)
+                    .overlay(
+                        Circle().stroke(Theme.starGold.opacity(0.5), lineWidth: 1)
+                    )
+                    .animation(.spring(duration: 0.3), value: store.dailyAttempts)
+            }
+            Text(store.dailyExhausted
+                 ? L10n.dailyNoAttemptsLeft
+                 : "\(store.dailyAttemptsLeft) \(L10n.dailyAttemptsLeft)")
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundStyle(store.dailyExhausted ? Theme.nebulaPink : Theme.textSecondary)
         }
     }
 

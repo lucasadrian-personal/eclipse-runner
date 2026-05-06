@@ -20,10 +20,16 @@ final class GameStore: ObservableObject {
     // MARK: Daily Burst
     @Published var dailyBestScore: Int = 0          // best score today
     @Published var dailyCompleted: Bool = false      // finished at least one burst today
+    @Published var dailyAttempts: Int = 0            // attempts used today (max 2)
     @Published var dailyRank: Int? = nil             // rank after last submission
     @Published var dailyLeaderboard: [LeaderboardEntry] = []
     @Published var dailyLeaderboardLoading: Bool = false
     @Published var lastDailyRank: Int? = nil
+
+    static let dailyMaxAttempts = 2
+
+    var dailyAttemptsLeft: Int { max(0, Self.dailyMaxAttempts - dailyAttempts) }
+    var dailyExhausted: Bool { dailyAttempts >= Self.dailyMaxAttempts }
 
     private let defaults = UserDefaults.standard
 
@@ -38,6 +44,7 @@ final class GameStore: ObservableObject {
         if defaults.string(forKey: Keys.dailyDate) == today {
             dailyBestScore = defaults.integer(forKey: Keys.dailyBest)
             dailyCompleted = defaults.bool(forKey: Keys.dailyDone)
+            dailyAttempts  = defaults.integer(forKey: Keys.dailyAttempts)
         }
 
         leaderboard = LeaderboardEntry.sample
@@ -88,10 +95,12 @@ final class GameStore: ObservableObject {
         // Track daily best locally
         let today = DailyBurstService.shared.todayString
         if score > dailyBestScore { dailyBestScore = score }
+        dailyAttempts  += 1
         dailyCompleted = true
         defaults.set(today,          forKey: Keys.dailyDate)
         defaults.set(dailyBestScore, forKey: Keys.dailyBest)
         defaults.set(true,           forKey: Keys.dailyDone)
+        defaults.set(dailyAttempts,  forKey: Keys.dailyAttempts)
 
         lastDailyRank = nil
 
@@ -146,9 +155,10 @@ final class GameStore: ObservableObject {
         static let runs       = "cd.totalRuns"
         static let distance   = "cd.totalDistance"
         static let pilot      = "cd.pilotName"
-        static let dailyDate  = "cd.dailyDate"
-        static let dailyBest  = "cd.dailyBest"
-        static let dailyDone  = "cd.dailyDone"
+        static let dailyDate     = "cd.dailyDate"
+        static let dailyBest     = "cd.dailyBest"
+        static let dailyDone     = "cd.dailyDone"
+        static let dailyAttempts = "cd.dailyAttempts"
     }
 }
 

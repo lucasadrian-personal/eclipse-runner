@@ -136,4 +136,8 @@ struct L10n {
     static var online:            String { t("Online",                 "Conectado") }
     static var offline:           String { t("Offline",                "Sin conexión") }
     static var language:          String { t("LANGUAGE",               "IDIOMA") }
+
+    // MARK: Daily Burst – attempts
+    static var dailyAttemptsLeft:  String { t("attempts left",          "intentos restantes") }
+    static var dailyNoAttemptsLeft:String { t("No attempts left",       "Sin intentos") }
 }
