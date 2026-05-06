@@ -222,6 +222,8 @@ struct HowToPlayPlaceholderView: View {
                         title: L10n.htpWind,  body: L10n.htpWindBody)
                 tipCard(icon: "flame.fill", tint: Theme.starGold,
                         title: L10n.htpSpeed, body: L10n.htpSpeedBody)
+                tipCard(icon: "bolt.circle.fill", tint: Theme.starGold,
+                        title: L10n.htpDailyBurst, body: L10n.htpDailyBurstBody)
                 Spacer()
             }
             .padding(20)

@@ -140,4 +140,9 @@ struct L10n {
     // MARK: Daily Burst – attempts
     static var dailyAttemptsLeft:  String { t("attempts left",          "intentos restantes") }
     static var dailyNoAttemptsLeft:String { t("No attempts left",       "Sin intentos") }
+
+    // MARK: How to Play – Daily Burst tip
+    static var htpDailyBurst:     String { t("Daily Burst",             "Reto Diario") }
+    static var htpDailyBurstBody: String { t("Every day a fresh world challenge resets at midnight UTC. You get 2 attempts — only your best score counts. Climb the daily ranking!",
+                                             "Cada día un nuevo reto mundial se reinicia a medianoche UTC. Tienes 2 intentos — solo cuenta tu mejor puntuación. ¡Sube en el ranking diario!") }
 }

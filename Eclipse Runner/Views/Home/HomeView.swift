@@ -26,8 +26,8 @@ struct HomeView: View {
                 heroSection
                 statsRow
                 playButton
-                leaderboardCard
                 secondaryRow
+                leaderboardCard
                 Spacer(minLength: 24)
             }
             .padding(.horizontal, 20)
@@ -259,63 +259,59 @@ private struct DailyBurstTile: View {
     @EnvironmentObject private var store: GameStore
     let action: () -> Void
 
+    private var subtitle: String {
+        if store.dailyExhausted { return L10n.dailyNoAttemptsLeft }
+        if store.dailyCompleted { return store.lastDailyRank.map { "#\($0) · 1 \(L10n.dailyAttemptsLeft)" } ?? "1 \(L10n.dailyAttemptsLeft)" }
+        return L10n.dailyBurstSubtitleShort
+    }
+
+    private var subtitleColor: Color {
+        if store.dailyExhausted { return Theme.textTertiary }
+        if store.dailyCompleted { return Theme.starGold }
+        return Theme.textSecondary
+    }
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(Theme.starGold.opacity(0.18))
-                        .frame(width: 38, height: 38)
+                ZStack(alignment: .topTrailing) {
                     Image(systemName: "bolt.fill")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(Theme.starGold)
+                        .frame(width: 38, height: 38)
+                        .background(Theme.starGold.opacity(0.15), in: Circle())
                     if store.dailyExhausted {
                         Image(systemName: "xmark.circle.fill")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundStyle(Theme.textTertiary)
-                            .frame(width: 38, height: 38, alignment: .topTrailing)
-                            .offset(x: 10, y: -10)
+                            .offset(x: 4, y: -4)
                     } else if store.dailyCompleted {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundStyle(Theme.auroraMint)
-                            .frame(width: 38, height: 38, alignment: .topTrailing)
-                            .offset(x: 10, y: -10)
+                            .offset(x: 4, y: -4)
                     }
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(L10n.dailyBurst)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.textPrimary)
-                    Group {
-                        if store.dailyExhausted {
-                            Text(L10n.dailyNoAttemptsLeft)
-                                .foregroundStyle(Theme.textTertiary)
-                        } else if store.dailyCompleted {
-                            Text(store.lastDailyRank.map { "#\($0) · 1 \(L10n.dailyAttemptsLeft)" } ?? "1 \(L10n.dailyAttemptsLeft)")
-                                .foregroundStyle(Theme.starGold)
-                        } else {
-                            Text(L10n.dailyBurstSubtitleShort)
-                                .foregroundStyle(Theme.textSecondary)
-                        }
-                    }
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .lineLimit(1)
+                    Text(subtitle)
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundStyle(subtitleColor)
+                        .lineLimit(1)
                 }
                 Spacer(minLength: 0)
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
-                store.dailyCompleted
-                    ? Theme.starGold.opacity(0.08)
-                    : Theme.surface,
+                store.dailyCompleted ? Theme.starGold.opacity(0.08) : Theme.surface,
                 in: RoundedRectangle(cornerRadius: 18, style: .continuous)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(store.dailyCompleted
-                            ? Theme.starGold.opacity(0.35) : Theme.surfaceStroke, lineWidth: 1)
+                    .stroke(store.dailyCompleted ? Theme.starGold.opacity(0.35) : Theme.surfaceStroke, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
