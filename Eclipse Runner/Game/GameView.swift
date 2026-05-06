@@ -80,6 +80,7 @@ enum GameMode { case normal, daily }
 // MARK: - Main GameView
 struct GameView: View {
     @EnvironmentObject private var store: GameStore
+    @EnvironmentObject private var lang: LanguageManager
     @Environment(\.dismiss) private var dismiss
 
     var mode: GameMode = .normal
@@ -113,6 +114,7 @@ struct GameView: View {
             if let info = coord.gameOverInfo {
                 GameOverSheet(info: info, onRetry: handleRetry, onHome: handleHome)
                     .environmentObject(store)
+                    .environmentObject(lang)
             }
         }
     }
@@ -212,6 +214,7 @@ private struct GustBanner: View {
 // MARK: - Game Over Sheet
 struct GameOverSheet: View {
     @EnvironmentObject private var store: GameStore
+    @EnvironmentObject private var lang: LanguageManager
     let info: GameOverInfo
     let onRetry: () -> Void
     let onHome: () -> Void

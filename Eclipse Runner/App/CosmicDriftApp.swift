@@ -3,9 +3,9 @@ import SwiftUI
 @main
 struct CosmicDriftApp: App {
     @StateObject private var gameStore = GameStore()
+    @StateObject private var langManager = LanguageManager.shared
 
     init() {
-        // Warm up audio engine on launch so first flap has no latency
         _ = AudioManager.shared
     }
 
@@ -13,6 +13,7 @@ struct CosmicDriftApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(gameStore)
+                .environmentObject(langManager)
                 .preferredColorScheme(.dark)
         }
     }

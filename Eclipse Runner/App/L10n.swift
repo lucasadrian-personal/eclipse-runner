@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 // MARK: - Language
 
@@ -20,19 +21,32 @@ enum AppLanguage: String, CaseIterable, Codable {
     }
 }
 
+// MARK: - LanguageManager (ObservableObject — drives cross-app re-render)
+
+final class LanguageManager: ObservableObject {
+    static let shared = LanguageManager()
+
+    @Published var current: AppLanguage {
+        didSet { UserDefaults.standard.set(current.rawValue, forKey: "appLanguage") }
+    }
+
+    private init() {
+        let raw = UserDefaults.standard.string(forKey: "appLanguage") ?? ""
+        current = AppLanguage(rawValue: raw) ?? .english
+    }
+}
+
 // MARK: - Localized strings
 
 struct L10n {
+    // Reading always from LanguageManager.shared so it stays in sync
     static var lang: AppLanguage {
-        get {
-            let raw = UserDefaults.standard.string(forKey: "appLanguage") ?? ""
-            return AppLanguage(rawValue: raw) ?? .english
-        }
-        set { UserDefaults.standard.set(newValue.rawValue, forKey: "appLanguage") }
+        get { LanguageManager.shared.current }
+        set { LanguageManager.shared.current = newValue }
     }
 
     // Helper
-    private static func t(_ en: String, _ es: String) -> String {
+    static func t(_ en: String, _ es: String) -> String {
         lang == .spanish ? es : en
     }
 
@@ -111,6 +125,9 @@ struct L10n {
     static var htpSpeed:          String { t("Speed climbs",  "La velocidad aumenta") }
     static var htpSpeedBody:      String { t("Every 10 points cranks the difficulty. Stay sharp.",
                                              "Cada 10 puntos aumenta la dificultad. Mantente alerta.") }
+    static var htpDailyBurst:     String { t("Daily Burst",   "Reto Diario") }
+    static var htpDailyBurstBody: String { t("Every day a fresh world challenge resets at midnight UTC. You get 2 attempts — only your best score counts. Climb the daily ranking!",
+                                             "Cada día un nuevo reto mundial se reinicia a medianoche UTC. Tienes 2 intentos — solo cuenta tu mejor puntuación. ¡Sube en el ranking diario!") }
 
     // MARK: Settings
     static var missionSettings:   String { t("Mission Settings",       "Ajustes de Misión") }
@@ -140,9 +157,4 @@ struct L10n {
     // MARK: Daily Burst – attempts
     static var dailyAttemptsLeft:  String { t("attempts left",          "intentos restantes") }
     static var dailyNoAttemptsLeft:String { t("No attempts left",       "Sin intentos") }
-
-    // MARK: How to Play – Daily Burst tip
-    static var htpDailyBurst:     String { t("Daily Burst",             "Reto Diario") }
-    static var htpDailyBurstBody: String { t("Every day a fresh world challenge resets at midnight UTC. You get 2 attempts — only your best score counts. Climb the daily ranking!",
-                                             "Cada día un nuevo reto mundial se reinicia a medianoche UTC. Tienes 2 intentos — solo cuenta tu mejor puntuación. ¡Sube en el ranking diario!") }
 }

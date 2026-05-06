@@ -38,6 +38,7 @@ struct ComingSoonScreen: View {
 // MARK: - Live Leaderboard View
 struct LeaderboardPlaceholderView: View {
     @EnvironmentObject private var store: GameStore
+    @EnvironmentObject private var lang: LanguageManager
     @State private var isRefreshing = false
 
     var body: some View {
@@ -205,6 +206,7 @@ private struct PodiumCard: View {
 
 // MARK: - How to Play
 struct HowToPlayPlaceholderView: View {
+    @EnvironmentObject private var lang: LanguageManager
     var body: some View {
         ZStack {
             CosmicBackground()
@@ -261,13 +263,13 @@ struct HowToPlayPlaceholderView: View {
 // MARK: - Settings
 struct SettingsPlaceholderView: View {
     @EnvironmentObject private var store: GameStore
+    @EnvironmentObject private var lang: LanguageManager
     @State private var nameInput: String = ""
     @State private var showSaved = false
     @FocusState private var nameFocused: Bool
 
     @State private var soundOn: Bool = !AudioManager.shared.isMuted
     @State private var hapticsOn: Bool = !HapticsManager.shared.isDisabled
-    @State private var selectedLang: AppLanguage = L10n.lang
 
     var body: some View {
         ZStack {
@@ -299,16 +301,15 @@ struct SettingsPlaceholderView: View {
         VStack(alignment: .leading, spacing: 12) {
             sectionHeader(L10n.language, icon: "globe")
             HStack(spacing: 10) {
-                ForEach(AppLanguage.allCases, id: \.self) { lang in
-                    let isSelected = selectedLang == lang
+                ForEach(AppLanguage.allCases, id: \.self) { language in
+                    let isSelected = lang.current == language
                     Button {
-                        selectedLang = lang
-                        L10n.lang = lang
+                        lang.current = language
                     } label: {
                         HStack(spacing: 8) {
-                            Text(lang.flag)
+                            Text(language.flag)
                                 .font(.system(size: 20))
-                            Text(lang.displayName)
+                            Text(language.displayName)
                                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                                 .foregroundStyle(isSelected ? Color(red: 0.04, green: 0.06, blue: 0.18) : Theme.textPrimary)
                         }
@@ -324,7 +325,7 @@ struct SettingsPlaceholderView: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .animation(.spring(response: 0.3), value: selectedLang)
+                    .animation(.spring(response: 0.3), value: lang.current)
                 }
             }
         }

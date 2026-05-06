@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject private var store: GameStore
+    @EnvironmentObject private var lang: LanguageManager
 
     let onPlay: () -> Void
     let onDailyBurst: () -> Void
@@ -205,6 +206,7 @@ struct HomeView: View {
 // MARK: - Subviews
 
 private struct StatPill: View {
+    @EnvironmentObject private var lang: LanguageManager
     let icon: String
     let tint: Color
     let title: String
@@ -258,6 +260,7 @@ private struct StatPill: View {
 
 private struct DailyBurstTile: View {
     @EnvironmentObject private var store: GameStore
+    @EnvironmentObject private var lang: LanguageManager
     let action: () -> Void
 
     private var subtitle: String {
@@ -320,6 +323,7 @@ private struct DailyBurstTile: View {
 }
 
 private struct SecondaryTile: View {
+    @EnvironmentObject private var lang: LanguageManager
     let icon: String
     let title: String
     let subtitle: String

@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - Daily Burst Entry Point
 struct DailyBurstView: View {
     @EnvironmentObject private var store: GameStore
+    @EnvironmentObject private var lang: LanguageManager
     let onPlay: () -> Void
 
     @State private var timeLeft: TimeInterval = 0
