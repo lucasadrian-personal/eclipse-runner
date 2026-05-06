@@ -47,7 +47,6 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - Parallax background stars
     private func setupParallaxBg() {
-        let speeds: [CGFloat] = [18, 34, 55]
         let alphas: [CGFloat] = [0.35, 0.55, 0.80]
         let counts = [30, 20, 12]
 
@@ -65,18 +64,6 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             }
             addChild(node)
             bgLayers.append(node)
-
-            // infinite scroll
-            let moveLeft = SKAction.moveBy(x: -speeds[layer], y: 0, duration: 1)
-            let wrap = SKAction.customAction(withDuration: 0) { [weak self] _, _ in
-                guard let self else { return }
-                for child in node.children {
-                    if child.position.x < 0 {
-                        child.position.x += self.size.width
-                    }
-                }
-            }
-            node.run(.repeatForever(.sequence([moveLeft, wrap])))
         }
     }
 
@@ -110,13 +97,13 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         body.linearDamping   = 0.0
         body.restitution     = 0.0
         body.friction        = 0.0
-        body.isDynamic       = true              // always dynamic — physics world paused instead
+        body.isDynamic       = false             // paused until first tap
         body.categoryBitMask    = PhysicsCategory.player
         body.contactTestBitMask = PhysicsCategory.obstacle | PhysicsCategory.world | PhysicsCategory.scoreGate
-        body.collisionBitMask   = PhysicsCategory.world     // only solid collision with floor/ceiling
+        body.collisionBitMask   = PhysicsCategory.world
         player.physicsBody = body
 
-        // Idle hint float — only runs in .ready state; removed on first tap
+        // Gentle idle float using SKAction (no physics conflict — physics paused)
         let up   = SKAction.moveBy(x: 0, y: 6,  duration: 1.1)
         up.timingMode = .easeInEaseOut
         let dn   = SKAction.moveBy(x: 0, y: -6, duration: 1.1)
@@ -149,9 +136,12 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             flow = .playing
             childNode(withName: "hint")?.removeFromParent()
             player.removeAction(forKey: "idleFloat")
-            player.position.y = size.height * 0.5
-            player.zRotation  = 0
+            // Snap to exact center to neutralize any idle-float offset
+            player.position = CGPoint(x: player.position.x, y: size.height * 0.5)
+            player.zRotation = 0
+            // Enable physics now that we're playing
             player.physicsBody?.isDynamic = true
+            player.physicsBody?.velocity  = .zero
             startLoops()
             flap()
         case .playing:
@@ -374,12 +364,21 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - Update loop
     override func update(_ currentTime: TimeInterval) {
-        guard flow == .playing else { return }
-
         if lastUpdateTime == 0 { lastUpdateTime = currentTime }
         let dt = min(currentTime - lastUpdateTime, 1.0 / 30.0)
         lastUpdateTime = currentTime
 
+        // Parallax background — updated every frame for buttery smoothness
+        let bgSpeeds: [CGFloat] = [18, 34, 55]
+        for (i, layer) in bgLayers.enumerated() {
+            let dx = bgSpeeds[i] * CGFloat(dt)
+            for child in layer.children {
+                child.position.x -= dx
+                if child.position.x < 0 { child.position.x += size.width }
+            }
+        }
+
+        guard flow == .playing else { return }
         guard let body = player.physicsBody else { return }
 
         // Apply wind force
@@ -387,23 +386,20 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             body.velocity.dy += activeWindForce * CGFloat(dt)
         }
 
-        // Clamp vertical speed to prevent tunnelling and ceiling shots
+        // Clamp vertical speed
         let clampedDy = max(GameConfig.maxFallSpeed,
                             min(GameConfig.maxRiseSpeed, body.velocity.dy))
         if body.velocity.dy != clampedDy {
             body.velocity = CGVector(dx: body.velocity.dx, dy: clampedDy)
         }
 
-        // Smooth tilt: nose up on rise (+0.25 rad), nose down on fall (-0.45 rad)
+        // Smooth tilt — faster lerp (0.18 base) for responsive feel
         let dy = body.velocity.dy
-        let targetRotation: CGFloat
-        if dy >= 0 {
-            targetRotation = (dy / GameConfig.maxRiseSpeed) * 0.25
-        } else {
-            targetRotation = (dy / GameConfig.maxFallSpeed) * 0.45
-        }
-        let lerpFactor: CGFloat = 1.0 - pow(0.06, CGFloat(dt))
-        player.zRotation = player.zRotation + (targetRotation - player.zRotation) * lerpFactor
+        let targetRotation: CGFloat = dy >= 0
+            ? (dy / GameConfig.maxRiseSpeed) * 0.25
+            : (dy / GameConfig.maxFallSpeed) * 0.45
+        let lerpFactor: CGFloat = 1.0 - pow(0.18, CGFloat(dt))
+        player.zRotation += (targetRotation - player.zRotation) * lerpFactor
     }
 
     // MARK: - Physics contact

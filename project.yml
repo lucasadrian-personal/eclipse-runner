@@ -1,11 +1,11 @@
-name: accede-pulse
+name: Eclipse Runner
 options:
   bundleIdPrefix: com.example
   developmentLanguage: en
 
 settings:
   base:
-    PRODUCT_NAME: accede-pulse
+    PRODUCT_NAME: Eclipse Runner
     SWIFT_VERSION: 5.0
     MARKETING_VERSION: 1.0
     CURRENT_PROJECT_VERSION: 1
@@ -18,17 +18,17 @@ settings:
     SUPABASE_ANON_KEY: $(SUPABASE_ANON_KEY)
 
 targets:
-  accede-pulse:
+  Eclipse Runner:
     type: application
     platform: iOS
     deploymentTarget: '17.0'
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.accedepulse
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.eclipserunner
     sources:
-      - path: accede-pulse
+      - path: Eclipse Runner
     info:
-      path: accede-pulse/Info.plist
+      path: Eclipse Runner/Info.plist
       properties:
         CFBundleDevelopmentRegion: $(DEVELOPMENT_LANGUAGE)
         CFBundleDisplayName: $(PRODUCT_NAME)
@@ -46,7 +46,7 @@ targets:
         LSRequiresIPhoneOS: true
         UIApplicationSupportsIndirectInputEvents: true
         UILaunchStoryboardName: LaunchScreen
-        UIRequiredDeviceCapabilities: [arm64]
+        UIRequiredDeviceCapabilities: [ arm64 ]
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
@@ -58,10 +58,10 @@ targets:
           - UIInterfaceOrientationLandscapeRight
 
 schemes:
-  accede-pulse:
+  Eclipse Runner:
     build:
       targets:
-        accede-pulse: all
+        Eclipse Runner: all
     run:
       config: Debug
     archive:

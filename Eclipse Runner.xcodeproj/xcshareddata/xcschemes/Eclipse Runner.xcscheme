@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "6B98879736894DE2615481DA"
-               BuildableName = "accede-pulse.app"
-               BlueprintName = "accede-pulse"
-               ReferencedContainer = "container:accede-pulse.xcodeproj">
+               BlueprintIdentifier = "BF73F1EF809FA2AAF70D7C7B"
+               BuildableName = "Eclipse Runner.app"
+               BlueprintName = "Eclipse Runner"
+               ReferencedContainer = "container:Eclipse Runner.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6B98879736894DE2615481DA"
-            BuildableName = "accede-pulse.app"
-            BlueprintName = "accede-pulse"
-            ReferencedContainer = "container:accede-pulse.xcodeproj">
+            BlueprintIdentifier = "BF73F1EF809FA2AAF70D7C7B"
+            BuildableName = "Eclipse Runner.app"
+            BlueprintName = "Eclipse Runner"
+            ReferencedContainer = "container:Eclipse Runner.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <Testables>
@@ -55,10 +55,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6B98879736894DE2615481DA"
-            BuildableName = "accede-pulse.app"
-            BlueprintName = "accede-pulse"
-            ReferencedContainer = "container:accede-pulse.xcodeproj">
+            BlueprintIdentifier = "BF73F1EF809FA2AAF70D7C7B"
+            BuildableName = "Eclipse Runner.app"
+            BlueprintName = "Eclipse Runner"
+            ReferencedContainer = "container:Eclipse Runner.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -74,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "6B98879736894DE2615481DA"
-            BuildableName = "accede-pulse.app"
-            BlueprintName = "accede-pulse"
-            ReferencedContainer = "container:accede-pulse.xcodeproj">
+            BlueprintIdentifier = "BF73F1EF809FA2AAF70D7C7B"
+            BuildableName = "Eclipse Runner.app"
+            BlueprintName = "Eclipse Runner"
+            ReferencedContainer = "container:Eclipse Runner.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -1,0 +1,345 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		016D243142611A2EA6141A1C /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65962979B79BC978A784F4ED /* AudioManager.swift */; };
+		04DE8A189293F16429E6E74C /* DifficultyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D5797F95126582298FE036 /* DifficultyManager.swift */; };
+		1AA97E468A0294BB97ED7D46 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 205F4FFEBD8AC74341A771B6 /* Assets.xcassets */; };
+		27ED976E883B142E277BF277 /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E07F55F5D27C099F908C292B /* HapticsManager.swift */; };
+		3683D16BC538B0E495538388 /* StarfieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00D130490ED5B9835344F78 /* StarfieldView.swift */; };
+		451373A1553BA6BC8AA56AE9 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE25D69E0E2DA4F256D3C856 /* RootView.swift */; };
+		529F5C1D4A64640FDB5C5D02 /* AstronautView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CBB13FF5C20A8779C27842 /* AstronautView.swift */; };
+		6A40A4F36E87168D4BEF1829 /* CosmicDriftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */; };
+		7E5235D9DCC9481D58AAB3E7 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B295D0C2946D82623B871394 /* GameView.swift */; };
+		9B007DDEC51AD2A1A338406B /* CosmicGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5276669A4A50B37AED2E8DF3 /* CosmicGameScene.swift */; };
+		9D6C53DDDC745478490DD188 /* LeaderboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8058856B85C31E6AD143BA71 /* LeaderboardService.swift */; };
+		9DB54882F6997EDA401EE209 /* CosmicBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADFC3211534D5ED948C32564 /* CosmicBackground.swift */; };
+		9F47C98C825656CF246882A8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C2D2A6991EABF5007B7BCA6C /* LaunchScreen.storyboard */; };
+		A3AB4F34326B826F940B2A6A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A44E3E4AFAE53575A11EB38 /* HomeView.swift */; };
+		A706A73270E49AA0C2843608 /* GameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 081C64A2CA3E3DAB304D6D95 /* GameStore.swift */; };
+		AFB0D4225B5606D071B593FC /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC98D643428D9CCD27735B2 /* Placeholders.swift */; };
+		B36F2A8EDC9F9E6C12647969 /* PhysicsCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75551CBF60FDD8FDBC7A1BE /* PhysicsCategory.swift */; };
+		C8AF5A519F23465841D3319F /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */; };
+		D85D4F3DA76416B240960E58 /* GameConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F47329AC59E5DF836399B18 /* GameConfig.swift */; };
+		F1C3E1C359DED9EA5C7216E5 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650096945F0C5A4E8B89DAC6 /* Theme.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		081C64A2CA3E3DAB304D6D95 /* GameStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStore.swift; sourceTree = "<group>"; };
+		1A44E3E4AFAE53575A11EB38 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		205F4FFEBD8AC74341A771B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
+		3FC98D643428D9CCD27735B2 /* Placeholders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Placeholders.swift; sourceTree = "<group>"; };
+		47D5797F95126582298FE036 /* DifficultyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyManager.swift; sourceTree = "<group>"; };
+		5276669A4A50B37AED2E8DF3 /* CosmicGameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicGameScene.swift; sourceTree = "<group>"; };
+		5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicDriftApp.swift; sourceTree = "<group>"; };
+		650096945F0C5A4E8B89DAC6 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		65962979B79BC978A784F4ED /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		7F47329AC59E5DF836399B18 /* GameConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameConfig.swift; sourceTree = "<group>"; };
+		8058856B85C31E6AD143BA71 /* LeaderboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardService.swift; sourceTree = "<group>"; };
+		ADFC3211534D5ED948C32564 /* CosmicBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicBackground.swift; sourceTree = "<group>"; };
+		B295D0C2946D82623B871394 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
+		B2CBB13FF5C20A8779C27842 /* AstronautView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstronautView.swift; sourceTree = "<group>"; };
+		BE25D69E0E2DA4F256D3C856 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		C75551CBF60FDD8FDBC7A1BE /* PhysicsCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsCategory.swift; sourceTree = "<group>"; };
+		E07F55F5D27C099F908C292B /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
+		F00D130490ED5B9835344F78 /* StarfieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarfieldView.swift; sourceTree = "<group>"; };
+		F07D42011013CED5387A2DFE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F3D9EDF6A99AD65414AFF0FC /* Eclipse Runner.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Eclipse Runner.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAAB6E33B0132C27CE43F953 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		058CE1023775FCB8151BCA5D /* Eclipse Runner */ = {
+			isa = PBXGroup;
+			children = (
+				205F4FFEBD8AC74341A771B6 /* Assets.xcassets */,
+				F07D42011013CED5387A2DFE /* Info.plist */,
+				C2D2A6991EABF5007B7BCA6C /* LaunchScreen.storyboard */,
+				B12177002311A3A6F4A2E8CF /* App */,
+				6175BD63BBA4E73001E56FDF /* Backend */,
+				DAC824D81EE8E817A25C3FAE /* Game */,
+				5595D9FFB95F5A04C8691D00 /* Models */,
+				7A32BF114B11384B064DBA01 /* Views */,
+			);
+			path = "Eclipse Runner";
+			sourceTree = "<group>";
+		};
+		4D2FF61D46263A342F2B43E8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F3D9EDF6A99AD65414AFF0FC /* Eclipse Runner.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5595D9FFB95F5A04C8691D00 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				081C64A2CA3E3DAB304D6D95 /* GameStore.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		6175BD63BBA4E73001E56FDF /* Backend */ = {
+			isa = PBXGroup;
+			children = (
+				8058856B85C31E6AD143BA71 /* LeaderboardService.swift */,
+				29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */,
+			);
+			path = Backend;
+			sourceTree = "<group>";
+		};
+		7A32BF114B11384B064DBA01 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9B884E2605C202758F021438 /* Components */,
+				94A39968651927C29168786A /* Home */,
+				A3C1AD7BA42816371D505308 /* Placeholders */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		94A39968651927C29168786A /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				1A44E3E4AFAE53575A11EB38 /* HomeView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		9B884E2605C202758F021438 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				B2CBB13FF5C20A8779C27842 /* AstronautView.swift */,
+				ADFC3211534D5ED948C32564 /* CosmicBackground.swift */,
+				F00D130490ED5B9835344F78 /* StarfieldView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		A3C1AD7BA42816371D505308 /* Placeholders */ = {
+			isa = PBXGroup;
+			children = (
+				3FC98D643428D9CCD27735B2 /* Placeholders.swift */,
+			);
+			path = Placeholders;
+			sourceTree = "<group>";
+		};
+		B12177002311A3A6F4A2E8CF /* App */ = {
+			isa = PBXGroup;
+			children = (
+				5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */,
+				BE25D69E0E2DA4F256D3C856 /* RootView.swift */,
+				650096945F0C5A4E8B89DAC6 /* Theme.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DAC824D81EE8E817A25C3FAE /* Game */ = {
+			isa = PBXGroup;
+			children = (
+				65962979B79BC978A784F4ED /* AudioManager.swift */,
+				5276669A4A50B37AED2E8DF3 /* CosmicGameScene.swift */,
+				47D5797F95126582298FE036 /* DifficultyManager.swift */,
+				7F47329AC59E5DF836399B18 /* GameConfig.swift */,
+				B295D0C2946D82623B871394 /* GameView.swift */,
+				E07F55F5D27C099F908C292B /* HapticsManager.swift */,
+				C75551CBF60FDD8FDBC7A1BE /* PhysicsCategory.swift */,
+			);
+			path = Game;
+			sourceTree = "<group>";
+		};
+		E8DD7316BE18A4B7213B9B65 = {
+			isa = PBXGroup;
+			children = (
+				058CE1023775FCB8151BCA5D /* Eclipse Runner */,
+				4D2FF61D46263A342F2B43E8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BF73F1EF809FA2AAF70D7C7B /* Eclipse Runner */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CC3F3EBBFB5965E1F9579188 /* Build configuration list for PBXNativeTarget "Eclipse Runner" */;
+			buildPhases = (
+				1F7B9CCE9474D70CE0FDECED /* Sources */,
+				80FF6AB937EC9B84A3032D88 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Eclipse Runner";
+			packageProductDependencies = (
+			);
+			productName = "Eclipse Runner";
+			productReference = F3D9EDF6A99AD65414AFF0FC /* Eclipse Runner.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FFE12637C8C131FA9AE0CA8F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 05C3B1A4A6919DECE61899D7 /* Build configuration list for PBXProject "Eclipse Runner" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E8DD7316BE18A4B7213B9B65;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BF73F1EF809FA2AAF70D7C7B /* Eclipse Runner */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		80FF6AB937EC9B84A3032D88 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AA97E468A0294BB97ED7D46 /* Assets.xcassets in Resources */,
+				9F47C98C825656CF246882A8 /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1F7B9CCE9474D70CE0FDECED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				529F5C1D4A64640FDB5C5D02 /* AstronautView.swift in Sources */,
+				016D243142611A2EA6141A1C /* AudioManager.swift in Sources */,
+				9DB54882F6997EDA401EE209 /* CosmicBackground.swift in Sources */,
+				6A40A4F36E87168D4BEF1829 /* CosmicDriftApp.swift in Sources */,
+				9B007DDEC51AD2A1A338406B /* CosmicGameScene.swift in Sources */,
+				04DE8A189293F16429E6E74C /* DifficultyManager.swift in Sources */,
+				D85D4F3DA76416B240960E58 /* GameConfig.swift in Sources */,
+				A706A73270E49AA0C2843608 /* GameStore.swift in Sources */,
+				7E5235D9DCC9481D58AAB3E7 /* GameView.swift in Sources */,
+				27ED976E883B142E277BF277 /* HapticsManager.swift in Sources */,
+				A3AB4F34326B826F940B2A6A /* HomeView.swift in Sources */,
+				9D6C53DDDC745478490DD188 /* LeaderboardService.swift in Sources */,
+				B36F2A8EDC9F9E6C12647969 /* PhysicsCategory.swift in Sources */,
+				AFB0D4225B5606D071B593FC /* Placeholders.swift in Sources */,
+				451373A1553BA6BC8AA56AE9 /* RootView.swift in Sources */,
+				3683D16BC538B0E495538388 /* StarfieldView.swift in Sources */,
+				C8AF5A519F23465841D3319F /* SupabaseConfig.swift in Sources */,
+				F1C3E1C359DED9EA5C7216E5 /* Theme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		C2D2A6991EABF5007B7BCA6C /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FAAB6E33B0132C27CE43F953 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		3DF5C9772570C5588A056D4A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CURRENT_PROJECT_VERSION = 1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_NAME = "Eclipse Runner";
+				SDKROOT = iphoneos;
+				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+				SUPABASE_URL = "$(SUPABASE_URL)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		45CF9906604C06DE1B9546F5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Eclipse Runner/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.eclipserunner;
+			};
+			name = Release;
+		};
+		85908012E6FA29B8ED66CBA6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CURRENT_PROJECT_VERSION = 1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_NAME = "Eclipse Runner";
+				SDKROOT = iphoneos;
+				SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+				SUPABASE_URL = "$(SUPABASE_URL)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		A525D2ABB5CCD1257D57C4BE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Eclipse Runner/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.eclipserunner;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		05C3B1A4A6919DECE61899D7 /* Build configuration list for PBXProject "Eclipse Runner" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85908012E6FA29B8ED66CBA6 /* Debug */,
+				3DF5C9772570C5588A056D4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CC3F3EBBFB5965E1F9579188 /* Build configuration list for PBXNativeTarget "Eclipse Runner" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A525D2ABB5CCD1257D57C4BE /* Debug */,
+				45CF9906604C06DE1B9546F5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FFE12637C8C131FA9AE0CA8F /* Project object */;
+}

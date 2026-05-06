@@ -9,17 +9,31 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     @Published var gustUpward: Bool = true
     @Published var showGust: Bool = false
 
-    let scene: CosmicGameScene
+    private(set) var scene: CosmicGameScene?
+    private(set) var isReady = false
+    private weak var store: GameStore?
 
-    /// Called once per run-end so GameView can persist stats via GameStore
-    var onRunEnded: ((Int) -> Void)?
-
-    init(screenSize: CGSize) {
+    func setup(screenSize: CGSize, store: GameStore) {
+        self.store = store
         let s = CosmicGameScene(size: screenSize)
         s.scaleMode   = .resizeFill
         s.anchorPoint = .zero
-        self.scene = s
         s.gameDelegate = self
+        self.scene = s
+        self.isReady = true
+    }
+
+    func reset(store: GameStore) {
+        guard let oldScene = scene else { return }
+        self.store = store
+        let s = CosmicGameScene(size: oldScene.size)
+        s.scaleMode   = .resizeFill
+        s.anchorPoint = .zero
+        s.gameDelegate = self
+        self.scene = s
+        self.score = 0
+        self.gameOverInfo = nil
+        self.showGust = false
     }
 
     // CosmicGameSceneDelegate
@@ -30,9 +44,7 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     nonisolated func sceneDidEnd(score: Int, best: Int, isNewBest: Bool) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            // Persist stats through GameStore (single source of truth)
-            self.onRunEnded?(score)
-            // Show game-over sheet immediately with local data
+            self.store?.registerRun(score: score)
             self.gameOverInfo = GameOverInfo(score: score, best: best, isNewBest: isNewBest)
         }
     }
@@ -61,7 +73,7 @@ struct GameView: View {
     @EnvironmentObject private var store: GameStore
     @Environment(\.dismiss) private var dismiss
 
-    @State private var coordinator: GameCoordinator? = nil
+    @StateObject private var coord: GameCoordinator = GameCoordinator()
     @State private var showGameOver = false
     @State private var shouldDismissOnClose = false
 
@@ -69,49 +81,40 @@ struct GameView: View {
         GeometryReader { geo in
             ZStack {
                 Theme.cosmicBackground.ignoresSafeArea()
-                if let coord = coordinator {
-                    gameLayer(coord: coord, size: geo.size)
+                if coord.isReady {
+                    gameLayer(size: geo.size)
                 }
             }
             .onAppear {
-                if coordinator == nil {
-                    let coord = GameCoordinator(screenSize: geo.size)
-                    // Wire stats persistence through GameStore — single source of truth
-                    coord.onRunEnded = { [weak store] score in
-                        store?.registerRun(score: score)
-                    }
-                    coordinator = coord
+                if !coord.isReady {
+                    coord.setup(screenSize: geo.size, store: store)
                 }
             }
         }
         .navigationBarHidden(true)
         .ignoresSafeArea()
-        .onChange(of: coordinator?.gameOverInfo) { _, info in
+        .onChange(of: coord.gameOverInfo) { _, info in
             if info != nil { showGameOver = true }
         }
         .sheet(isPresented: $showGameOver, onDismiss: {
             if shouldDismissOnClose { dismiss() }
         }) {
-            if let info = coordinator?.gameOverInfo {
+            if let info = coord.gameOverInfo {
                 GameOverSheet(info: info, onRetry: handleRetry, onHome: handleHome)
                     .environmentObject(store)
             }
         }
     }
 
-    private func gameLayer(coord: GameCoordinator, size: CGSize) -> some View {
+    private func gameLayer(size: CGSize) -> some View {
         ZStack(alignment: .top) {
-            SpriteView(scene: coord.scene, options: [.allowsTransparency])
+            SpriteView(scene: coord.scene!, options: [.allowsTransparency])
                 .ignoresSafeArea()
-
-            // HUD
             VStack(spacing: 0) {
-                topHUD(coord: coord)
+                topHUD
                     .padding(.top, 56)
                     .padding(.horizontal, 20)
-
                 Spacer()
-
                 if coord.showGust {
                     GustBanner(upward: coord.gustUpward)
                         .padding(.bottom, 80)
@@ -125,9 +128,8 @@ struct GameView: View {
     }
 
     // MARK: - Top HUD
-    private func topHUD(coord: GameCoordinator) -> some View {
+    private var topHUD: some View {
         HStack {
-            // Back / pause
             Button(action: { dismiss() }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 14, weight: .bold))
@@ -136,7 +138,6 @@ struct GameView: View {
                     .background(.ultraThinMaterial, in: Circle())
             }
             Spacer()
-            // Score
             Text("\(coord.score)")
                 .font(.system(size: 40, weight: .black, design: .rounded))
                 .foregroundStyle(Theme.textPrimary)
@@ -145,7 +146,6 @@ struct GameView: View {
                 .contentTransition(.numericText())
                 .animation(.bouncy, value: coord.score)
             Spacer()
-            // Best
             VStack(spacing: 1) {
                 Text("BEST")
                     .font(.system(size: 9, weight: .heavy, design: .rounded))
@@ -165,14 +165,8 @@ struct GameView: View {
     private func handleRetry() {
         shouldDismissOnClose = false
         showGameOver = false
-        store.lastRunRank = nil   // reset rank for new run
-        guard let old = coordinator else { return }
-        let size = old.scene.size
-        let newCoord = GameCoordinator(screenSize: size)
-        newCoord.onRunEnded = { [weak store] score in
-            store?.registerRun(score: score)
-        }
-        coordinator = newCoord
+        store.lastRunRank = nil
+        coord.reset(store: store)
     }
 
     private func handleHome() {
