@@ -190,7 +190,7 @@ struct HomeView: View {
     // MARK: - Secondary
 
     private var secondaryRow: some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             SecondaryTile(icon: "questionmark.circle.fill",
                           title: L10n.howToPlay,
                           subtitle: L10n.oneTapControls,
@@ -198,6 +198,7 @@ struct HomeView: View {
                           action: onHowToPlay)
             DailyBurstTile(action: onDailyBurst)
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
 
@@ -304,7 +305,7 @@ private struct DailyBurstTile: View {
                 Spacer(minLength: 0)
             }
             .padding(14)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .background(
                 store.dailyCompleted ? Theme.starGold.opacity(0.08) : Theme.surface,
                 in: RoundedRectangle(cornerRadius: 18, style: .continuous)
@@ -344,7 +345,7 @@ private struct SecondaryTile: View {
                 Spacer(minLength: 0)
             }
             .padding(14)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
