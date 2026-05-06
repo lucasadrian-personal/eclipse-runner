@@ -301,16 +301,6 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             cg.setFillColor(skin.uiVisorColor.withAlphaComponent(0.9).cgColor)
             fillRounded(cg, rect: CGRect(x: w*0.44, y: h*0.67, width: w*0.20, height: h*0.08), r: 4)
 
-            // Thruster flame
-            let flameTop = CGPoint(x: w*0.54, y: h*0.86)
-            cg.setFillColor(skin.uiFlameColor.withAlphaComponent(0.9).cgColor)
-            cg.beginPath()
-            cg.move(to: flameTop)
-            cg.addLine(to: CGPoint(x: w*0.46, y: h*0.98))
-            cg.addLine(to: CGPoint(x: w*0.62, y: h*0.98))
-            cg.closePath()
-            cg.fillPath()
-
             // Antenna
             cg.setFillColor(skin.uiSuitColor.cgColor)
             fillRounded(cg, rect: CGRect(x: w*0.51, y: h*0.02, width: w*0.04, height: h*0.12), r: 2)

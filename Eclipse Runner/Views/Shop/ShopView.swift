@@ -456,17 +456,6 @@ struct SkinAstronautPreview: View {
                 .frame(width: size * 0.07, height: size * 0.07)
                 .offset(y: -size * 0.58)
                 .shadow(color: skin.visorColor.opacity(0.8), radius: 6)
-
-            // Flame
-            let fTop = size * 0.38
-            Path { p in
-                p.move(to: CGPoint(x: 0, y: fTop))
-                p.addLine(to: CGPoint(x: -size * 0.10, y: fTop + size * 0.14))
-                p.addLine(to: CGPoint(x:  size * 0.10, y: fTop + size * 0.14))
-                p.closeSubpath()
-            }
-            .fill(LinearGradient(colors: [skin.flameColor, skin.flameColor.opacity(0.3)],
-                                 startPoint: .top, endPoint: .bottom))
         }
     }
 }
@@ -487,7 +476,9 @@ struct SkinGridCell: View {
                 Text(skin.name)
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.textPrimary)
+                    .multilineTextAlignment(.center)
                     .lineLimit(1)
+                    .frame(maxWidth: .infinity)
                 priceTag
             }
             .padding(.vertical, 14)
