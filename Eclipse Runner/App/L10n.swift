@@ -159,6 +159,32 @@ struct L10n {
     static var pilotNameAvailable: String { t("Name is available",       "Nombre disponible") }
     static var pilotNameChecking:  String { t("Checking…",               "Comprobando…") }
 
+    // MARK: Shop
+    static var shopTitle:         String { t("Pilot Shop",               "Tienda del Piloto") }
+    static var shopSubtitle:      String { t("Spend your light-years",   "Gasta tus años luz") }
+    static var shopTabSkins:      String { t("Skins",                    "Skins") }
+    static var shopTabShields:    String { t("Shields",                  "Escudos") }
+    static var shopFree:          String { t("FREE",                     "GRATIS") }
+    static var shopLYCost:        String { t("light-yrs",                "a. luz") }
+    static var shopPremium:       String { t("PREMIUM",                  "PREMIUM") }
+    static var shopGetPremium:    String { t("Get Premium",              "Obtener Premium") }
+    static var shopEquip:         String { t("Equip",                    "Equipar") }
+    static var shopEquipped:      String { t("✓ Equipped",               "✓ Equipado") }
+    static var shopBuyTitle:      String { t("Buy",                      "Comprar") }
+    static var shopBuyConfirm:    String { t("Confirm Purchase",         "Confirmar Compra") }
+    static var shopNotEnoughLY:   String { t("Not enough light-years. Keep flying!",
+                                             "No tienes suficientes años luz. ¡Sigue volando!") }
+    static var shopShieldsOwned:  String { t("Shields owned",            "Escudos disponibles") }
+    static var shopShieldsHint:   String { t("A shield absorbs one collision per run. Activate before you play.",
+                                             "Un escudo absorbe una colisión por partida. Actívalo antes de jugar.") }
+    static var shopShieldsUnit:   String { t("shields",                  "escudos") }
+    static var shopActiveShield:  String { t("Shield active",            "Escudo activo") }
+    static var shopUseShield:     String { t("Use Shield",               "Usar Escudo") }
+
+    // MARK: Misc
+    static var cancel:            String { t("Cancel",                   "Cancelar") }
+    static var ok:                String { t("OK",                       "OK") }
+
     // MARK: Daily Burst – attempts
     static var dailyAttemptsLeft:  String { t("attempts left",          "intentos restantes") }
     static var dailyNoAttemptsLeft:String { t("No attempts left",       "Sin intentos") }

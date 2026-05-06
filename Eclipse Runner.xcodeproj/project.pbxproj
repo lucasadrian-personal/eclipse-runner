@@ -16,6 +16,7 @@
 		451373A1553BA6BC8AA56AE9 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE25D69E0E2DA4F256D3C856 /* RootView.swift */; };
 		529F5C1D4A64640FDB5C5D02 /* AstronautView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CBB13FF5C20A8779C27842 /* AstronautView.swift */; };
 		6A40A4F36E87168D4BEF1829 /* CosmicDriftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */; };
+		797F88C26E278347201969A5 /* SkinCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2A9998ED76EC8729FFC0EF /* SkinCatalog.swift */; };
 		7E5235D9DCC9481D58AAB3E7 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B295D0C2946D82623B871394 /* GameView.swift */; };
 		9B007DDEC51AD2A1A338406B /* CosmicGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5276669A4A50B37AED2E8DF3 /* CosmicGameScene.swift */; };
 		9D6C53DDDC745478490DD188 /* LeaderboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8058856B85C31E6AD143BA71 /* LeaderboardService.swift */; };
@@ -29,17 +30,20 @@
 		C8AF5A519F23465841D3319F /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */; };
 		D1805FB5B0191D7201E2ADBC /* DailyBurstView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2BBA42B452D6CCEC6712BE /* DailyBurstView.swift */; };
 		D85D4F3DA76416B240960E58 /* GameConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F47329AC59E5DF836399B18 /* GameConfig.swift */; };
+		EA5466C1EAE2C9C57FC7FCE4 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC5C8593312A8B53F1AEDCF /* ShopView.swift */; };
 		F1C3E1C359DED9EA5C7216E5 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650096945F0C5A4E8B89DAC6 /* Theme.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		081C64A2CA3E3DAB304D6D95 /* GameStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStore.swift; sourceTree = "<group>"; };
 		0A4A83B98BCA27C50566BA5E /* DailyBurstService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBurstService.swift; sourceTree = "<group>"; };
+		0FC5C8593312A8B53F1AEDCF /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
 		1A44E3E4AFAE53575A11EB38 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		205F4FFEBD8AC74341A771B6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseConfig.swift; sourceTree = "<group>"; };
 		3FC98D643428D9CCD27735B2 /* Placeholders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Placeholders.swift; sourceTree = "<group>"; };
 		47D5797F95126582298FE036 /* DifficultyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DifficultyManager.swift; sourceTree = "<group>"; };
+		4E2A9998ED76EC8729FFC0EF /* SkinCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinCatalog.swift; sourceTree = "<group>"; };
 		5276669A4A50B37AED2E8DF3 /* CosmicGameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicGameScene.swift; sourceTree = "<group>"; };
 		5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicDriftApp.swift; sourceTree = "<group>"; };
 		650096945F0C5A4E8B89DAC6 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
@@ -88,6 +92,7 @@
 			isa = PBXGroup;
 			children = (
 				081C64A2CA3E3DAB304D6D95 /* GameStore.swift */,
+				4E2A9998ED76EC8729FFC0EF /* SkinCatalog.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -117,8 +122,17 @@
 				68DBCB78B1589519926C4EB3 /* DailyBurst */,
 				94A39968651927C29168786A /* Home */,
 				A3C1AD7BA42816371D505308 /* Placeholders */,
+				8E638E3E28998177205DB8BC /* Shop */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		8E638E3E28998177205DB8BC /* Shop */ = {
+			isa = PBXGroup;
+			children = (
+				0FC5C8593312A8B53F1AEDCF /* ShopView.swift */,
+			);
+			path = Shop;
 			sourceTree = "<group>";
 		};
 		94A39968651927C29168786A /* Home */ = {
@@ -264,6 +278,8 @@
 				B36F2A8EDC9F9E6C12647969 /* PhysicsCategory.swift in Sources */,
 				AFB0D4225B5606D071B593FC /* Placeholders.swift in Sources */,
 				451373A1553BA6BC8AA56AE9 /* RootView.swift in Sources */,
+				EA5466C1EAE2C9C57FC7FCE4 /* ShopView.swift in Sources */,
+				797F88C26E278347201969A5 /* SkinCatalog.swift in Sources */,
 				3683D16BC538B0E495538388 /* StarfieldView.swift in Sources */,
 				C8AF5A519F23465841D3319F /* SupabaseConfig.swift in Sources */,
 				F1C3E1C359DED9EA5C7216E5 /* Theme.swift in Sources */,

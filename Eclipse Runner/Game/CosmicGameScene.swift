@@ -17,6 +17,9 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     weak var gameDelegate: CosmicGameSceneDelegate?
 
+    // Active skin — set before didMove(to:)
+    var activeSkin: AstronautSkin = SkinCatalog.all[0]
+
     // Nodes
     private let player          = SKSpriteNode()
     private var bgLayers: [SKNode] = []
@@ -86,7 +89,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - Player
     private func setupPlayer() {
-        let tex = makeAstronautTexture(size: CGSize(width: 88, height: 88))
+        let tex = makeAstronautTexture(size: CGSize(width: 88, height: 88), skin: activeSkin)
         player.texture = tex
         player.size    = CGSize(width: 72, height: 72)
         player.position = CGPoint(x: size.width * 0.28, y: size.height * 0.5)
@@ -260,25 +263,25 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     // MARK: - Astronaut texture (UIKit draw → SKTexture)
-    private func makeAstronautTexture(size s: CGSize) -> SKTexture {
+    private func makeAstronautTexture(size s: CGSize, skin: AstronautSkin) -> SKTexture {
         let renderer = UIGraphicsImageRenderer(size: s)
         let img = renderer.image { ctx in
             let cg = ctx.cgContext
             let w = s.width, h = s.height
 
             // Backpack
-            cg.setFillColor(UIColor(red: 0.67, green: 0.73, blue: 0.84, alpha: 1).cgColor)
+            cg.setFillColor(skin.uiAccentColor.cgColor)
             fillRounded(cg, rect: CGRect(x: w*0.16, y: h*0.36, width: w*0.20, height: h*0.38), r: 8)
 
             // Helmet
-            cg.setFillColor(UIColor(red: 0.95, green: 0.97, blue: 1.0, alpha: 1).cgColor)
+            cg.setFillColor(skin.uiSuitColor.cgColor)
             cg.fillEllipse(in: CGRect(x: w*0.26, y: h*0.12, width: w*0.56, height: h*0.54))
-            cg.setStrokeColor(UIColor(red: 0.76, green: 0.81, blue: 0.9, alpha: 1).cgColor)
+            cg.setStrokeColor(skin.uiAccentColor.cgColor)
             cg.setLineWidth(2.5)
             cg.strokeEllipse(in: CGRect(x: w*0.26, y: h*0.12, width: w*0.56, height: h*0.54))
 
             // Visor
-            cg.setFillColor(UIColor(red: 0.30, green: 0.82, blue: 1.0, alpha: 1).cgColor)
+            cg.setFillColor(skin.uiVisorColor.cgColor)
             cg.fillEllipse(in: CGRect(x: w*0.36, y: h*0.22, width: w*0.32, height: h*0.22))
 
             // Visor highlight
@@ -286,21 +289,21 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             cg.fillEllipse(in: CGRect(x: w*0.38, y: h*0.24, width: w*0.10, height: h*0.07))
 
             // Body
-            cg.setFillColor(UIColor(red: 0.90, green: 0.93, blue: 0.98, alpha: 1).cgColor)
+            cg.setFillColor(skin.uiSuitColor.cgColor)
             fillRounded(cg, rect: CGRect(x: w*0.37, y: h*0.60, width: w*0.34, height: h*0.26), r: 10)
 
             // Arms
-            cg.setFillColor(UIColor(red: 0.83, green: 0.87, blue: 0.93, alpha: 1).cgColor)
+            cg.setFillColor(skin.uiAccentColor.cgColor)
             fillRounded(cg, rect: CGRect(x: w*0.22, y: h*0.63, width: w*0.15, height: h*0.09), r: 5)
             fillRounded(cg, rect: CGRect(x: w*0.71, y: h*0.63, width: w*0.15, height: h*0.09), r: 5)
 
             // Chest panel
-            cg.setFillColor(UIColor(red: 0.36, green: 0.90, blue: 1.00, alpha: 0.9).cgColor)
+            cg.setFillColor(skin.uiVisorColor.withAlphaComponent(0.9).cgColor)
             fillRounded(cg, rect: CGRect(x: w*0.44, y: h*0.67, width: w*0.20, height: h*0.08), r: 4)
 
             // Thruster flame
             let flameTop = CGPoint(x: w*0.54, y: h*0.86)
-            cg.setFillColor(UIColor(red: 0.97, green: 0.64, blue: 0.23, alpha: 0.9).cgColor)
+            cg.setFillColor(skin.uiFlameColor.withAlphaComponent(0.9).cgColor)
             cg.beginPath()
             cg.move(to: flameTop)
             cg.addLine(to: CGPoint(x: w*0.46, y: h*0.98))
@@ -309,9 +312,9 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             cg.fillPath()
 
             // Antenna
-            cg.setFillColor(UIColor.white.cgColor)
+            cg.setFillColor(skin.uiSuitColor.cgColor)
             fillRounded(cg, rect: CGRect(x: w*0.51, y: h*0.02, width: w*0.04, height: h*0.12), r: 2)
-            cg.setFillColor(UIColor(red: 1.0, green: 0.86, blue: 0.45, alpha: 1).cgColor)
+            cg.setFillColor(skin.uiVisorColor.cgColor)
             cg.fillEllipse(in: CGRect(x: w*0.47, y: h*0.00, width: w*0.12, height: w*0.12))
         }
         return SKTexture(image: img)

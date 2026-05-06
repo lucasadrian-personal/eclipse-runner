@@ -11,7 +11,8 @@ struct RootView: View {
                 onDailyBurst:  { path.append(Route.dailyBurst) },
                 onLeaderboard: { path.append(Route.leaderboard) },
                 onHowToPlay:   { path.append(Route.howToPlay) },
-                onSettings:    { path.append(Route.settings) }
+                onSettings:    { path.append(Route.settings) },
+                onShop:        { path.append(Route.shop) }
             )
             .navigationDestination(for: Route.self) { route in
                 switch route {
@@ -27,6 +28,8 @@ struct RootView: View {
                     HowToPlayPlaceholderView()
                 case .settings:
                     SettingsPlaceholderView()
+                case .shop:
+                    ShopView()
                 }
             }
         }
@@ -35,5 +38,5 @@ struct RootView: View {
 }
 
 enum Route: Hashable {
-    case play, dailyBurst, playDaily, leaderboard, howToPlay, settings
+    case play, dailyBurst, playDaily, leaderboard, howToPlay, settings, shop
 }

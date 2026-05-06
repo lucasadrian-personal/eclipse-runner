@@ -9,6 +9,14 @@ final class GameStore: ObservableObject {
     @Published var totalDistance: Int
     @Published var pilotName: String
 
+    // MARK: Skins & shields
+    @Published var activeSkinID: String = "classic"
+    @Published var ownedSkinIDs: Set<String> = ["classic"]
+    @Published var shieldCount: Int = 0
+    @Published var shieldActiveThisRun: Bool = false   // true = shield consumed this run
+
+    var activeSkin: AstronautSkin { SkinCatalog.skin(id: activeSkinID) }
+
     @Published var leaderboard: [LeaderboardEntry] = []
     @Published var leaderboardLoading: Bool = false
     @Published var isOnline: Bool = false
@@ -39,6 +47,14 @@ final class GameStore: ObservableObject {
         self.totalDistance = defaults.integer(forKey: Keys.distance)
         self.pilotName     = defaults.string(forKey: Keys.pilot) ?? "Pilot Nova"
 
+        // Skins
+        if let sid = defaults.string(forKey: Keys.activeSkin) { activeSkinID = sid }
+        if let data = defaults.data(forKey: Keys.ownedSkins),
+           let decoded = try? JSONDecoder().decode(Set<String>.self, from: data) {
+            ownedSkinIDs = decoded
+        }
+        shieldCount = defaults.integer(forKey: Keys.shields)
+
         // Restore daily state for today
         let today = DailyBurstService.shared.todayString
         if defaults.string(forKey: Keys.dailyDate) == today {
@@ -58,6 +74,46 @@ final class GameStore: ObservableObject {
         guard !trimmed.isEmpty else { return }
         pilotName = trimmed
         defaults.set(trimmed, forKey: Keys.pilot)
+    }
+
+    // MARK: - Skin management
+    func equipSkin(_ id: String) {
+        guard ownedSkinIDs.contains(id) else { return }
+        activeSkinID = id
+        defaults.set(id, forKey: Keys.activeSkin)
+    }
+
+    func buySkin(_ skin: AstronautSkin) -> Bool {
+        guard case .lightYears(let cost) = skin.unlock else { return false }
+        guard totalDistance >= cost, !ownedSkinIDs.contains(skin.id) else { return false }
+        totalDistance -= cost
+        ownedSkinIDs.insert(skin.id)
+        defaults.set(totalDistance, forKey: Keys.distance)
+        saveOwnedSkins()
+        return true
+    }
+
+    func grantSkin(_ id: String) {   // called after successful IAP
+        ownedSkinIDs.insert(id)
+        saveOwnedSkins()
+    }
+
+    func addShields(_ count: Int) {
+        shieldCount += count
+        defaults.set(shieldCount, forKey: Keys.shields)
+    }
+
+    func consumeShieldIfAvailable() -> Bool {
+        guard shieldCount > 0 else { return false }
+        shieldCount -= 1
+        defaults.set(shieldCount, forKey: Keys.shields)
+        return true
+    }
+
+    private func saveOwnedSkins() {
+        if let data = try? JSONEncoder().encode(ownedSkinIDs) {
+            defaults.set(data, forKey: Keys.ownedSkins)
+        }
     }
 
     // MARK: - Register run + submit to leaderboard
@@ -163,6 +219,9 @@ final class GameStore: ObservableObject {
         static let runs       = "cd.totalRuns"
         static let distance   = "cd.totalDistance"
         static let pilot      = "cd.pilotName"
+        static let activeSkin = "cd.activeSkin"
+        static let ownedSkins = "cd.ownedSkins"
+        static let shields    = "cd.shields"
         static let dailyDate     = "cd.dailyDate"
         static let dailyBest     = "cd.dailyBest"
         static let dailyDone     = "cd.dailyDone"

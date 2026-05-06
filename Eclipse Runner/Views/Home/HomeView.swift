@@ -9,6 +9,7 @@ struct HomeView: View {
     let onLeaderboard: () -> Void
     let onHowToPlay: () -> Void
     let onSettings: () -> Void
+    let onShop: () -> Void
 
     @State private var pulse = false
 
@@ -50,6 +51,21 @@ struct HomeView: View {
                     .foregroundStyle(Theme.textPrimary)
             }
             Spacer()
+            // Shop button with LY balance
+            Button(action: onShop) {
+                HStack(spacing: 5) {
+                    Image(systemName: "warp.drive")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(Theme.starGold)
+                    Text("\(store.totalDistance)")
+                        .font(.system(size: 13, weight: .black, design: .rounded))
+                        .foregroundStyle(Theme.starGold)
+                }
+                .padding(.horizontal, 12).padding(.vertical, 8)
+                .background(Theme.starGold.opacity(0.12), in: Capsule())
+                .overlay(Capsule().stroke(Theme.starGold.opacity(0.3), lineWidth: 1))
+            }
+            .padding(.trailing, 8)
             Button(action: onSettings) {
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 18, weight: .semibold))
@@ -71,7 +87,8 @@ struct HomeView: View {
                 .foregroundStyle(Theme.auroraCyan)
 
             ZStack {
-                AstronautView(size: 200)
+                // Show the active skin astronaut
+                SkinAstronautPreview(skin: store.activeSkin, size: 200)
                     .frame(height: 260)
 
                 // Score badge top-right
@@ -93,6 +110,44 @@ struct HomeView: View {
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 .padding(.top, 8)
+
+                // Skin badge bottom-left
+                Button(action: onShop) {
+                    HStack(spacing: 5) {
+                        Circle()
+                            .fill(store.activeSkin.visorColor)
+                            .frame(width: 10, height: 10)
+                        Text(store.activeSkin.name)
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Theme.textSecondary)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(Theme.textTertiary)
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 6)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay(Capsule().stroke(Theme.surfaceStroke, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .padding(.bottom, 8)
+
+                // Shield indicator if active
+                if store.shieldCount > 0 {
+                    HStack(spacing: 4) {
+                        Image(systemName: "shield.fill")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(Theme.auroraCyan)
+                        Text("\(store.shieldCount)")
+                            .font(.system(size: 11, weight: .black, design: .rounded))
+                            .foregroundStyle(Theme.auroraCyan)
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 6)
+                    .background(.ultraThinMaterial, in: Capsule())
+                    .overlay(Capsule().stroke(Theme.auroraCyan.opacity(0.4), lineWidth: 1))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    .padding(.bottom, 8)
+                }
             }
 
             Text(L10n.tagline)
@@ -408,7 +463,8 @@ struct LeaderboardRow: View {
 
 #Preview {
     NavigationStack {
-        HomeView(onPlay: {}, onDailyBurst: {}, onLeaderboard: {}, onHowToPlay: {}, onSettings: {})
+        HomeView(onPlay: {}, onDailyBurst: {}, onLeaderboard: {}, onHowToPlay: {}, onSettings: {}, onShop: {})
             .environmentObject(GameStore())
+            .environmentObject(LanguageManager.shared)
     }
 }

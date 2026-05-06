@@ -21,6 +21,7 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
         s.scaleMode   = .resizeFill
         s.anchorPoint = .zero
         s.gameDelegate = self
+        s.activeSkin   = store.activeSkin
         self.scene = s
         self.isReady = true
     }
@@ -32,6 +33,7 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
         s.scaleMode   = .resizeFill
         s.anchorPoint = .zero
         s.gameDelegate = self
+        s.activeSkin   = store.activeSkin
         self.scene = s
         self.score = 0
         self.gameOverInfo = nil
