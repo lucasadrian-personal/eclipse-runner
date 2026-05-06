@@ -111,7 +111,7 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                 .padding(.top, 8)
 
-                // Skin badge bottom-left
+                // Skin badge bottom-center
                 Button(action: onShop) {
                     HStack(spacing: 5) {
                         Circle()
@@ -129,7 +129,7 @@ struct HomeView: View {
                     .overlay(Capsule().stroke(Theme.surfaceStroke, lineWidth: 1))
                 }
                 .buttonStyle(.plain)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                 .padding(.bottom, 8)
 
                 // Shield indicator if active
