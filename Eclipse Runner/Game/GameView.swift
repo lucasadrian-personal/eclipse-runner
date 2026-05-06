@@ -110,11 +110,12 @@ struct GameView: View {
         .onChange(of: coord.gameOverInfo) { _, info in
             if info != nil { showGameOver = true }
         }
-        .sheet(isPresented: $showGameOver, onDismiss: {
-            if shouldDismissOnClose { dismiss() }
-        }) {
+        .onChange(of: showGameOver) { _, showing in
+            if !showing && shouldDismissOnClose { dismiss() }
+        }
+        .sheet(isPresented: $showGameOver) {
             if let info = coord.gameOverInfo {
-                GameOverSheet(info: info, onRetry: handleRetry, onHome: handleHome)
+                GameOverSheet(info: info, mode: coord.gameMode, onRetry: handleRetry, onHome: handleHome)
                     .environmentObject(store)
                     .environmentObject(lang)
             }
@@ -179,13 +180,18 @@ struct GameView: View {
     // MARK: - Retry / Home
     private func handleRetry() {
         shouldDismissOnClose = false
-        showGameOver = false
+        // Clear gameOverInfo BEFORE dismissing the sheet so the onChange
+        // doesn't re-trigger showGameOver when the sheet is closed.
+        coord.gameOverInfo = nil
         store.lastRunRank = nil
+        store.lastDailyRank = nil
+        showGameOver = false
         coord.reset(store: store)
     }
 
     private func handleHome() {
         shouldDismissOnClose = true
+        coord.gameOverInfo = nil
         showGameOver = false
     }
 }
@@ -218,6 +224,7 @@ struct GameOverSheet: View {
     @EnvironmentObject private var store: GameStore
     @EnvironmentObject private var lang: LanguageManager
     let info: GameOverInfo
+    let mode: GameMode
     let onRetry: () -> Void
     let onHome: () -> Void
 
@@ -288,7 +295,10 @@ struct GameOverSheet: View {
 
     @ViewBuilder
     private var rankBadge: some View {
-        if let rank = store.lastRunRank {
+        let currentRank = mode == .daily ? store.lastDailyRank : store.lastRunRank
+        let isSubmitting = mode == .daily ? store.lastDailyRank == nil : store.lastRunRank == nil
+
+        if let rank = currentRank {
             HStack(spacing: 8) {
                 Image(systemName: "globe.americas.fill")
                     .font(.system(size: 13, weight: .bold))
@@ -306,7 +316,7 @@ struct GameOverSheet: View {
             .overlay(Capsule().stroke(Theme.nebulaPurple.opacity(0.30), lineWidth: 1))
             .opacity(appear ? 1 : 0)
             .transition(.scale(scale: 0.85).combined(with: .opacity))
-        } else if SupabaseConfig.current != nil {
+        } else if SupabaseConfig.current != nil && isSubmitting {
             HStack(spacing: 8) {
                 ProgressView().tint(Theme.nebulaPurple).scaleEffect(0.8)
                 Text(L10n.fetchingRank)
