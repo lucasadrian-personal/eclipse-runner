@@ -47,7 +47,7 @@ final class GameStore: ObservableObject {
             dailyAttempts  = defaults.integer(forKey: Keys.dailyAttempts)
         }
 
-        leaderboard = LeaderboardEntry.sample
+        leaderboard = []
         refreshLeaderboard()
         refreshDailyLeaderboard()
     }
@@ -124,12 +124,20 @@ final class GameStore: ObservableObject {
             guard let self else { return }
             self.leaderboardLoading = false
             self.isOnline = SupabaseConfig.current != nil
-            guard !rows.isEmpty else { return }
             let myName = self.pilotName
-            self.leaderboard = rows.enumerated().map { idx, row in
-                LeaderboardEntry(rank: idx + 1, name: row.pilotName,
-                                 score: row.score,
-                                 isYou: row.pilotName.lowercased() == myName.lowercased())
+            // Always replace with live data when online (even if empty)
+            if self.isOnline {
+                self.leaderboard = rows.enumerated().map { idx, row in
+                    LeaderboardEntry(rank: idx + 1, name: row.pilotName,
+                                     score: row.score,
+                                     isYou: row.pilotName.lowercased() == myName.lowercased())
+                }
+            } else if !rows.isEmpty {
+                self.leaderboard = rows.enumerated().map { idx, row in
+                    LeaderboardEntry(rank: idx + 1, name: row.pilotName,
+                                     score: row.score,
+                                     isYou: row.pilotName.lowercased() == myName.lowercased())
+                }
             }
         }
     }

@@ -1,19 +1,19 @@
 import Foundation
 
-// MARK: - Remote model
+// MARK: - Remote model  (matches cd_daily_burst columns exactly)
 struct DailyBurstRow: Codable {
-    let id: String
+    let id: Int
     let pilotName: String
     let score: Int
-    let burstDate: String
-    let updatedAt: String
+    let day: String       // "yyyy-MM-dd"
+    let createdAt: String
 
     enum CodingKeys: String, CodingKey {
         case id
         case pilotName = "pilot_name"
         case score
-        case burstDate = "burst_date"
-        case updatedAt = "updated_at"
+        case day
+        case createdAt = "created_at"
     }
 }
 
@@ -27,11 +27,11 @@ final class DailyBurstService {
     static let shared = DailyBurstService()
     private init() {}
 
-    private let table   = "cd_daily_burst"
-    private let session = URLSession.shared
+    private let table    = "cd_daily_burst"
+    private let session  = URLSession.shared
     private let cacheKey = "cd.daily_burst_cache"
 
-    // ISO date string for today
+    // ISO date string for today (UTC)
     var todayString: String {
         let fmt = DateFormatter()
         fmt.dateFormat = "yyyy-MM-dd"
@@ -50,63 +50,65 @@ final class DailyBurstService {
     // MARK: Fetch today's top-50
     func fetchToday(completion: @escaping ([DailyBurstRow]) -> Void) {
         guard let cfg = SupabaseConfig.current else {
-            completion(cachedRows())
-            return
+            completion(cachedRows()); return
         }
         let today = todayString
         var comps = URLComponents(string: "\(cfg.projectURL)/rest/v1/\(table)")!
         comps.queryItems = [
-            .init(name: "select",     value: "id,pilot_name,score,burst_date,updated_at"),
-            .init(name: "burst_date", value: "eq.\(today)"),
-            .init(name: "order",      value: "score.desc,updated_at.asc"),
-            .init(name: "limit",      value: "50")
+            .init(name: "select", value: "id,pilot_name,score,day,created_at"),
+            .init(name: "day",    value: "eq.\(today)"),
+            .init(name: "order",  value: "score.desc,created_at.asc"),
+            .init(name: "limit",  value: "50")
         ]
         var req = URLRequest(url: comps.url!)
         req.httpMethod = "GET"
         addHeaders(&req, cfg: cfg)
 
         session.dataTask(with: req) { [weak self] data, _, error in
-            guard let self, error == nil, let data else {
-                completion(self?.cachedRows() ?? [])
+            guard let self else { return }
+            if let error { NSLog("[DB] fetchToday error: %@", error.localizedDescription) }
+            guard error == nil, let data else {
+                DispatchQueue.main.async { completion(self.cachedRows()) }
                 return
             }
+            if let raw = String(data: data, encoding: .utf8) { NSLog("[DB] fetchToday: %@", raw) }
             let rows = (try? JSONDecoder().decode([DailyBurstRow].self, from: data)) ?? []
             if !rows.isEmpty { self.cacheRows(rows) }
             DispatchQueue.main.async { completion(rows) }
         }.resume()
     }
 
-    // MARK: Submit (upsert — only keeps best score for pilot today)
+    // MARK: Submit — upsert by (pilot_name, day), keeps best score via DB policy
     func submit(score: Int, pilotName: String,
                 completion: @escaping (DailyBurstSubmitResult) -> Void) {
         guard let cfg = SupabaseConfig.current else {
-            completion(DailyBurstSubmitResult(rank: nil, isOnline: false))
-            return
+            completion(DailyBurstSubmitResult(rank: nil, isOnline: false)); return
         }
         guard let url = URL(string: "\(cfg.projectURL)/rest/v1/\(table)") else {
-            completion(DailyBurstSubmitResult(rank: nil, isOnline: false))
-            return
+            completion(DailyBurstSubmitResult(rank: nil, isOnline: false)); return
         }
+
         let safe = String(pilotName.prefix(32)).trimmingCharacters(in: .whitespacesAndNewlines)
-        let body: [String: Any] = [
-            "pilot_name": safe,
-            "score": score,
-            "burst_date": todayString
-        ]
+        let body: [String: Any] = ["pilot_name": safe, "score": score, "day": todayString]
         guard let bodyData = try? JSONSerialization.data(withJSONObject: body) else {
-            completion(DailyBurstSubmitResult(rank: nil, isOnline: false))
-            return
+            completion(DailyBurstSubmitResult(rank: nil, isOnline: false)); return
         }
+
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         addHeaders(&req, cfg: cfg)
-        // Upsert: if (pilot_name, burst_date) exists, update score only if new score is higher
-        req.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
-        req.setValue("return=representation", forHTTPHeaderField: "Prefer")
+        // Single Prefer header combining upsert + return
+        req.setValue("resolution=merge-duplicates,return=representation",
+                     forHTTPHeaderField: "Prefer")
         req.httpBody = bodyData
 
         session.dataTask(with: req) { [weak self] data, resp, error in
-            guard let self, error == nil, let data,
+            guard let self else { return }
+            if let error { NSLog("[DB] submit error: %@", error.localizedDescription) }
+            if let data, let raw = String(data: data, encoding: .utf8) {
+                NSLog("[DB] submit response: %@", raw)
+            }
+            guard error == nil, let data,
                   let rows = try? JSONDecoder().decode([DailyBurstRow].self, from: data),
                   let inserted = rows.first
             else {
@@ -115,7 +117,7 @@ final class DailyBurstService {
                 }
                 return
             }
-            self.fetchRank(for: inserted, cfg: cfg) { rank in
+            self.fetchRank(score: inserted.score, cfg: cfg) { rank in
                 DispatchQueue.main.async {
                     completion(DailyBurstSubmitResult(rank: rank, isOnline: true))
                 }
@@ -123,21 +125,20 @@ final class DailyBurstService {
         }.resume()
     }
 
-    // MARK: Rank = count rows today with higher score + 1
-    private func fetchRank(for row: DailyBurstRow, cfg: SupabaseConfig,
+    // MARK: Rank = pilots today with higher score + 1
+    private func fetchRank(score: Int, cfg: SupabaseConfig,
                            completion: @escaping (Int?) -> Void) {
         let today = todayString
         var comps = URLComponents(string: "\(cfg.projectURL)/rest/v1/\(table)")!
         comps.queryItems = [
-            .init(name: "select",     value: "id"),
-            .init(name: "burst_date", value: "eq.\(today)"),
-            .init(name: "score",      value: "gt.\(row.score)")
+            .init(name: "select", value: "id"),
+            .init(name: "day",    value: "eq.\(today)"),
+            .init(name: "score",  value: "gt.\(score)")
         ]
         var req = URLRequest(url: comps.url!)
-        req.httpMethod = "HEAD"
+        req.httpMethod = "GET"
         addHeaders(&req, cfg: cfg)
         req.setValue("count=exact", forHTTPHeaderField: "Prefer")
-        req.setValue("0-0", forHTTPHeaderField: "Range")
 
         session.dataTask(with: req) { _, response, error in
             guard error == nil,

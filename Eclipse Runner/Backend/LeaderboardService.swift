@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Remote model
 struct CDLeaderboardRow: Codable {
-    let id: String
+    let id: Int
     let pilotName: String
     let score: Int
     let createdAt: String
@@ -17,7 +17,7 @@ struct CDLeaderboardRow: Codable {
 
 // MARK: - Submit result
 struct SubmitResult {
-    let globalRank: Int?   // nil → offline fallback
+    let globalRank: Int?
     let isOnline: Bool
 }
 
@@ -46,11 +46,14 @@ final class LeaderboardService {
         req.httpMethod = "GET"
         addHeaders(&req, cfg: cfg)
 
-        session.dataTask(with: req) { [weak self] data, _, error in
-            guard let self, error == nil, let data else {
-                completion(self?.cachedRows() ?? [])
+        session.dataTask(with: req) { [weak self] data, resp, error in
+            guard let self else { return }
+            if let error { NSLog("[LB] fetchTop error: %@", error.localizedDescription) }
+            guard error == nil, let data else {
+                DispatchQueue.main.async { completion(self.cachedRows()) }
                 return
             }
+            if let raw = String(data: data, encoding: .utf8) { NSLog("[LB] fetchTop response: %@", raw) }
             let rows = (try? JSONDecoder().decode([CDLeaderboardRow].self, from: data)) ?? []
             if !rows.isEmpty { self.cacheRows(rows) }
             DispatchQueue.main.async { completion(rows) }
@@ -64,14 +67,12 @@ final class LeaderboardService {
             completion(SubmitResult(globalRank: nil, isOnline: false))
             return
         }
-
         guard let url = URL(string: "\(cfg.projectURL)/rest/v1/\(cfg.table)") else {
             completion(SubmitResult(globalRank: nil, isOnline: false))
             return
         }
 
-        let safe = String(pilotName.prefix(32))
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let safe = String(pilotName.prefix(32)).trimmingCharacters(in: .whitespacesAndNewlines)
         let body: [[String: Any]] = [["pilot_name": safe, "score": score]]
         guard let bodyData = try? JSONSerialization.data(withJSONObject: body) else {
             completion(SubmitResult(globalRank: nil, isOnline: false))
@@ -84,13 +85,16 @@ final class LeaderboardService {
         req.setValue("return=representation", forHTTPHeaderField: "Prefer")
         req.httpBody = bodyData
 
-        session.dataTask(with: req) { [weak self] data, _, error in
-            guard let self, error == nil, let data,
+        session.dataTask(with: req) { [weak self] data, resp, error in
+            guard let self else { return }
+            if let error { NSLog("[LB] submit error: %@", error.localizedDescription) }
+            if let data, let raw = String(data: data, encoding: .utf8) {
+                NSLog("[LB] submit response: %@", raw)
+            }
+            guard error == nil, let data,
                   let inserted = try? JSONDecoder().decode([CDLeaderboardRow].self, from: data).first
             else {
-                DispatchQueue.main.async {
-                    completion(SubmitResult(globalRank: nil, isOnline: false))
-                }
+                DispatchQueue.main.async { completion(SubmitResult(globalRank: nil, isOnline: false)) }
                 return
             }
             self.fetchRank(for: inserted, cfg: cfg) { rank in
@@ -101,7 +105,7 @@ final class LeaderboardService {
         }.resume()
     }
 
-    // MARK: - Rank computation (count rows with higher score)
+    // MARK: - Rank: count rows with higher score + 1
     private func fetchRank(for row: CDLeaderboardRow, cfg: SupabaseConfig,
                            completion: @escaping (Int?) -> Void) {
         var comps = URLComponents(string: "\(cfg.projectURL)/rest/v1/\(cfg.table)")!
@@ -110,24 +114,21 @@ final class LeaderboardService {
             .init(name: "score",  value: "gt.\(row.score)")
         ]
         var req = URLRequest(url: comps.url!)
-        req.httpMethod = "HEAD"
+        req.httpMethod = "GET"
         addHeaders(&req, cfg: cfg)
         req.setValue("count=exact", forHTTPHeaderField: "Prefer")
-        req.setValue("0-0", forHTTPHeaderField: "Range")
 
         session.dataTask(with: req) { _, response, error in
             guard error == nil,
                   let http = response as? HTTPURLResponse,
                   let range = http.value(forHTTPHeaderField: "Content-Range"),
                   let total = range.split(separator: "/").last.flatMap({ Int($0) })
-            else {
-                completion(nil); return
-            }
+            else { completion(nil); return }
             completion(total + 1)
         }.resume()
     }
 
-    // MARK: - Cache helpers
+    // MARK: - Cache
     private func cacheRows(_ rows: [CDLeaderboardRow]) {
         if let data = try? JSONEncoder().encode(rows) {
             UserDefaults.standard.set(data, forKey: cachedKey)
@@ -141,9 +142,9 @@ final class LeaderboardService {
 
     // MARK: - Headers
     private func addHeaders(_ req: inout URLRequest, cfg: SupabaseConfig) {
-        req.setValue("application/json",       forHTTPHeaderField: "Content-Type")
-        req.setValue("application/json",       forHTTPHeaderField: "Accept")
-        req.setValue(cfg.anonKey,              forHTTPHeaderField: "apikey")
-        req.setValue("Bearer \(cfg.anonKey)",  forHTTPHeaderField: "Authorization")
+        req.setValue("application/json",      forHTTPHeaderField: "Content-Type")
+        req.setValue("application/json",      forHTTPHeaderField: "Accept")
+        req.setValue(cfg.anonKey,             forHTTPHeaderField: "apikey")
+        req.setValue("Bearer \(cfg.anonKey)", forHTTPHeaderField: "Authorization")
     }
 }
