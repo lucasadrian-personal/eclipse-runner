@@ -375,7 +375,7 @@ struct RarityBadge: View {
 struct SkinAstronautPreview: View {
     let skin: AstronautSkin
     var size: CGFloat = 140
-    @State private var floatUp = false
+    @State private var floatOffset: CGFloat = 8
 
     var body: some View {
         ZStack {
@@ -387,10 +387,13 @@ struct SkinAstronautPreview: View {
                 .frame(width: size * 1.6, height: size * 1.6)
             skinBody
                 .frame(width: size, height: size)
-                .offset(y: floatUp ? -8 : 8)
-                .animation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true), value: floatUp)
+                .offset(x: 0, y: floatOffset)
         }
-        .onAppear { floatUp = true }
+        .onAppear {
+            withAnimation(.easeInOut(duration: 2.4).repeatForever(autoreverses: true)) {
+                floatOffset = -8
+            }
+        }
     }
 
     private var skinBody: some View {
