@@ -147,7 +147,7 @@ struct GameView: View {
                 .animation(.bouncy, value: coord.score)
             Spacer()
             VStack(spacing: 1) {
-                Text("BEST")
+                Text(L10n.bestLabel)
                     .font(.system(size: 9, weight: .heavy, design: .rounded))
                     .tracking(1.5)
                     .foregroundStyle(Theme.textTertiary)
@@ -184,7 +184,7 @@ private struct GustBanner: View {
             Image(systemName: upward ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
                 .font(.system(size: 16, weight: .bold))
                 .foregroundStyle(upward ? Theme.auroraMint : Theme.nebulaPink)
-            Text("Solar gust")
+            Text(L10n.solarGust)
                 .font(.system(size: 13, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.textPrimary)
             Image(systemName: "wind")
@@ -249,12 +249,10 @@ struct GameOverSheet: View {
 
     private var titleArea: some View {
         VStack(spacing: 6) {
-            Text(info.isNewBest ? "🏆 New Record!" : "Mission Over")
+            Text(info.isNewBest ? L10n.newRecord : L10n.missionOver)
                 .font(.system(size: 30, weight: .black, design: .rounded))
                 .foregroundStyle(info.isNewBest ? Theme.starGold : Theme.textPrimary)
-            Text(info.isNewBest
-                 ? "You crushed your personal best!"
-                 : "The void claims another pilot…")
+            Text(info.isNewBest ? L10n.newRecordSub : L10n.missionOverSub)
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textSecondary)
                 .multilineTextAlignment(.center)
@@ -265,8 +263,8 @@ struct GameOverSheet: View {
 
     private var scoreCards: some View {
         HStack(spacing: 14) {
-            ScoreCard(label: "SCORE", value: "\(info.score)", tint: Theme.auroraCyan)
-            ScoreCard(label: "BEST",  value: "\(store.bestScore)", tint: Theme.starGold)
+            ScoreCard(label: L10n.scoreLabel, value: "\(info.score)", tint: Theme.auroraCyan)
+            ScoreCard(label: L10n.bestLabel,  value: "\(store.bestScore)", tint: Theme.starGold)
         }
         .opacity(appear ? 1 : 0)
         .offset(y: appear ? 0 : 30)
@@ -279,7 +277,7 @@ struct GameOverSheet: View {
                 Image(systemName: "globe.americas.fill")
                     .font(.system(size: 13, weight: .bold))
                     .foregroundStyle(Theme.nebulaPurple)
-                Text("Global rank")
+                Text(L10n.globalRank)
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.textSecondary)
                 Text("#\(rank)")
@@ -295,7 +293,7 @@ struct GameOverSheet: View {
         } else if SupabaseConfig.current != nil {
             HStack(spacing: 8) {
                 ProgressView().tint(Theme.nebulaPurple).scaleEffect(0.8)
-                Text("Fetching rank…")
+                Text(L10n.fetchingRank)
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.textTertiary)
             }
@@ -309,7 +307,7 @@ struct GameOverSheet: View {
                 HStack(spacing: 10) {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 16, weight: .black))
-                    Text("Try Again")
+                    Text(L10n.tryAgain)
                         .font(.system(size: 18, weight: .black, design: .rounded))
                         .tracking(1)
                 }
@@ -321,7 +319,7 @@ struct GameOverSheet: View {
                 .shadow(color: Theme.auroraCyan.opacity(0.45), radius: 16, y: 8)
             }
             Button(action: onHome) {
-                Text("Back to Home")
+                Text(L10n.backToHome)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.textSecondary)
                     .frame(maxWidth: .infinity)

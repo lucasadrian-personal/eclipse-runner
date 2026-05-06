@@ -76,12 +76,10 @@ struct LeaderboardPlaceholderView: View {
     // MARK: - Header
     private var header: some View {
         VStack(spacing: 4) {
-            Text("Galactic Leaderboard")
+            Text(L10n.galacticLB)
                 .font(.system(size: 26, weight: .bold, design: .rounded))
                 .foregroundStyle(Theme.textPrimary)
-            Text(store.isOnline
-                 ? "Live global rankings"
-                 : "Showing cached rankings · Go online to refresh")
+            Text(store.isOnline ? L10n.liveGlobal : L10n.cachedRankings)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(store.isOnline ? Theme.auroraMint : Theme.textTertiary)
         }
@@ -132,7 +130,7 @@ struct LeaderboardPlaceholderView: View {
             Circle()
                 .fill(store.isOnline ? Theme.auroraMint : Theme.textTertiary)
                 .frame(width: 7, height: 7)
-            Text(store.isOnline ? "LIVE" : "CACHED")
+            Text(store.isOnline ? L10n.liveLabel : L10n.cachedLabel)
                 .font(.system(size: 10, weight: .heavy, design: .rounded))
                 .tracking(1)
                 .foregroundStyle(store.isOnline ? Theme.auroraMint : Theme.textTertiary)
@@ -144,7 +142,7 @@ struct LeaderboardPlaceholderView: View {
             ProgressView()
                 .tint(Theme.auroraCyan)
                 .scaleEffect(1.3)
-            Text("Scanning the galaxy…")
+            Text(L10n.scanningGalaxy)
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textSecondary)
         }
@@ -211,23 +209,19 @@ struct HowToPlayPlaceholderView: View {
         ZStack {
             CosmicBackground()
             VStack(alignment: .leading, spacing: 18) {
-                Text("How to Play")
+                Text(L10n.htpTitle)
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundStyle(Theme.textPrimary)
                     .padding(.top, 8)
 
                 tipCard(icon: "hand.tap.fill", tint: Theme.auroraCyan,
-                        title: "Tap to fly",
-                        body: "Each tap gives a gentle thrust upward. Release to drift down with gravity.")
+                        title: L10n.htpTap,   body: L10n.htpTapBody)
                 tipCard(icon: "arrow.left.and.right", tint: Theme.nebulaPink,
-                        title: "Mind the gap",
-                        body: "Slip through asteroid gates. Touching anything ends the run.")
+                        title: L10n.htpGap,   body: L10n.htpGapBody)
                 tipCard(icon: "wind", tint: Theme.auroraMint,
-                        title: "Solar gusts",
-                        body: "Cosmic winds will nudge you up or down. Adjust on the fly.")
+                        title: L10n.htpWind,  body: L10n.htpWindBody)
                 tipCard(icon: "flame.fill", tint: Theme.starGold,
-                        title: "Speed climbs",
-                        body: "Every 10 points cranks the difficulty. Stay sharp.")
+                        title: L10n.htpSpeed, body: L10n.htpSpeedBody)
                 Spacer()
             }
             .padding(20)
@@ -269,21 +263,22 @@ struct SettingsPlaceholderView: View {
     @State private var showSaved = false
     @FocusState private var nameFocused: Bool
 
-    // Persisted toggles — read initial value from managers
     @State private var soundOn: Bool = !AudioManager.shared.isMuted
     @State private var hapticsOn: Bool = !HapticsManager.shared.isDisabled
+    @State private var selectedLang: AppLanguage = L10n.lang
 
     var body: some View {
         ZStack {
             CosmicBackground()
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
-                    Text("Mission Settings")
+                    Text(L10n.missionSettings)
                         .font(.system(size: 26, weight: .bold, design: .rounded))
                         .foregroundStyle(Theme.textPrimary)
                         .padding(.top, 8)
 
                     pilotSection
+                    languageSection
                     audioSection
                     statsSection
                     aboutSection
@@ -297,10 +292,46 @@ struct SettingsPlaceholderView: View {
         .onAppear { nameInput = store.pilotName }
     }
 
+    // MARK: Language
+    private var languageSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionHeader(L10n.language, icon: "globe")
+            HStack(spacing: 10) {
+                ForEach(AppLanguage.allCases, id: \.self) { lang in
+                    let isSelected = selectedLang == lang
+                    Button {
+                        selectedLang = lang
+                        L10n.lang = lang
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text(lang.flag)
+                                .font(.system(size: 20))
+                            Text(lang.displayName)
+                                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                                .foregroundStyle(isSelected ? Color(red: 0.04, green: 0.06, blue: 0.18) : Theme.textPrimary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            isSelected ? AnyShapeStyle(Theme.primaryGradient) : AnyShapeStyle(Theme.surface),
+                            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(isSelected ? Theme.auroraCyan.opacity(0.5) : Theme.surfaceStroke, lineWidth: 1)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .animation(.spring(response: 0.3), value: selectedLang)
+                }
+            }
+        }
+    }
+
     // MARK: Pilot name
     private var pilotSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("PILOT IDENTITY", icon: "person.fill")
+            sectionHeader(L10n.pilotIdentity, icon: "person.fill")
 
             VStack(spacing: 10) {
                 HStack(spacing: 12) {
@@ -310,7 +341,7 @@ struct SettingsPlaceholderView: View {
                         .frame(width: 36, height: 36)
                         .background(Theme.auroraCyan.opacity(0.15), in: Circle())
 
-                    TextField("Pilot name", text: $nameInput)
+                    TextField(L10n.pilotNamePH, text: $nameInput)
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.textPrimary)
                         .tint(Theme.auroraCyan)
@@ -333,7 +364,7 @@ struct SettingsPlaceholderView: View {
                 )
 
                 Button(action: saveName) {
-                    Text("Save Pilot Name")
+                    Text(L10n.savePilotName)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
                         .frame(maxWidth: .infinity)
@@ -343,7 +374,7 @@ struct SettingsPlaceholderView: View {
                 }
             }
 
-            Text("Your name appears on the global leaderboard after each run.")
+            Text(L10n.pilotNameHint)
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textTertiary)
         }
@@ -361,13 +392,13 @@ struct SettingsPlaceholderView: View {
     // MARK: Sound & Haptics
     private var audioSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("SOUND & HAPTICS", icon: "speaker.wave.2.fill")
+            sectionHeader(L10n.soundHaptics, icon: "speaker.wave.2.fill")
             VStack(spacing: 0) {
                 toggleRow(
                     icon: soundOn ? "speaker.wave.2.fill" : "speaker.slash.fill",
                     tint: Theme.auroraCyan,
-                    label: "Sound Effects",
-                    sublabel: soundOn ? "Flap, score & crash sounds on" : "All sounds muted",
+                    label: L10n.soundEffects,
+                    sublabel: soundOn ? L10n.soundOn : L10n.soundOff,
                     isOn: $soundOn
                 ) {
                     AudioManager.shared.isMuted = !soundOn
@@ -377,8 +408,8 @@ struct SettingsPlaceholderView: View {
                 toggleRow(
                     icon: hapticsOn ? "iphone.radiowaves.left.and.right" : "iphone.slash",
                     tint: Theme.nebulaPink,
-                    label: "Haptic Feedback",
-                    sublabel: hapticsOn ? "Vibrations enabled" : "Vibrations disabled",
+                    label: L10n.hapticFeedback,
+                    sublabel: hapticsOn ? L10n.hapticOn : L10n.hapticOff,
                     isOn: $hapticsOn
                 ) {
                     HapticsManager.shared.isDisabled = !hapticsOn
@@ -428,11 +459,11 @@ struct SettingsPlaceholderView: View {
     // MARK: Stats
     private var statsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("YOUR STATS", icon: "chart.bar.fill")
+            sectionHeader(L10n.yourStats, icon: "chart.bar.fill")
             HStack(spacing: 12) {
-                statTile("Best Score", value: "\(store.bestScore)", tint: Theme.starGold)
-                statTile("Total Runs",  value: "\(store.totalRuns)",  tint: Theme.auroraCyan)
-                statTile("Light-yrs",   value: "\(store.totalDistance)", tint: Theme.nebulaPink)
+                statTile(L10n.bestScore, value: "\(store.bestScore)", tint: Theme.starGold)
+                statTile(L10n.totalRuns,  value: "\(store.totalRuns)",  tint: Theme.auroraCyan)
+                statTile(L10n.lightYrs,   value: "\(store.totalDistance)", tint: Theme.nebulaPink)
             }
         }
     }
@@ -445,6 +476,7 @@ struct SettingsPlaceholderView: View {
             Text(label)
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textTertiary)
+                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
@@ -458,12 +490,12 @@ struct SettingsPlaceholderView: View {
     // MARK: About
     private var aboutSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader("ABOUT", icon: "info.circle")
+            sectionHeader(L10n.about, icon: "info.circle")
             VStack(spacing: 0) {
-                aboutRow(icon: "globe", label: "Leaderboard",
-                         value: SupabaseConfig.current != nil ? "Online" : "Offline")
+                aboutRow(icon: "globe", label: L10n.leaderboard,
+                         value: SupabaseConfig.current != nil ? L10n.online : L10n.offline)
                 Divider().background(Theme.surfaceStroke).padding(.horizontal, 14)
-                aboutRow(icon: "tag", label: "Version", value: "1.0")
+                aboutRow(icon: "tag", label: L10n.version, value: "1.0")
             }
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .overlay(

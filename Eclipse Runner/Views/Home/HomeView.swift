@@ -40,7 +40,7 @@ struct HomeView: View {
     private var topBar: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Welcome back")
+                Text(L10n.welcomeBack)
                     .font(.system(size: 13, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.textSecondary)
                 Text(store.pilotName)
@@ -63,7 +63,7 @@ struct HomeView: View {
 
     private var heroSection: some View {
         VStack(spacing: 6) {
-            Text("COSMIC DRIFT")
+            Text("ECLIPSE RUNNER")
                 .font(.system(size: 13, weight: .heavy, design: .rounded))
                 .tracking(6)
                 .foregroundStyle(Theme.auroraCyan)
@@ -74,7 +74,7 @@ struct HomeView: View {
 
                 // Score badge top-right
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("BEST")
+                    Text(L10n.bestLabel)
                         .font(.system(size: 10, weight: .bold, design: .rounded))
                         .tracking(2)
                         .foregroundStyle(Theme.textTertiary)
@@ -93,7 +93,7 @@ struct HomeView: View {
                 .padding(.top, 8)
             }
 
-            Text("Drift through the void.\nDodge. Survive. Repeat.")
+            Text(L10n.tagline)
                 .multilineTextAlignment(.center)
                 .font(.system(size: 15, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textSecondary)
@@ -106,14 +106,14 @@ struct HomeView: View {
     private var statsRow: some View {
         HStack(spacing: 12) {
             StatPill(icon: "flame.fill",  tint: Theme.nebulaPink,
-                     title: "Runs",       value: "\(store.totalRuns)",
-                     tooltip: "El total de partidas jugadas. Cada vez que empiezas y terminas una partida cuenta como 1 run.")
+                     title: L10n.statRuns,     value: "\(store.totalRuns)",
+                     tooltip: L10n.tooltipRuns)
             StatPill(icon: "sparkles",    tint: Theme.auroraCyan,
-                     title: "Light-yrs", value: "\(store.totalDistance)",
-                     tooltip: "Años luz recorridos en total. Cada gate que atraviesas suma 1 año luz a tu odómetro cósmico. ✨")
+                     title: L10n.statLightYrs, value: "\(store.totalDistance)",
+                     tooltip: L10n.tooltipLightYrs)
             StatPill(icon: "trophy.fill", tint: Theme.starGold,
-                     title: "Best",       value: "\(store.bestScore)",
-                     tooltip: "Tu récord personal: el mayor número de gates que cruzaste en una sola partida. 🏆")
+                     title: L10n.statBest,     value: "\(store.bestScore)",
+                     tooltip: L10n.tooltipBest)
         }
     }
 
@@ -124,7 +124,7 @@ struct HomeView: View {
             HStack(spacing: 12) {
                 Image(systemName: "play.fill")
                     .font(.system(size: 18, weight: .black))
-                Text("LAUNCH")
+                Text(L10n.launch)
                     .font(.system(size: 19, weight: .black, design: .rounded))
                     .tracking(3)
             }
@@ -161,7 +161,7 @@ struct HomeView: View {
         Button(action: onLeaderboard) {
             VStack(alignment: .leading, spacing: 14) {
                 HStack {
-                    Label("Galactic Leaderboard", systemImage: "star.circle.fill")
+                    Label(L10n.galacticLB, systemImage: "star.circle.fill")
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.textPrimary)
                     Spacer()
@@ -191,13 +191,13 @@ struct HomeView: View {
     private var secondaryRow: some View {
         HStack(spacing: 12) {
             SecondaryTile(icon: "questionmark.circle.fill",
-                          title: "How to Play",
-                          subtitle: "One-tap controls",
+                          title: L10n.howToPlay,
+                          subtitle: L10n.oneTapControls,
                           tint: Theme.auroraMint,
                           action: onHowToPlay)
             SecondaryTile(icon: "wind",
-                          title: "Daily Burst",
-                          subtitle: "Resets in 6h",
+                          title: L10n.dailyBurst,
+                          subtitle: L10n.resetsIn6h,
                           tint: Theme.nebulaPink,
                           action: onPlay)
         }

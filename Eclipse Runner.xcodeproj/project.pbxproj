@@ -24,6 +24,7 @@
 		A706A73270E49AA0C2843608 /* GameStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 081C64A2CA3E3DAB304D6D95 /* GameStore.swift */; };
 		AFB0D4225B5606D071B593FC /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC98D643428D9CCD27735B2 /* Placeholders.swift */; };
 		B36F2A8EDC9F9E6C12647969 /* PhysicsCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75551CBF60FDD8FDBC7A1BE /* PhysicsCategory.swift */; };
+		BA9B2074BBA277F6477A4D93 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F5D179940E869372A9A723 /* L10n.swift */; };
 		C8AF5A519F23465841D3319F /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */; };
 		D85D4F3DA76416B240960E58 /* GameConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F47329AC59E5DF836399B18 /* GameConfig.swift */; };
 		F1C3E1C359DED9EA5C7216E5 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650096945F0C5A4E8B89DAC6 /* Theme.swift */; };
@@ -45,6 +46,7 @@
 		ADFC3211534D5ED948C32564 /* CosmicBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicBackground.swift; sourceTree = "<group>"; };
 		B295D0C2946D82623B871394 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
 		B2CBB13FF5C20A8779C27842 /* AstronautView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstronautView.swift; sourceTree = "<group>"; };
+		B8F5D179940E869372A9A723 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
 		BE25D69E0E2DA4F256D3C856 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		C75551CBF60FDD8FDBC7A1BE /* PhysicsCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsCategory.swift; sourceTree = "<group>"; };
 		E07F55F5D27C099F908C292B /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
@@ -135,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */,
+				B8F5D179940E869372A9A723 /* L10n.swift */,
 				BE25D69E0E2DA4F256D3C856 /* RootView.swift */,
 				650096945F0C5A4E8B89DAC6 /* Theme.swift */,
 			);
@@ -240,6 +243,7 @@
 				7E5235D9DCC9481D58AAB3E7 /* GameView.swift in Sources */,
 				27ED976E883B142E277BF277 /* HapticsManager.swift in Sources */,
 				A3AB4F34326B826F940B2A6A /* HomeView.swift in Sources */,
+				BA9B2074BBA277F6477A4D93 /* L10n.swift in Sources */,
 				9D6C53DDDC745478490DD188 /* LeaderboardService.swift in Sources */,
 				B36F2A8EDC9F9E6C12647969 /* PhysicsCategory.swift in Sources */,
 				AFB0D4225B5606D071B593FC /* Placeholders.swift in Sources */,
