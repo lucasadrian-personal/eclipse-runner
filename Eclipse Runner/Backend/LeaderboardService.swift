@@ -81,9 +81,9 @@ final class LeaderboardService {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         addHeaders(&req, cfg: cfg)
-        // Upsert on pilot_name unique index — only update score if new score is higher
-        req.setValue("resolution=merge-duplicates,return=representation",
-                     forHTTPHeaderField: "Prefer")
+        // PostgREST requires separate Prefer directives
+        req.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
+        req.addValue("return=representation",       forHTTPHeaderField: "Prefer")
         // Tell PostgREST which columns form the conflict key
         req.setValue("lower(pilot_name)", forHTTPHeaderField: "On-Conflict")
         req.httpBody = bodyData
@@ -94,14 +94,21 @@ final class LeaderboardService {
             if let data, let raw = String(data: data, encoding: .utf8) {
                 NSLog("[LB] submit response: %@", raw)
             }
-            guard error == nil, let data,
-                  let inserted = try? JSONDecoder().decode([CDLeaderboardRow].self, from: data).first
-            else {
+            guard error == nil else {
                 DispatchQueue.main.async { completion(SubmitResult(globalRank: nil, isOnline: false)) }
                 return
             }
-            self.fetchRank(for: inserted, cfg: cfg) { rank in
-                DispatchQueue.main.async { completion(SubmitResult(globalRank: rank, isOnline: true)) }
+            // If upsert returned empty (score was not better), still fetch rank
+            let rows = data.flatMap { try? JSONDecoder().decode([CDLeaderboardRow].self, from: $0) } ?? []
+            if let inserted = rows.first {
+                self.fetchRank(for: inserted, cfg: cfg) { rank in
+                    DispatchQueue.main.async { completion(SubmitResult(globalRank: rank, isOnline: true)) }
+                }
+            } else {
+                // Score not updated (existing is better) — fetch rank for submitted score anyway
+                self.fetchRankByScore(score: score, cfg: cfg) { rank in
+                    DispatchQueue.main.async { completion(SubmitResult(globalRank: rank, isOnline: true)) }
+                }
             }
         }.resume()
     }
@@ -130,13 +137,19 @@ final class LeaderboardService {
         }.resume()
     }
 
-    // MARK: - Rank
+    // MARK: - Rank by row
     private func fetchRank(for row: CDLeaderboardRow, cfg: SupabaseConfig,
                            completion: @escaping (Int?) -> Void) {
+        fetchRankByScore(score: row.score, cfg: cfg, completion: completion)
+    }
+
+    // MARK: - Rank by raw score
+    private func fetchRankByScore(score: Int, cfg: SupabaseConfig,
+                                  completion: @escaping (Int?) -> Void) {
         var comps = URLComponents(string: "\(cfg.projectURL)/rest/v1/\(cfg.table)")!
         comps.queryItems = [
             .init(name: "select", value: "id"),
-            .init(name: "score",  value: "gt.\(row.score)")
+            .init(name: "score",  value: "gt.\(score)")
         ]
         var req = URLRequest(url: comps.url!)
         req.httpMethod = "GET"

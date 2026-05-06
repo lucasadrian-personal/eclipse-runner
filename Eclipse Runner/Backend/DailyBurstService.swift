@@ -97,9 +97,9 @@ final class DailyBurstService {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         addHeaders(&req, cfg: cfg)
-        // Single Prefer header combining upsert + return
-        req.setValue("resolution=merge-duplicates,return=representation",
-                     forHTTPHeaderField: "Prefer")
+        // PostgREST requires separate Prefer directives
+        req.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
+        req.addValue("return=representation",       forHTTPHeaderField: "Prefer")
         req.httpBody = bodyData
 
         session.dataTask(with: req) { [weak self] data, resp, error in
@@ -108,16 +108,17 @@ final class DailyBurstService {
             if let data, let raw = String(data: data, encoding: .utf8) {
                 NSLog("[DB] submit response: %@", raw)
             }
-            guard error == nil, let data,
-                  let rows = try? JSONDecoder().decode([DailyBurstRow].self, from: data),
-                  let inserted = rows.first
-            else {
+            guard error == nil else {
                 DispatchQueue.main.async {
                     completion(DailyBurstSubmitResult(rank: nil, isOnline: false))
                 }
                 return
             }
-            self.fetchRank(score: inserted.score, cfg: cfg) { rank in
+            // Try to parse returned row — if upsert silently dropped (score not better)
+            // the array may be empty; fall back to fetching rank by submitted score
+            let rows = data.flatMap { try? JSONDecoder().decode([DailyBurstRow].self, from: $0) } ?? []
+            let effectiveScore = rows.first?.score ?? score
+            self.fetchRank(score: effectiveScore, cfg: cfg) { rank in
                 DispatchQueue.main.async {
                     completion(DailyBurstSubmitResult(rank: rank, isOnline: true))
                 }
