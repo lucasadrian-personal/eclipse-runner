@@ -189,8 +189,10 @@ struct ShopView: View {
             Label("\(cost) \(L10n.shopLYCost)", systemImage: "warp.drive")
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.starGold)
-        case .iap:
-            Label(L10n.shopPremium, systemImage: "crown.fill")
+        case .iap(let pid):
+            let live = iap.priceString(for: pid)
+            let price = live.isEmpty ? skin.unlock.iapFallbackPrice : live
+            Label(price.isEmpty ? L10n.shopPremium : price, systemImage: "crown.fill")
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.nebulaPink)
         }
@@ -221,7 +223,8 @@ struct ShopView: View {
             }
             .buttonStyle(.plain)
         case .iap(let productID):
-            let priceStr = iap.priceString(for: productID)
+            let live = iap.priceString(for: productID)
+            let priceStr = live.isEmpty ? skin.unlock.iapFallbackPrice : live
             Button {
                 Task { await iap.purchase(productID: productID, store: store) }
             } label: {
@@ -252,11 +255,26 @@ struct ShopView: View {
         let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
         return LazyVGrid(columns: columns, spacing: 12) {
             ForEach(SkinCatalog.all) { skin in
-                SkinGridCell(skin: skin,
-                             isOwned: store.ownedSkinIDs.contains(skin.id),
-                             isActive: store.activeSkinID == skin.id,
-                             isPreview: previewSkinID == skin.id)
-                    .onTapGesture { withAnimation(.spring(response: 0.25)) { previewSkinID = skin.id } }
+                let iapPrice: String = {
+                    if case .iap(let pid) = skin.unlock {
+                        let live = iap.priceString(for: pid)
+                        return live.isEmpty ? skin.unlock.iapFallbackPrice : live
+                    }
+                    return ""
+                }()
+                SkinGridCell(
+                    skin: skin,
+                    isOwned: store.ownedSkinIDs.contains(skin.id),
+                    isActive: store.activeSkinID == skin.id,
+                    isPreview: previewSkinID == skin.id,
+                    iapPrice: iapPrice,
+                    onIAPBuy: {
+                        if case .iap(let pid) = skin.unlock {
+                            Task { await iap.purchase(productID: pid, store: store) }
+                        }
+                    }
+                )
+                .onTapGesture { withAnimation(.spring(response: 0.25)) { previewSkinID = skin.id } }
             }
         }
     }
@@ -497,6 +515,8 @@ struct SkinGridCell: View {
     let isOwned: Bool
     let isActive: Bool
     let isPreview: Bool
+    var iapPrice: String = ""
+    var onIAPBuy: (() -> Void)? = nil
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -509,7 +529,7 @@ struct SkinGridCell: View {
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity)
-                priceTag
+                priceTagView
             }
             .padding(.vertical, 14)
             .padding(.horizontal, 10)
@@ -543,7 +563,7 @@ struct SkinGridCell: View {
         }
     }
 
-    @ViewBuilder private var priceTag: some View {
+    @ViewBuilder private var priceTagView: some View {
         switch skin.unlock {
         case .free:
             Text(L10n.shopFree)
@@ -555,14 +575,34 @@ struct SkinGridCell: View {
                 Text("\(cost)").font(.system(size: 11, weight: .bold, design: .rounded))
             }
             .foregroundStyle(isOwned ? Theme.textTertiary : Theme.starGold)
-        case .iap(let productID):
-            let priceStr = ShopIAPManager.shared.priceString(for: productID)
-            HStack(spacing: 3) {
-                Image(systemName: "crown.fill").font(.system(size: 10))
-                Text(priceStr.isEmpty ? L10n.shopPremium : priceStr)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
+        case .iap:
+            if isOwned {
+                HStack(spacing: 3) {
+                    Image(systemName: "crown.fill").font(.system(size: 10))
+                    Text(L10n.shopPremium).font(.system(size: 11, weight: .bold, design: .rounded))
+                }
+                .foregroundStyle(Theme.textTertiary)
+            } else {
+                Button {
+                    onIAPBuy?()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "crown.fill").font(.system(size: 10))
+                        Text(iapPrice.isEmpty ? L10n.shopPremium : iapPrice)
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                    }
+                    .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        LinearGradient(colors: [Theme.nebulaPink, Theme.nebulaPurple],
+                                       startPoint: .leading, endPoint: .trailing),
+                        in: Capsule()
+                    )
+                }
+                .buttonStyle(.plain)
             }
-            .foregroundStyle(isOwned ? Theme.textTertiary : Theme.nebulaPink)
         }
     }
 }

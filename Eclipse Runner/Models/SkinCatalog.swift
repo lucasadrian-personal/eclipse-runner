@@ -26,6 +26,17 @@ enum SkinUnlock: Codable, Equatable {
     case free                    // owned from the start
     case lightYears(Int)         // buy with LY currency
     case iap(String)             // StoreKit product ID
+
+    // Fallback display price when StoreKit hasn't loaded yet
+    var iapFallbackPrice: String {
+        guard case .iap(let id) = self else { return "" }
+        switch id {
+        case _ where id.hasSuffix("skin.forest"):  return "€0.99"
+        case _ where id.hasSuffix("skin.ghost"):   return "€1.99"
+        case _ where id.hasSuffix("skin.galactic"): return "€2.99"
+        default: return ""
+        }
+    }
 }
 
 // MARK: - Shield pack
