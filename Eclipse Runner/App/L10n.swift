@@ -206,6 +206,65 @@ struct L10n {
     static var cancel:            String { t("Cancel",                   "Cancelar") }
     static var ok:                String { t("OK",                       "OK") }
 
+    // MARK: Battle
+    static var battleTitle:           String { t("BATTLE 1v1",                    "DUELO 1v1") }
+    static var battleChooseMode:      String { t("Choose your challenge mode",    "Elige tu modo de duelo") }
+    static var battleBack:            String { t("Back",                          "Volver") }
+    static var battleNearbyHeader:    String { t("IN PERSON · BLUETOOTH / DIRECT WIFI", "EN PERSONA · BLUETOOTH / WIFI DIRECTO") }
+    static var battleNearbyNoInternet:String { t("No internet needed",            "Sin internet") }
+    static var battleCreateLocal:     String { t("Create local game",             "Crear partida local") }
+    static var battleCreateLocalSub:  String { t("Be the host — no internet",     "Sé el anfitrión — sin internet") }
+    static var battleJoinLocal:       String { t("Join local game",               "Unirse a partida local") }
+    static var battleJoinLocalSub:    String { t("Find the nearby host",          "Busca al anfitrión cercano") }
+    static var battleOnlineHeader:    String { t("ONLINE · REQUIRES INTERNET",    "ONLINE · REQUIERE INTERNET") }
+    static var battlePrivate:         String { t("Private duel",                  "Duelo privado") }
+    static var battlePrivateSub:      String { t("Create room and share the code","Crea sala y comparte el código") }
+    static var battleJoinCode:        String { t("Join with code",                "Unirse con código") }
+    static var battleJoinCodeSub:     String { t("Enter the 6-character code",    "Introduce el código de 6 caracteres") }
+    static var battleRandom:          String { t("Random rival",                  "Rival aleatorio") }
+    static var battleRandomSub:       String { t("Any pilot online right now",    "Cualquier piloto online ahora") }
+    static var battleRematch:         String { t("Challenge again",               "Retar de nuevo") }
+    static var battleRematchTo:       String { t("to",                            "a") }
+    static var battleLocalCreated:    String { t("Local game created",            "Sala local creada") }
+    static var battleLocalWaiting:    String { t("Waiting for a nearby\nplayer to join…", "Esperando que un\njugador cercano se una…") }
+    static var battleBTBadge:         String { t("Bluetooth / Direct WiFi · No internet", "Bluetooth / WiFi Directo · Sin internet") }
+    static var battleSearchingHosts:  String { t("Searching for hosts",           "Buscando anfitriones") }
+    static var battleSearchingHint:   String { t("Make sure the host has\nthe local game created", "Asegúrate de que el anfitrión tenga\nla sala local creada") }
+    static var battleScanning:        String { t("Scanning…",                     "Escaneando…") }
+    static var battleTapToJoin:       String { t("Tap to join",                   "Toca para unirte") }
+    static var battleRoomCreated:     String { t("Room Created!",                 "¡Sala creada!") }
+    static var battleShareCode:       String { t("Share the code below",          "Comparte el código a continuación") }
+    static var battleWaitingOpponent: String { t("Waiting for an opponent to join…", "Esperando que se una un rival…") }
+    static var battleRoomCode:        String { t("ROOM CODE",                     "CÓDIGO DE SALA") }
+    static var battleShareCodeHint:   String { t("Share this code with your opponent", "Comparte este código con tu rival") }
+    static var battleCancel:          String { t("Cancel",                        "Cancelar") }
+    static var battleWon:             String { t("YOU WON!",                      "¡GANASTE!") }
+    static var battleLost:            String { t("YOU LOST",                      "PERDISTE") }
+    static var battleDraw:            String { t("IT'S A DRAW!",                  "¡EMPATE!") }
+    static var battleDrawSub:         String { t("An epic tie between pilots!",   "¡Un empate épico entre pilotos!") }
+    static var battleWonSub:          String { t("Dominant performance",          "Actuación dominante") }
+    static var battleLostSub:         String { t("flew further this time.",       "voló más lejos esta vez.") }
+    static var battleWaitingResult:   String { t("Waiting for opponent",          "Esperando al rival") }
+    static var battleYourScore:       String { t("Your score:",                   "Tu puntuación:") }
+    static var battleHeadToHead:      String { t("HEAD TO HEAD",                  "CARA A CARA") }
+    static var battleWins:            String { t("WINS",                          "VICTORIAS") }
+    static var battleDraws:           String { t("DRAWS",                         "EMPATES") }
+    static var battleLosses:          String { t("LOSSES",                        "DERROTAS") }
+    static var battleNewRival:        String { t("New rival",                     "Nuevo rival") }
+    static var battleBackHome:        String { t("Back to Home",                  "Volver al inicio") }
+    static var battleWinner:          String { t("WINNER",                        "GANADOR") }
+    static var battleChallengeReceived: String { t("Challenge received!",         "¡Reto recibido!") }
+    static var battleIsChallengingYou:  String { t("is challenging you",          "te está retando") }
+    static var battleAccept:          String { t("Accept",                        "Aceptar") }
+    static var battleJoinRoom:        String { t("JOIN ROOM",                     "ENTRAR A SALA") }
+    static var battleJoinPrivate:     String { t("Join Private Room",             "Unirse a sala privada") }
+    static var battleEnterCode:       String { t("Enter the 6-character room code", "Introduce el código de 6 caracteres") }
+    static var battleConnectionIssue: String { t("Connection Issue",              "Problema de conexión") }
+    static var battleTryAgain:        String { t("Try Again",                     "Intentar de nuevo") }
+    static var battleRequiresInternet:String { t("Battle requires internet",      "La batalla requiere internet") }
+    static var battleGoOnline:        String { t("Connect to WiFi or mobile data\nto challenge other pilots.", "Conéctate al WiFi o datos móviles\npara retar a otros pilotos.") }
+    static var battleLocalBadge:      String { t("LOCAL",                         "LOCAL") }
+
     // MARK: Daily Burst – attempts
     static var dailyAttemptsLeft:  String { t("attempts left",          "intentos restantes") }
     static var dailyNoAttemptsLeft:String { t("No attempts left",       "Sin intentos") }

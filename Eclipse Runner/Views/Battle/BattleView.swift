@@ -145,7 +145,7 @@ private struct BattleLobbyView: View {
                 if !lastOpponent.isEmpty { rematchOption }
                 onlineSection
                 Button(action: onCancel) {
-                    Text("Back")
+                    Text(L10n.battleBack)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(maxWidth: .infinity).frame(height: 44)
@@ -161,13 +161,13 @@ private struct BattleLobbyView: View {
             HStack(spacing: 8) {
                 Image(systemName: "bolt.fill")
                     .font(.system(size: 20, weight: .black)).foregroundStyle(Theme.nebulaPink)
-                Text("BATTLE 1v1")
+                Text(L10n.battleTitle)
                     .font(.system(size: 24, weight: .black, design: .rounded)).tracking(4)
                     .foregroundStyle(Theme.textPrimary)
                 Image(systemName: "bolt.fill")
                     .font(.system(size: 20, weight: .black)).foregroundStyle(Theme.nebulaPink)
             }
-            Text("Choose your challenge mode")
+            Text(L10n.battleChooseMode)
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textSecondary)
         }
@@ -180,15 +180,15 @@ private struct BattleLobbyView: View {
             Divider().background(Theme.surfaceStroke).padding(.horizontal, 16)
             Button(action: onNearbyHost) {
                 lobbyRow(icon: "wifi.router.fill", tint: Theme.auroraMint,
-                         title: "Crear partida local",
-                         sub: "Sé el anfitrión — sin internet")
+                         title: L10n.battleCreateLocal,
+                         sub: L10n.battleCreateLocalSub)
             }
             .buttonStyle(.plain)
             Divider().background(Theme.surfaceStroke)
             Button(action: onNearbyJoin) {
                 lobbyRow(icon: "antenna.radiowaves.left.and.right", tint: Theme.auroraMint,
-                         title: "Unirse a partida local",
-                         sub: "Busca al anfitrión cercano")
+                         title: L10n.battleJoinLocal,
+                         sub: L10n.battleJoinLocalSub)
             }
             .buttonStyle(.plain)
         }
@@ -205,11 +205,11 @@ private struct BattleLobbyView: View {
         HStack(spacing: 8) {
             Image(systemName: "bolt.horizontal.fill")
                 .font(.system(size: 11, weight: .black)).foregroundStyle(Theme.auroraMint)
-            Text("EN PERSONA · BLUETOOTH / WIFI DIRECTO")
+            Text(L10n.battleNearbyHeader)
                 .font(.system(size: 9, weight: .black, design: .rounded)).tracking(1.5)
                 .foregroundStyle(Theme.auroraMint)
             Spacer()
-            Text("Sin internet")
+            Text(L10n.battleNearbyNoInternet)
                 .font(.system(size: 9, weight: .bold, design: .rounded))
                 .foregroundStyle(Theme.auroraMint.opacity(0.7))
                 .padding(.horizontal, 7).padding(.vertical, 3)
@@ -225,19 +225,19 @@ private struct BattleLobbyView: View {
             Divider().background(Theme.surfaceStroke).padding(.horizontal, 16)
             Button(action: onPrivate) {
                 lobbyRow(icon: "key.fill", tint: Theme.starGold,
-                         title: "Duelo privado", sub: "Crea sala y comparte el código")
+                         title: L10n.battlePrivate, sub: L10n.battlePrivateSub)
             }
             .buttonStyle(.plain)
             Divider().background(Theme.surfaceStroke)
             Button(action: onJoinCode) {
                 lobbyRow(icon: "qrcode", tint: Theme.auroraCyan,
-                         title: "Unirse con código", sub: "Introduce el código de 6 caracteres")
+                         title: L10n.battleJoinCode, sub: L10n.battleJoinCodeSub)
             }
             .buttonStyle(.plain)
             Divider().background(Theme.surfaceStroke)
             Button(action: onRandom) {
                 lobbyRow(icon: "shuffle", tint: Theme.nebulaPurple,
-                         title: "Rival aleatorio", sub: "Cualquier piloto online ahora")
+                         title: L10n.battleRandom, sub: L10n.battleRandomSub)
             }
             .buttonStyle(.plain)
         }
@@ -250,7 +250,7 @@ private struct BattleLobbyView: View {
         HStack(spacing: 8) {
             Image(systemName: "globe.americas.fill")
                 .font(.system(size: 11, weight: .black)).foregroundStyle(Theme.textTertiary)
-            Text("ONLINE · REQUIERE INTERNET")
+            Text(L10n.battleOnlineHeader)
                 .font(.system(size: 9, weight: .black, design: .rounded)).tracking(1.5)
                 .foregroundStyle(Theme.textTertiary)
             Spacer()
@@ -268,10 +268,10 @@ private struct BattleLobbyView: View {
                             .font(.system(size: 20, weight: .bold)).foregroundStyle(Theme.nebulaPink)
                     }
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Retar de nuevo")
+                        Text(L10n.battleRematch)
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundStyle(Theme.textPrimary)
-                        Text("a \(lastOpponent)")
+                        Text("\(L10n.battleRematchTo) \(lastOpponent)")
                             .font(.system(size: 13, weight: .semibold, design: .rounded))
                             .foregroundStyle(Theme.nebulaPink)
                     }
@@ -292,9 +292,9 @@ private struct BattleLobbyView: View {
 
             if let r = rivalry, r.total > 0 {
                 HStack(spacing: 0) {
-                    rivalStat(value: r.myWins,    label: "WINS",   tint: Theme.auroraMint)
-                    rivalStat(value: r.draws,     label: "DRAWS",  tint: Theme.starGold)
-                    rivalStat(value: r.theirWins, label: "LOSSES", tint: Theme.nebulaPink)
+                    rivalStat(value: r.myWins,    label: L10n.battleWins,   tint: Theme.auroraMint)
+                    rivalStat(value: r.draws,     label: L10n.battleDraws,  tint: Theme.starGold)
+                    rivalStat(value: r.theirWins, label: L10n.battleLosses, tint: Theme.nebulaPink)
                 }
                 .padding(.vertical, 10)
                 .background(Theme.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
@@ -392,23 +392,23 @@ private struct BattleWaitingView: View {
 
     private var waitingInfo: some View {
         VStack(spacing: 8) {
-            Text("Room Created!")
+            Text(L10n.battleRoomCreated)
                 .font(.system(size: 22, weight: .bold, design: .rounded)).foregroundStyle(Theme.textPrimary)
-            Text(roomCode != nil ? "Share the code below" : "Waiting for an opponent to join…")
+            Text(roomCode != nil ? L10n.battleShareCode : L10n.battleWaitingOpponent)
                 .font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(Theme.textSecondary)
         }
     }
 
     private func codeCard(code: String) -> some View {
         VStack(spacing: 8) {
-            Text("ROOM CODE")
+            Text(L10n.battleRoomCode)
                 .font(.system(size: 10, weight: .black, design: .rounded)).tracking(2)
                 .foregroundStyle(Theme.textTertiary)
             Text(code)
                 .font(.system(size: 36, weight: .black, design: .monospaced))
                 .foregroundStyle(Theme.starGold)
                 .tracking(8)
-            Text("Share this code with your opponent")
+            Text(L10n.battleShareCodeHint)
                 .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textSecondary)
         }
@@ -421,7 +421,7 @@ private struct BattleWaitingView: View {
 
     private var cancelButton: some View {
         Button(action: onCancel) {
-            Text("Cancel")
+            Text(L10n.battleCancel)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity).frame(height: 48)
@@ -444,10 +444,10 @@ private struct NearbyHostingView: View {
             Spacer()
             pulseIcon
             VStack(spacing: 10) {
-                Text("Sala local creada")
+                Text(L10n.battleLocalCreated)
                     .font(.system(size: 22, weight: .black, design: .rounded))
                     .foregroundStyle(Theme.textPrimary)
-                Text("Esperando que un\njugador cercano se una…")
+                Text(L10n.battleLocalWaiting)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
@@ -484,7 +484,7 @@ private struct NearbyHostingView: View {
             Circle().fill(Theme.auroraMint).frame(width: 8, height: 8)
                 .opacity(pulse ? 1 : 0.4)
                 .animation(.easeInOut(duration: 0.8).repeatForever(), value: pulse)
-            Text("Bluetooth / WiFi Directo · Sin internet")
+            Text(L10n.battleBTBadge)
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.auroraMint)
         }
@@ -495,7 +495,7 @@ private struct NearbyHostingView: View {
 
     private var cancelButton: some View {
         Button(action: onCancel) {
-            Text("Cancelar")
+            Text(L10n.battleCancel)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity).frame(height: 50)
@@ -543,9 +543,9 @@ private struct NearbyBrowsingView: View {
                 Image(systemName: "antenna.radiowaves.left.and.right")
                     .font(.system(size: 28, weight: .bold)).foregroundStyle(Theme.auroraMint)
             }
-            Text("Buscando anfitriones")
+            Text(L10n.battleSearchingHosts)
                 .font(.system(size: 20, weight: .black, design: .rounded)).foregroundStyle(Theme.textPrimary)
-            Text("Asegúrate de que el anfitrión tenga\nla sala local creada")
+            Text(L10n.battleSearchingHint)
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textSecondary).multilineTextAlignment(.center)
         }
@@ -555,7 +555,7 @@ private struct NearbyBrowsingView: View {
         VStack(spacing: 16) {
             HStack(spacing: 6) {
                 ProgressView().tint(Theme.auroraMint).scaleEffect(0.9)
-                Text("Escaneando…")
+                Text(L10n.battleScanning)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -591,7 +591,7 @@ private struct NearbyBrowsingView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(peer.displayName)
                     .font(.system(size: 15, weight: .bold, design: .rounded)).foregroundStyle(Theme.textPrimary)
-                Text("Toca para unirte")
+                Text(L10n.battleTapToJoin)
                     .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(Theme.textSecondary)
             }
             Spacer()
@@ -605,7 +605,7 @@ private struct NearbyBrowsingView: View {
 
     private var cancelButton: some View {
         Button(action: onCancel) {
-            Text("Cancelar")
+            Text(L10n.battleCancel)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(Theme.textSecondary)
                 .frame(maxWidth: .infinity).frame(height: 50)
@@ -978,7 +978,7 @@ private struct BattleWaitingResultView: View {
                 ProgressView().tint(Theme.nebulaPurple).scaleEffect(1.8)
             }
             VStack(spacing: 8) {
-                Text("Your score: \(myScore)")
+                Text("\(L10n.battleYourScore) \(myScore)")
                     .font(.system(size: 26, weight: .black, design: .rounded))
                     .foregroundStyle(Theme.auroraCyan)
                 if !opponentName.isEmpty {
@@ -986,7 +986,7 @@ private struct BattleWaitingResultView: View {
                         .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundStyle(Theme.nebulaPink)
                 }
-                Text("Waiting for opponent" + dots)
+                Text(L10n.battleWaitingResult + dots)
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.textSecondary)
             }
@@ -1048,12 +1048,12 @@ private struct BattleResultView: View {
                     .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(isDraw ? Theme.starGold : didWin ? Theme.auroraMint : Theme.nebulaPink)
             }
-            Text(isDraw ? "IT'S A DRAW!" : didWin ? "YOU WON!" : "YOU LOST")
+            Text(isDraw ? L10n.battleDraw : didWin ? L10n.battleWon : L10n.battleLost)
                 .font(.system(size: 30, weight: .black, design: .rounded))
                 .foregroundStyle(isDraw ? Theme.starGold : didWin ? Theme.auroraMint : Theme.nebulaPink)
-            Text(isDraw ? "An epic tie between pilots!" :
-                 didWin ? "Dominant performance, \(pilotName)!" :
-                 "\(result.opponentName) flew further this time.")
+            Text(isDraw ? L10n.battleDrawSub :
+                 didWin ? "\(L10n.battleWonSub), \(pilotName)!" :
+                 "\(result.opponentName) \(L10n.battleLostSub)")
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textSecondary).multilineTextAlignment(.center)
         }
@@ -1074,13 +1074,13 @@ private struct BattleResultView: View {
 
     private func rivalryCard(_ r: RivalryStats) -> some View {
         VStack(spacing: 10) {
-            Text("HEAD TO HEAD")
+            Text(L10n.battleHeadToHead)
                 .font(.system(size: 10, weight: .black, design: .rounded)).tracking(2)
                 .foregroundStyle(Theme.textTertiary)
             HStack(spacing: 0) {
-                rivalStat(value: r.myWins,    label: "WINS",   tint: Theme.auroraMint)
-                rivalStat(value: r.draws,     label: "DRAWS",  tint: Theme.starGold)
-                rivalStat(value: r.theirWins, label: "LOSSES", tint: Theme.nebulaPink)
+                rivalStat(value: r.myWins,    label: L10n.battleWins,   tint: Theme.auroraMint)
+                rivalStat(value: r.draws,     label: L10n.battleDraws,  tint: Theme.starGold)
+                rivalStat(value: r.theirWins, label: L10n.battleLosses, tint: Theme.nebulaPink)
             }
             .padding(.vertical, 12)
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
@@ -1103,7 +1103,7 @@ private struct BattleResultView: View {
             Button(action: onSameOpponent) {
                 HStack(spacing: 8) {
                     Image(systemName: "arrow.counterclockwise").font(.system(size: 15, weight: .black))
-                    Text("Retar de nuevo a \(result.opponentName)")
+                    Text("\(L10n.battleRematch) \(L10n.battleRematchTo) \(result.opponentName)")
                         .font(.system(size: 15, weight: .black, design: .rounded)).lineLimit(1)
                 }
                 .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
@@ -1117,7 +1117,7 @@ private struct BattleResultView: View {
             Button(action: onRandom) {
                 HStack(spacing: 8) {
                     Image(systemName: "shuffle").font(.system(size: 14, weight: .bold))
-                    Text("Nuevo rival")
+                    Text(L10n.battleNewRival)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                 }
                 .foregroundStyle(Theme.textPrimary)
@@ -1127,7 +1127,7 @@ private struct BattleResultView: View {
                     .stroke(Theme.surfaceStroke, lineWidth: 1))
             }
             Button(action: onHome) {
-                Text("Back to Home")
+                Text(L10n.battleBackHome)
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.textSecondary)
                     .frame(maxWidth: .infinity).frame(height: 46)
@@ -1152,7 +1152,7 @@ private struct BattleResultView: View {
             Text("\(score)").font(.system(size: 36, weight: .black, design: .rounded))
                 .foregroundStyle(isWinner ? Theme.textPrimary : Theme.textTertiary).monospacedDigit()
             if isWinner && !isDraw {
-                Text("WINNER")
+                Text(L10n.battleWinner)
                     .font(.system(size: 9, weight: .black, design: .rounded)).tracking(2)
                     .foregroundStyle(Theme.starGold).padding(.horizontal, 8).padding(.vertical, 3)
                     .background(Theme.starGold.opacity(0.18), in: Capsule())
@@ -1178,17 +1178,17 @@ private struct IncomingChallengeToast: View {
                         .font(.system(size: 16, weight: .black)).foregroundStyle(Theme.nebulaPink)
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Challenge received!")
+                    Text(L10n.battleChallengeReceived)
                         .font(.system(size: 13, weight: .black, design: .rounded))
                         .foregroundStyle(Theme.textPrimary)
-                    Text("\(from) is challenging you")
+                    Text("\(from) \(L10n.battleIsChallengingYou)")
                         .font(.system(size: 12, weight: .medium, design: .rounded))
                         .foregroundStyle(Theme.nebulaPink)
                 }
                 Spacer()
                 HStack(spacing: 8) {
                     Button(action: onAccept) {
-                        Text("Accept")
+                        Text(L10n.battleAccept)
                             .font(.system(size: 13, weight: .bold, design: .rounded))
                             .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
                             .padding(.horizontal, 12).padding(.vertical, 7)
@@ -1224,9 +1224,9 @@ private struct CodeEntryView: View {
     var body: some View {
         VStack(spacing: 28) {
             VStack(spacing: 6) {
-                Text("Join Private Room")
+                Text(L10n.battleJoinPrivate)
                     .font(.system(size: 22, weight: .black, design: .rounded)).foregroundStyle(Theme.textPrimary)
-                Text("Enter the 6-character room code")
+                Text(L10n.battleEnterCode)
                     .font(.system(size: 14, weight: .medium, design: .rounded)).foregroundStyle(Theme.textSecondary)
             }
             .padding(.top, 28)
@@ -1253,7 +1253,7 @@ private struct CodeEntryView: View {
 
             VStack(spacing: 10) {
                 Button(action: onJoin) {
-                    Text("JOIN ROOM")
+                    Text(L10n.battleJoinRoom)
                         .font(.system(size: 17, weight: .black, design: .rounded)).tracking(2)
                         .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
                         .frame(maxWidth: .infinity).frame(height: 56)
@@ -1266,7 +1266,7 @@ private struct CodeEntryView: View {
                 }
                 .disabled(code.count < 6)
                 Button(action: onCancel) {
-                    Text("Cancel")
+                    Text(L10n.battleCancel)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(maxWidth: .infinity).frame(height: 44)
@@ -1291,7 +1291,7 @@ private struct BattleErrorView: View {
             Image(systemName: "wifi.exclamationmark")
                 .font(.system(size: 52, weight: .bold)).foregroundStyle(Theme.nebulaPink)
             VStack(spacing: 8) {
-                Text("Connection Issue")
+                Text(L10n.battleConnectionIssue)
                     .font(.system(size: 22, weight: .bold, design: .rounded)).foregroundStyle(Theme.textPrimary)
                 Text(message)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
@@ -1300,7 +1300,7 @@ private struct BattleErrorView: View {
             Spacer()
             VStack(spacing: 12) {
                 Button(action: onRetry) {
-                    Text("Try Again")
+                    Text(L10n.battleTryAgain)
                         .font(.system(size: 17, weight: .bold, design: .rounded))
                         .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
                         .frame(maxWidth: .infinity).frame(height: 54)
@@ -1308,7 +1308,7 @@ private struct BattleErrorView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 }
                 Button(action: onHome) {
-                    Text("Back to Home")
+                    Text(L10n.battleBackHome)
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
                         .foregroundStyle(Theme.textSecondary)
                         .frame(maxWidth: .infinity).frame(height: 46)
@@ -1333,15 +1333,15 @@ private struct BattleOfflineView: View {
             Image(systemName: "antenna.radiowaves.left.and.right.slash")
                 .font(.system(size: 52, weight: .bold)).foregroundStyle(Theme.textTertiary)
             VStack(spacing: 8) {
-                Text("Battle requires internet")
+                Text(L10n.battleRequiresInternet)
                     .font(.system(size: 20, weight: .bold, design: .rounded)).foregroundStyle(Theme.textPrimary)
-                Text("Connect to WiFi or mobile data\nto challenge other pilots.")
+                Text(L10n.battleGoOnline)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.textSecondary).multilineTextAlignment(.center)
             }
             Spacer()
             Button(action: onHome) {
-                Text("Back")
+                Text(L10n.battleBack)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                     .foregroundStyle(Theme.textSecondary)
                     .frame(maxWidth: .infinity).frame(height: 50)
