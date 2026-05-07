@@ -16,6 +16,7 @@
 		451373A1553BA6BC8AA56AE9 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE25D69E0E2DA4F256D3C856 /* RootView.swift */; };
 		529F5C1D4A64640FDB5C5D02 /* AstronautView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CBB13FF5C20A8779C27842 /* AstronautView.swift */; };
 		6A40A4F36E87168D4BEF1829 /* CosmicDriftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */; };
+		746A639CE6D373760E12AFB0 /* BattleNearbyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05E0BAEA56B27ABB1225BB8F /* BattleNearbyService.swift */; };
 		797F88C26E278347201969A5 /* SkinCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2A9998ED76EC8729FFC0EF /* SkinCatalog.swift */; };
 		7E5235D9DCC9481D58AAB3E7 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B295D0C2946D82623B871394 /* GameView.swift */; };
 		8CCF38903B5D2F10564FC530 /* BattleCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21C71CFBAF147DADC0D84E2 /* BattleCoordinator.swift */; };
@@ -40,6 +41,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		05E0BAEA56B27ABB1225BB8F /* BattleNearbyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleNearbyService.swift; sourceTree = "<group>"; };
 		081C64A2CA3E3DAB304D6D95 /* GameStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStore.swift; sourceTree = "<group>"; };
 		0A4A83B98BCA27C50566BA5E /* DailyBurstService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBurstService.swift; sourceTree = "<group>"; };
 		0FC5C8593312A8B53F1AEDCF /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 		6175BD63BBA4E73001E56FDF /* Backend */ = {
 			isa = PBXGroup;
 			children = (
+				05E0BAEA56B27ABB1225BB8F /* BattleNearbyService.swift */,
 				94E7C13FDF215D5639B38D79 /* BattleRealtimeService.swift */,
 				D876B9EC5FA8E954F9CF559D /* BattleService.swift */,
 				0A4A83B98BCA27C50566BA5E /* DailyBurstService.swift */,
@@ -294,6 +297,7 @@
 				529F5C1D4A64640FDB5C5D02 /* AstronautView.swift in Sources */,
 				016D243142611A2EA6141A1C /* AudioManager.swift in Sources */,
 				8CCF38903B5D2F10564FC530 /* BattleCoordinator.swift in Sources */,
+				746A639CE6D373760E12AFB0 /* BattleNearbyService.swift in Sources */,
 				96961475270F1DFCCC3FEDF1 /* BattleRealtimeService.swift in Sources */,
 				C4A5F21C7D45B3F524DE64CC /* BattleService.swift in Sources */,
 				E82BDFAA8770BD71B341257A /* BattleView.swift in Sources */,

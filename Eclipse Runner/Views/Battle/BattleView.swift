@@ -1,5 +1,6 @@
 import SwiftUI
 import SpriteKit
+import MultipeerConnectivity
 
 // MARK: - Main BattleView
 
@@ -35,6 +36,8 @@ struct BattleView: View {
                 onSameOpponent: { coord.challengeSameOpponent() },
                 onPrivate:      { coord.createPrivateRoom(pilotName: store.pilotName) },
                 onJoinCode:     { showCodeEntry = true },
+                onNearbyHost:   { coord.startNearbyHost(pilotName: store.pilotName, skinID: store.activeSkinID) },
+                onNearbyJoin:   { coord.startNearbyBrowse(pilotName: store.pilotName, skinID: store.activeSkinID) },
                 onCancel:       { dismiss() }
             )
         case .searching(let msg):
@@ -45,12 +48,29 @@ struct BattleView: View {
                 roomCode: coord.currentRoom?.roomCode,
                 onCancel: { coord.cancel(); dismiss() }
             )
+        case .nearbyHosting:
+            NearbyHostingView(onCancel: { coord.cancelNearby() })
+        case .nearbyBrowsing:
+            NearbyBrowsingView(
+                peers: BattleNearbyService.shared.nearbyPeers,
+                onConnect: { peer in coord.nearbyConnect(to: peer) },
+                onCancel: { coord.cancelNearby() }
+            )
         case .playing:
             if let room = coord.currentRoom {
                 BattleGameView(room: room, pilotName: store.pilotName, coord: coord)
                     .environmentObject(store)
             }
+        case .nearbyPlaying:
+            NearbyBattleGameView(seed: coord.nearbySeed, pilotName: store.pilotName, coord: coord)
+                .environmentObject(store)
         case .waitingResult:
+            BattleWaitingResultView(
+                myScore: coord.myScore,
+                opponentName: coord.opponentName,
+                opponentLastScore: coord.opponentLiveScore
+            )
+        case .nearbyWaitingResult:
             BattleWaitingResultView(
                 myScore: coord.myScore,
                 opponentName: coord.opponentName,
@@ -112,6 +132,8 @@ private struct BattleLobbyView: View {
     let onSameOpponent: () -> Void
     let onPrivate: () -> Void
     let onJoinCode: () -> Void
+    let onNearbyHost: () -> Void
+    let onNearbyJoin: () -> Void
     let onCancel: () -> Void
 
     var body: some View {
@@ -119,11 +141,9 @@ private struct BattleLobbyView: View {
             VStack(spacing: 24) {
                 Spacer().frame(height: 20)
                 titleHeader
-                if !lastOpponent.isEmpty {
-                    rematchOption
-                }
-                privateOption
-                randomOption
+                nearbySection
+                if !lastOpponent.isEmpty { rematchOption }
+                onlineSection
                 Button(action: onCancel) {
                     Text("Back")
                         .font(.system(size: 15, weight: .semibold, design: .rounded))
@@ -151,6 +171,91 @@ private struct BattleLobbyView: View {
                 .font(.system(size: 14, weight: .medium, design: .rounded))
                 .foregroundStyle(Theme.textSecondary)
         }
+    }
+
+    // MARK: Nearby section
+    private var nearbySection: some View {
+        VStack(spacing: 0) {
+            nearbyHeader
+            Divider().background(Theme.surfaceStroke).padding(.horizontal, 16)
+            Button(action: onNearbyHost) {
+                lobbyRow(icon: "wifi.router.fill", tint: Theme.auroraMint,
+                         title: "Crear partida local",
+                         sub: "Sé el anfitrión — sin internet")
+            }
+            .buttonStyle(.plain)
+            Divider().background(Theme.surfaceStroke)
+            Button(action: onNearbyJoin) {
+                lobbyRow(icon: "antenna.radiowaves.left.and.right", tint: Theme.auroraMint,
+                         title: "Unirse a partida local",
+                         sub: "Busca al anfitrión cercano")
+            }
+            .buttonStyle(.plain)
+        }
+        .background(
+            LinearGradient(colors: [Theme.auroraMint.opacity(0.10), Theme.auroraCyan.opacity(0.05)],
+                           startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: 20, style: .continuous)
+        )
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
+            .stroke(Theme.auroraMint.opacity(0.35), lineWidth: 1.5))
+    }
+
+    private var nearbyHeader: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "bolt.horizontal.fill")
+                .font(.system(size: 11, weight: .black)).foregroundStyle(Theme.auroraMint)
+            Text("EN PERSONA · BLUETOOTH / WIFI DIRECTO")
+                .font(.system(size: 9, weight: .black, design: .rounded)).tracking(1.5)
+                .foregroundStyle(Theme.auroraMint)
+            Spacer()
+            Text("Sin internet")
+                .font(.system(size: 9, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.auroraMint.opacity(0.7))
+                .padding(.horizontal, 7).padding(.vertical, 3)
+                .background(Theme.auroraMint.opacity(0.15), in: Capsule())
+        }
+        .padding(.horizontal, 16).padding(.vertical, 10)
+    }
+
+    // MARK: Online section
+    private var onlineSection: some View {
+        VStack(spacing: 0) {
+            onlineHeader
+            Divider().background(Theme.surfaceStroke).padding(.horizontal, 16)
+            Button(action: onPrivate) {
+                lobbyRow(icon: "key.fill", tint: Theme.starGold,
+                         title: "Duelo privado", sub: "Crea sala y comparte el código")
+            }
+            .buttonStyle(.plain)
+            Divider().background(Theme.surfaceStroke)
+            Button(action: onJoinCode) {
+                lobbyRow(icon: "qrcode", tint: Theme.auroraCyan,
+                         title: "Unirse con código", sub: "Introduce el código de 6 caracteres")
+            }
+            .buttonStyle(.plain)
+            Divider().background(Theme.surfaceStroke)
+            Button(action: onRandom) {
+                lobbyRow(icon: "shuffle", tint: Theme.nebulaPurple,
+                         title: "Rival aleatorio", sub: "Cualquier piloto online ahora")
+            }
+            .buttonStyle(.plain)
+        }
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
+            .stroke(Theme.surfaceStroke, lineWidth: 1))
+    }
+
+    private var onlineHeader: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "globe.americas.fill")
+                .font(.system(size: 11, weight: .black)).foregroundStyle(Theme.textTertiary)
+            Text("ONLINE · REQUIERE INTERNET")
+                .font(.system(size: 9, weight: .black, design: .rounded)).tracking(1.5)
+                .foregroundStyle(Theme.textTertiary)
+            Spacer()
+        }
+        .padding(.horizontal, 16).padding(.vertical, 10)
     }
 
     private var rematchOption: some View {
@@ -197,51 +302,6 @@ private struct BattleLobbyView: View {
                     .stroke(Theme.surfaceStroke, lineWidth: 1))
             }
         }
-    }
-
-    private var privateOption: some View {
-        VStack(spacing: 0) {
-            Button(action: onPrivate) {
-                lobbyRow(icon: "key.fill", tint: Theme.starGold,
-                         title: "Duelo privado", sub: "Crea sala y comparte el código")
-            }
-            .buttonStyle(.plain)
-            Divider().background(Theme.surfaceStroke)
-            Button(action: onJoinCode) {
-                lobbyRow(icon: "qrcode", tint: Theme.auroraCyan,
-                         title: "Unirse con código", sub: "Introduce el código de 6 caracteres")
-            }
-            .buttonStyle(.plain)
-        }
-        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
-            .stroke(Theme.surfaceStroke, lineWidth: 1))
-    }
-
-    private var randomOption: some View {
-        Button(action: onRandom) {
-            HStack(spacing: 14) {
-                ZStack {
-                    Circle().fill(Theme.nebulaPurple.opacity(0.2)).frame(width: 48, height: 48)
-                    Image(systemName: "shuffle")
-                        .font(.system(size: 20, weight: .bold)).foregroundStyle(Theme.nebulaPurple)
-                }
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Rival aleatorio")
-                        .font(.system(size: 15, weight: .bold, design: .rounded)).foregroundStyle(Theme.textPrimary)
-                    Text("Cualquier piloto online ahora")
-                        .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(Theme.textSecondary)
-                }
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .bold)).foregroundStyle(Theme.textTertiary)
-            }
-            .padding(16)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Theme.surfaceStroke, lineWidth: 1))
-        }
-        .buttonStyle(.plain)
     }
 
     private func lobbyRow(icon: String, tint: Color, title: String, sub: String) -> some View {
@@ -370,6 +430,303 @@ private struct BattleWaitingView: View {
                     .stroke(Theme.surfaceStroke, lineWidth: 1))
         }
         .padding(.horizontal, 32).padding(.bottom, 48)
+    }
+}
+
+// MARK: - Nearby Hosting (advertising)
+
+private struct NearbyHostingView: View {
+    let onCancel: () -> Void
+    @State private var pulse = false
+
+    var body: some View {
+        VStack(spacing: 36) {
+            Spacer()
+            pulseIcon
+            VStack(spacing: 10) {
+                Text("Sala local creada")
+                    .font(.system(size: 22, weight: .black, design: .rounded))
+                    .foregroundStyle(Theme.textPrimary)
+                Text("Esperando que un\njugador cercano se una…")
+                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            statusBadge
+            Spacer()
+            cancelButton
+        }
+        .onAppear { startPulse() }
+    }
+
+    private var pulseIcon: some View {
+        ZStack {
+            ForEach(0..<3) { i in
+                Circle()
+                    .stroke(Theme.auroraMint.opacity(pulse ? 0 : 0.4 - Double(i) * 0.1), lineWidth: 1.5)
+                    .frame(width: CGFloat(90 + i * 36), height: CGFloat(90 + i * 36))
+                    .scaleEffect(pulse ? 1.3 + Double(i) * 0.15 : 1.0)
+                    .animation(.easeOut(duration: 1.4).repeatForever(autoreverses: false)
+                               .delay(Double(i) * 0.4), value: pulse)
+            }
+            ZStack {
+                Circle().fill(Theme.auroraMint.opacity(0.18)).frame(width: 90, height: 90)
+                Image(systemName: "wifi.router.fill")
+                    .font(.system(size: 38, weight: .bold))
+                    .foregroundStyle(Theme.auroraMint)
+            }
+        }
+        .frame(width: 180, height: 180)
+    }
+
+    private var statusBadge: some View {
+        HStack(spacing: 8) {
+            Circle().fill(Theme.auroraMint).frame(width: 8, height: 8)
+                .opacity(pulse ? 1 : 0.4)
+                .animation(.easeInOut(duration: 0.8).repeatForever(), value: pulse)
+            Text("Bluetooth / WiFi Directo · Sin internet")
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundStyle(Theme.auroraMint)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 8)
+        .background(Theme.auroraMint.opacity(0.12), in: Capsule())
+        .overlay(Capsule().stroke(Theme.auroraMint.opacity(0.3), lineWidth: 1))
+    }
+
+    private var cancelButton: some View {
+        Button(action: onCancel) {
+            Text("Cancelar")
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(maxWidth: .infinity).frame(height: 50)
+                .background(Theme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Theme.surfaceStroke, lineWidth: 1))
+        }
+        .padding(.horizontal, 32).padding(.bottom, 48)
+    }
+
+    private func startPulse() {
+        pulse = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { pulse = true }
+    }
+}
+
+// MARK: - Nearby Browsing (peer discovery)
+
+private struct NearbyBrowsingView: View {
+    let peers: [MCPeerID]
+    let onConnect: (MCPeerID) -> Void
+    let onCancel: () -> Void
+    @State private var scanning = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Spacer().frame(height: 40)
+            header
+            Spacer().frame(height: 28)
+            if peers.isEmpty {
+                emptyState
+            } else {
+                peerList
+            }
+            Spacer()
+            cancelButton
+        }
+        .onAppear { scanning = true }
+    }
+
+    private var header: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                Circle().fill(Theme.auroraMint.opacity(0.15)).frame(width: 72, height: 72)
+                Image(systemName: "antenna.radiowaves.left.and.right")
+                    .font(.system(size: 28, weight: .bold)).foregroundStyle(Theme.auroraMint)
+            }
+            Text("Buscando anfitriones")
+                .font(.system(size: 20, weight: .black, design: .rounded)).foregroundStyle(Theme.textPrimary)
+            Text("Asegúrate de que el anfitrión tenga\nla sala local creada")
+                .font(.system(size: 13, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.textSecondary).multilineTextAlignment(.center)
+        }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            HStack(spacing: 6) {
+                ProgressView().tint(Theme.auroraMint).scaleEffect(0.9)
+                Text("Escaneando…")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Theme.textSecondary)
+            }
+            .padding(.top, 32)
+        }
+    }
+
+    private var peerList: some View {
+        VStack(spacing: 0) {
+            ForEach(peers, id: \.self) { peer in
+                Button { onConnect(peer) } label: {
+                    peerRow(peer)
+                }
+                .buttonStyle(.plain)
+                if peer != peers.last {
+                    Divider().background(Theme.surfaceStroke).padding(.horizontal, 16)
+                }
+            }
+        }
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous)
+            .stroke(Theme.auroraMint.opacity(0.3), lineWidth: 1.5))
+        .padding(.horizontal, 24)
+    }
+
+    private func peerRow(_ peer: MCPeerID) -> some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle().fill(Theme.auroraMint.opacity(0.18)).frame(width: 44, height: 44)
+                Image(systemName: "person.fill")
+                    .font(.system(size: 18, weight: .bold)).foregroundStyle(Theme.auroraMint)
+            }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(peer.displayName)
+                    .font(.system(size: 15, weight: .bold, design: .rounded)).foregroundStyle(Theme.textPrimary)
+                Text("Toca para unirte")
+                    .font(.system(size: 12, weight: .medium, design: .rounded)).foregroundStyle(Theme.textSecondary)
+            }
+            Spacer()
+            Image(systemName: "wifi")
+                .font(.system(size: 14, weight: .bold)).foregroundStyle(Theme.auroraMint)
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .bold)).foregroundStyle(Theme.textTertiary)
+        }
+        .padding(16)
+    }
+
+    private var cancelButton: some View {
+        Button(action: onCancel) {
+            Text("Cancelar")
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundStyle(Theme.textSecondary)
+                .frame(maxWidth: .infinity).frame(height: 50)
+                .background(Theme.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .stroke(Theme.surfaceStroke, lineWidth: 1))
+        }
+        .padding(.horizontal, 32).padding(.bottom, 48)
+    }
+}
+
+// MARK: - Nearby Battle Game
+
+private struct NearbyBattleGameView: View {
+    let seed: Int
+    let pilotName: String
+    let coord: BattleCoordinator
+
+    @EnvironmentObject private var store: GameStore
+    @StateObject private var gameCoord = GameCoordinator()
+    @State private var sceneID = 0
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .top) {
+                Theme.cosmicBackground.ignoresSafeArea()
+                if gameCoord.isReady {
+                    SpriteView(scene: gameCoord.scene!, options: [.allowsTransparency])
+                        .ignoresSafeArea()
+                        .id(sceneID)
+                }
+                nearbyBattleHUD
+                    .padding(.top, 56).padding(.horizontal, 20)
+                opponentLivePanel
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    .padding(.trailing, 16).padding(.bottom, 56)
+            }
+            .onAppear {
+                if !gameCoord.isReady {
+                    gameCoord.setup(screenSize: geo.size, store: store, mode: .battle)
+                    gameCoord.scene?.battleSeed = seed
+                }
+            }
+        }
+        .onChange(of: gameCoord.score) { _, newScore in
+            coord.broadcastLiveScore(newScore, skinID: store.activeSkinID)
+        }
+        .onChange(of: gameCoord.gameOverInfo) { _, info in
+            guard let info else { return }
+            Task { @MainActor in coord.submitNearbyScore(info.score) }
+        }
+        .navigationBarHidden(true)
+    }
+
+    private var nearbyBattleHUD: some View {
+        HStack(alignment: .center, spacing: 0) {
+            myScorePill
+            Spacer()
+            ZStack {
+                VStack(spacing: 2) {
+                    Image(systemName: "wifi").font(.system(size: 11, weight: .black))
+                        .foregroundStyle(Theme.auroraMint)
+                    Text("LOCAL").font(.system(size: 9, weight: .black, design: .rounded)).tracking(1.5)
+                        .foregroundStyle(Theme.auroraMint)
+                }
+            }
+            Spacer()
+            opponentTopScore
+        }
+        .padding(.horizontal, 16).padding(.vertical, 10)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private var myScorePill: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text("YOU")
+                .font(.system(size: 8, weight: .black, design: .rounded)).tracking(1.5)
+                .foregroundStyle(Theme.auroraCyan)
+            Text("\(gameCoord.score)")
+                .font(.system(size: 28, weight: .black, design: .rounded)).monospacedDigit()
+                .foregroundStyle(Theme.textPrimary)
+                .contentTransition(.numericText())
+                .animation(.bouncy, value: gameCoord.score)
+        }
+        .frame(minWidth: 64, alignment: .leading)
+    }
+
+    private var opponentTopScore: some View {
+        VStack(alignment: .trailing, spacing: 1) {
+            Text(coord.opponentName.isEmpty ? "OPP" : String(coord.opponentName.prefix(6)).uppercased())
+                .font(.system(size: 8, weight: .black, design: .rounded)).tracking(1.5)
+                .foregroundStyle(Theme.nebulaPink)
+            Group {
+                if coord.opponentName.isEmpty {
+                    Text("···").font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(Theme.textTertiary)
+                } else {
+                    Text("\(coord.opponentLiveScore)")
+                        .font(.system(size: 28, weight: .black, design: .rounded)).monospacedDigit()
+                        .foregroundStyle(coord.opponentScoreJustUpdated ? Theme.nebulaPink : Theme.textPrimary)
+                        .contentTransition(.numericText())
+                        .animation(.bouncy, value: coord.opponentLiveScore)
+                }
+            }
+        }
+        .frame(minWidth: 64, alignment: .trailing)
+    }
+
+    private var opponentLivePanel: some View {
+        Group {
+            if !coord.opponentName.isEmpty {
+                OpponentLivePanelView(
+                    name: coord.opponentName,
+                    score: coord.opponentLiveScore,
+                    skinID: coord.opponentLiveSkinID,
+                    justUpdated: coord.opponentScoreJustUpdated
+                )
+                .transition(.scale(scale: 0.7, anchor: .bottomTrailing).combined(with: .opacity))
+                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: coord.opponentName.isEmpty)
+            }
+        }
     }
 }
 

@@ -1,13 +1,18 @@
 import Foundation
 import Combine
+import MultipeerConnectivity
 
 // MARK: - Battle Phase
 enum BattlePhase: Equatable {
     case idle
     case searching(message: String)
     case waitingForOpponent
+    case nearbyHosting                              // advertising, waiting for guest
+    case nearbyBrowsing                             // scanning for hosts
     case playing
+    case nearbyPlaying                              // same as playing but P2P
     case waitingResult
+    case nearbyWaitingResult                        // waiting for opponent final score
     case result(BattleResult)
     case error(String)
     case offline
@@ -42,13 +47,19 @@ final class BattleCoordinator: ObservableObject {
     @Published var opponentName: String = ""
     @Published var opponentScoreJustUpdated: Bool = false
 
+    // Nearby-specific
+    @Published var nearbySeed: Int = 0
+    @Published var nearbyOpponentFinalScore: Int? = nil
+
     private(set) var pilotName: String = ""
     private(set) var lastOpponentName: String = ""
+    private var isNearbyMode: Bool = false
 
     private var pollTimer: Timer?
     private var waitTimer: Timer?
     private var incomingTimer: Timer?
     private var scorePulseTimer: Timer?
+    private var nearbyWaitTimer: Timer?
 
     // MARK: - Random matchmaking
     func startSearch(pilotName: String) {
@@ -131,18 +142,136 @@ final class BattleCoordinator: ObservableObject {
             self.opponentLiveScore = broadcast.score
             self.opponentLiveSkinID = broadcast.skinID
             if self.opponentName.isEmpty { self.opponentName = broadcast.pilot }
-            // Trigger pulse animation
-            self.opponentScoreJustUpdated = true
-            self.scorePulseTimer?.invalidate()
-            self.scorePulseTimer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: false) { [weak self] _ in
-                Task { @MainActor [weak self] in self?.opponentScoreJustUpdated = false }
-            }
+            self.triggerScorePulse()
         }
     }
 
     // MARK: - Broadcast my live score (called from game loop)
     func broadcastLiveScore(_ score: Int, skinID: String) {
-        BattleRealtimeService.shared.broadcastScore(score, skinID: skinID)
+        if isNearbyMode {
+            BattleNearbyService.shared.broadcastScore(score)
+        } else {
+            BattleRealtimeService.shared.broadcastScore(score, skinID: skinID)
+        }
+    }
+
+    // MARK: - Nearby: host (advertise)
+    func startNearbyHost(pilotName: String, skinID: String) {
+        self.pilotName = pilotName
+        isNearbyMode = true
+        resetOpponentState()
+        let nearby = BattleNearbyService.shared
+        nearby.setup(pilotName: pilotName, skinID: skinID)
+        wireNearbyCallbacks()
+        nearby.startHosting()
+        phase = .nearbyHosting
+    }
+
+    // MARK: - Nearby: browse for hosts
+    func startNearbyBrowse(pilotName: String, skinID: String) {
+        self.pilotName = pilotName
+        isNearbyMode = true
+        resetOpponentState()
+        let nearby = BattleNearbyService.shared
+        nearby.setup(pilotName: pilotName, skinID: skinID)
+        wireNearbyCallbacks()
+        nearby.startBrowsing()
+        phase = .nearbyBrowsing
+    }
+
+    // MARK: - Nearby: guest connects to a peer
+    func nearbyConnect(to peer: MCPeerID) {
+        BattleNearbyService.shared.connect(to: peer)
+    }
+
+    // MARK: - Nearby: submit final score
+    func submitNearbyScore(_ score: Int) {
+        myScore = score
+        BattleNearbyService.shared.sendFinalScore(score)
+        phase = .nearbyWaitingResult
+        startNearbyWaitTimer()
+    }
+
+    // MARK: - Nearby: cancel
+    func cancelNearby() {
+        stopTimers()
+        BattleNearbyService.shared.stopAll()
+        isNearbyMode = false
+        phase = .idle
+    }
+
+    // MARK: - Wire nearby callbacks
+    private func wireNearbyCallbacks() {
+        let nearby = BattleNearbyService.shared
+        nearby.onGameStart = { [weak self] seed in
+            guard let self else { return }
+            self.nearbySeed = seed
+            self.phase = .nearbyPlaying
+            NSLog("[Coord] Nearby game started seed=%d", seed)
+        }
+        nearby.onOpponentScore = { [weak self] broadcast in
+            guard let self else { return }
+            self.opponentLiveScore = broadcast.score
+            self.opponentLiveSkinID = broadcast.skinID
+            if self.opponentName.isEmpty { self.opponentName = broadcast.pilot }
+            self.triggerScorePulse()
+        }
+        nearby.onOpponentFinalScore = { [weak self] broadcast in
+            guard let self else { return }
+            self.opponentName = broadcast.pilot
+            self.opponentLiveSkinID = broadcast.skinID
+            self.nearbyOpponentFinalScore = broadcast.score
+            self.checkNearbyResult()
+        }
+    }
+
+    private func checkNearbyResult() {
+        guard let oppScore = nearbyOpponentFinalScore,
+              case .nearbyWaitingResult = phase else { return }
+        stopNearbyWaitTimer()
+        finishNearbyResult(oppScore: oppScore, oppName: opponentName)
+    }
+
+    private func finishNearbyResult(oppScore: Int, oppName: String) {
+        let didWin = myScore > oppScore
+        let isDraw = myScore == oppScore
+        let result = BattleResult(myScore: myScore, opponentScore: oppScore,
+                                  opponentName: oppName, didWin: didWin, isDraw: isDraw)
+        lastOpponentName = oppName
+        BattleNearbyService.shared.stopAll()
+        isNearbyMode = false
+        phase = .result(result)
+    }
+
+    private func startNearbyWaitTimer() {
+        nearbyWaitTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: false) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self, case .nearbyWaitingResult = self.phase else { return }
+                // Timeout: use last known opponent score
+                self.finishNearbyResult(oppScore: self.opponentLiveScore, oppName: self.opponentName)
+            }
+        }
+    }
+
+    private func stopNearbyWaitTimer() {
+        nearbyWaitTimer?.invalidate()
+        nearbyWaitTimer = nil
+    }
+
+    private func resetOpponentState() {
+        opponentLiveScore = 0
+        opponentLiveSkinID = "classic"
+        opponentName = ""
+        opponentScoreJustUpdated = false
+        nearbyOpponentFinalScore = nil
+    }
+
+    private func triggerScorePulse() {
+        opponentScoreJustUpdated = true
+        scorePulseTimer?.invalidate()
+        scorePulseTimer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: false) { [weak self] _ in
+            Task { @MainActor [weak self] in self?.opponentScoreJustUpdated = false }
+        }
     }
 
     // MARK: - Submit score after game ends
@@ -192,15 +321,17 @@ final class BattleCoordinator: ObservableObject {
 
     func reset() {
         stopTimers()
+        stopNearbyWaitTimer()
         BattleRealtimeService.shared.disconnect()
+        Task { @MainActor in BattleNearbyService.shared.stopAll() }
         currentRoom = nil
         myScore = 0
         waitingSecondsLeft = 60
         rivalryStats = nil
-        opponentLiveScore = 0
-        opponentLiveSkinID = "classic"
-        opponentName = ""
-        opponentScoreJustUpdated = false
+        isNearbyMode = false
+        nearbyOpponentFinalScore = nil
+        nearbySeed = 0
+        resetOpponentState()
         phase = .idle
     }
 
@@ -327,6 +458,7 @@ final class BattleCoordinator: ObservableObject {
         waitTimer?.invalidate()
         incomingTimer?.invalidate()
         scorePulseTimer?.invalidate()
+        nearbyWaitTimer?.invalidate()
         BattleRealtimeService.shared.disconnect()
     }
 }
