@@ -51,11 +51,17 @@ struct BattleView: View {
                     .environmentObject(store)
             }
         case .waitingResult:
-            BattleWaitingResultView(myScore: coord.myScore)
+            BattleWaitingResultView(
+                myScore: coord.myScore,
+                opponentName: coord.opponentName,
+                opponentLastScore: coord.opponentLiveScore
+            )
         case .result(let result):
             BattleResultView(
                 result: result,
                 pilotName: store.pilotName,
+                mySkinID: store.activeSkinID,
+                opponentSkinID: coord.opponentLiveSkinID,
                 rivalry: coord.rivalryStats,
                 onSameOpponent: { coord.challengeSameOpponent() },
                 onRandom:       { coord.reset() },
@@ -377,7 +383,6 @@ struct BattleGameView: View {
     @EnvironmentObject private var store: GameStore
     @StateObject private var gameCoord = GameCoordinator()
     @State private var sceneID = 0
-    @State private var showOver = false
 
     var body: some View {
         GeometryReader { geo in
@@ -390,14 +395,21 @@ struct BattleGameView: View {
                 }
                 battleHUD
                     .padding(.top, 56).padding(.horizontal, 20)
+                // Floating opponent panel — bottom right, non-intrusive
+                opponentLivePanel
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                    .padding(.trailing, 16).padding(.bottom, 56)
             }
             .onAppear {
                 if !gameCoord.isReady {
                     gameCoord.setup(screenSize: geo.size, store: store, mode: .battle)
-                    // Apply room seed for deterministic obstacles
                     gameCoord.scene?.battleSeed = room.seed
                 }
+                coord.connectRealtime(skinID: store.activeSkinID)
             }
+        }
+        .onChange(of: gameCoord.score) { _, newScore in
+            coord.broadcastLiveScore(newScore, skinID: store.activeSkinID)
         }
         .onChange(of: gameCoord.gameOverInfo) { _, info in
             guard let info else { return }
@@ -408,36 +420,187 @@ struct BattleGameView: View {
         .navigationBarHidden(true)
     }
 
+    // MARK: Top HUD
     private var battleHUD: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 1) {
-                Text("YOU")
-                    .font(.system(size: 9, weight: .black, design: .rounded)).tracking(1.5)
-                    .foregroundStyle(Theme.auroraCyan)
-                Text("\(gameCoord.score)")
-                    .font(.system(size: 26, weight: .black, design: .rounded)).monospacedDigit()
-                    .foregroundStyle(Theme.textPrimary)
-                    .contentTransition(.numericText())
-                    .animation(.bouncy, value: gameCoord.score)
-            }
+        HStack(alignment: .center, spacing: 0) {
+            myScorePill
             Spacer()
-            VStack(spacing: 2) {
-                Image(systemName: "bolt.fill").font(.system(size: 14, weight: .black))
-                    .foregroundStyle(Theme.nebulaPink)
-                Text("BATTLE").font(.system(size: 9, weight: .black, design: .rounded)).tracking(2)
-                    .foregroundStyle(Theme.nebulaPink)
-            }
+            battleBadge
             Spacer()
-            VStack(alignment: .trailing, spacing: 1) {
-                Text("OPP").font(.system(size: 9, weight: .black, design: .rounded)).tracking(1.5)
-                    .foregroundStyle(Theme.nebulaPink)
-                Text("?")
-                    .font(.system(size: 26, weight: .black, design: .rounded))
-                    .foregroundStyle(Theme.textTertiary)
+            opponentTopScore
+        }
+        .padding(.horizontal, 16).padding(.vertical, 10)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private var myScorePill: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text("YOU")
+                .font(.system(size: 8, weight: .black, design: .rounded)).tracking(1.5)
+                .foregroundStyle(Theme.auroraCyan)
+            Text("\(gameCoord.score)")
+                .font(.system(size: 28, weight: .black, design: .rounded)).monospacedDigit()
+                .foregroundStyle(Theme.textPrimary)
+                .contentTransition(.numericText())
+                .animation(.bouncy, value: gameCoord.score)
+        }
+        .frame(minWidth: 64, alignment: .leading)
+    }
+
+    private var battleBadge: some View {
+        VStack(spacing: 2) {
+            Image(systemName: "bolt.fill")
+                .font(.system(size: 13, weight: .black)).foregroundStyle(Theme.nebulaPink)
+            Text("VS").font(.system(size: 10, weight: .black, design: .rounded)).tracking(2)
+                .foregroundStyle(Theme.nebulaPink)
+        }
+    }
+
+    private var opponentTopScore: some View {
+        VStack(alignment: .trailing, spacing: 1) {
+            Text(coord.opponentName.isEmpty ? "OPP" : String(coord.opponentName.prefix(6)).uppercased())
+                .font(.system(size: 8, weight: .black, design: .rounded)).tracking(1.5)
+                .foregroundStyle(Theme.nebulaPink)
+            Group {
+                if coord.opponentName.isEmpty {
+                    Text("···")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(Theme.textTertiary)
+                } else {
+                    Text("\(coord.opponentLiveScore)")
+                        .font(.system(size: 28, weight: .black, design: .rounded)).monospacedDigit()
+                        .foregroundStyle(coord.opponentScoreJustUpdated ? Theme.nebulaPink : Theme.textPrimary)
+                        .contentTransition(.numericText())
+                        .animation(.bouncy, value: coord.opponentLiveScore)
+                }
             }
         }
-        .padding(.horizontal, 20).padding(.vertical, 12)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .frame(minWidth: 64, alignment: .trailing)
+    }
+
+    // MARK: Floating opponent mini-panel
+    private var opponentLivePanel: some View {
+        Group {
+            if !coord.opponentName.isEmpty {
+                OpponentLivePanelView(
+                    name: coord.opponentName,
+                    score: coord.opponentLiveScore,
+                    skinID: coord.opponentLiveSkinID,
+                    justUpdated: coord.opponentScoreJustUpdated
+                )
+                .transition(.scale(scale: 0.7, anchor: .bottomTrailing).combined(with: .opacity))
+                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: coord.opponentName.isEmpty)
+            }
+        }
+    }
+}
+
+// MARK: - Opponent Live Panel
+
+private struct OpponentLivePanelView: View {
+    let name: String
+    let score: Int
+    let skinID: String
+    let justUpdated: Bool
+
+    private var skin: AstronautSkin { SkinCatalog.skin(id: skinID) }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Avatar
+            MiniAstronautView(skin: skin, size: 72)
+                .overlay(
+                    Circle()
+                        .stroke(justUpdated ? Theme.nebulaPink : Color.clear, lineWidth: 2)
+                        .scaleEffect(justUpdated ? 1.15 : 1.0)
+                        .animation(.easeOut(duration: 0.4), value: justUpdated)
+                )
+                .padding(.top, 10)
+
+            // Name tag
+            Text(name.prefix(10))
+                .font(.system(size: 10, weight: .black, design: .rounded))
+                .foregroundStyle(Theme.textSecondary)
+                .lineLimit(1)
+                .padding(.top, 4)
+
+            // Score
+            Text("\(score)")
+                .font(.system(size: 22, weight: .black, design: .rounded)).monospacedDigit()
+                .foregroundStyle(justUpdated ? Theme.nebulaPink : Theme.textPrimary)
+                .contentTransition(.numericText())
+                .animation(.bouncy, value: score)
+                .padding(.bottom, 10)
+        }
+        .frame(width: 88)
+        .background(
+            .ultraThinMaterial,
+            in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(justUpdated ? Theme.nebulaPink.opacity(0.6) : Theme.surfaceStroke, lineWidth: 1.5)
+                .animation(.easeOut(duration: 0.4), value: justUpdated)
+        )
+        .shadow(color: Theme.nebulaPink.opacity(justUpdated ? 0.35 : 0.1), radius: 12, y: 4)
+    }
+}
+
+// MARK: - Mini Astronaut (skin-aware, no float animation)
+
+struct MiniAstronautView: View {
+    let skin: AstronautSkin
+    let size: CGFloat
+
+    var body: some View {
+        ZStack {
+            // Subtle glow behind
+            Circle()
+                .fill(skin.visorColor.opacity(0.3))
+                .frame(width: size * 1.1, height: size * 1.1)
+                .blur(radius: 8)
+
+            // Helmet
+            ZStack {
+                Circle()
+                    .fill(LinearGradient(
+                        colors: [skin.suitColor, skin.accentColor],
+                        startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: size, height: size)
+
+                // Visor
+                Ellipse()
+                    .fill(LinearGradient(
+                        colors: [skin.visorColor.opacity(0.9), skin.visorColor.opacity(0.6)],
+                        startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .frame(width: size * 0.6, height: size * 0.52)
+                    .offset(y: -size * 0.04)
+
+                // Visor highlight
+                Capsule()
+                    .fill(Color.white.opacity(0.6))
+                    .frame(width: size * 0.14, height: size * 0.07)
+                    .offset(x: -size * 0.14, y: -size * 0.18)
+
+                // Antenna
+                Capsule()
+                    .fill(skin.suitColor)
+                    .frame(width: size * 0.05, height: size * 0.18)
+                    .offset(y: -size * 0.54)
+                Circle()
+                    .fill(Theme.starGold)
+                    .frame(width: size * 0.1, height: size * 0.1)
+                    .offset(y: -size * 0.64)
+                    .shadow(color: Theme.starGold, radius: 4)
+
+                // Chest panel
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(skin.accentColor.opacity(0.9))
+                    .frame(width: size * 0.18, height: size * 0.1)
+                    .offset(y: size * 0.14)
+            }
+        }
+        .frame(width: size, height: size)
     }
 }
 
@@ -445,6 +608,8 @@ struct BattleGameView: View {
 
 private struct BattleWaitingResultView: View {
     let myScore: Int
+    let opponentName: String
+    let opponentLastScore: Int
     @State private var dots = ""
     private let timer = Timer.publish(every: 0.6, on: .main, in: .common).autoconnect()
 
@@ -459,6 +624,11 @@ private struct BattleWaitingResultView: View {
                 Text("Your score: \(myScore)")
                     .font(.system(size: 26, weight: .black, design: .rounded))
                     .foregroundStyle(Theme.auroraCyan)
+                if !opponentName.isEmpty {
+                    Text("\(opponentName): \(opponentLastScore)")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundStyle(Theme.nebulaPink)
+                }
                 Text("Waiting for opponent" + dots)
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(Theme.textSecondary)
@@ -474,6 +644,8 @@ private struct BattleWaitingResultView: View {
 private struct BattleResultView: View {
     let result: BattleResult
     let pilotName: String
+    let mySkinID: String
+    let opponentSkinID: String
     let rivalry: RivalryStats?
     let onSameOpponent: () -> Void
     let onRandom: () -> Void
@@ -532,12 +704,13 @@ private struct BattleResultView: View {
 
     private var scoreComparison: some View {
         HStack(spacing: 0) {
-            scoreColumn(name: pilotName, score: result.myScore, isWinner: didWin || isDraw, isMe: true)
+            scoreColumn(name: pilotName, score: result.myScore,
+                        skinID: mySkinID, isWinner: didWin || isDraw, isMe: true)
             Image(systemName: "bolt.fill")
                 .font(.system(size: 20, weight: .black)).foregroundStyle(Theme.nebulaPink)
                 .frame(width: 44)
             scoreColumn(name: result.opponentName, score: result.opponentScore,
-                        isWinner: !didWin || isDraw, isMe: false)
+                        skinID: opponentSkinID, isWinner: !didWin || isDraw, isMe: false)
         }
         .padding(.horizontal, 24)
     }
@@ -605,19 +778,16 @@ private struct BattleResultView: View {
         }
     }
 
-    private func scoreColumn(name: String, score: Int, isWinner: Bool, isMe: Bool) -> some View {
-        VStack(spacing: 8) {
-            ZStack {
-                Circle()
-                    .fill(isMe ? Theme.auroraCyan.opacity(0.18) : Theme.nebulaPink.opacity(0.12))
-                    .frame(width: 56, height: 56)
+    private func scoreColumn(name: String, score: Int, skinID: String, isWinner: Bool, isMe: Bool) -> some View {
+        let skin = SkinCatalog.skin(id: skinID)
+        return VStack(spacing: 8) {
+            ZStack(alignment: .topTrailing) {
+                MiniAstronautView(skin: skin, size: 64)
                 if isWinner && !isDraw {
                     Image(systemName: "crown.fill")
-                        .font(.system(size: 20, weight: .bold)).foregroundStyle(Theme.starGold)
-                } else {
-                    Image(systemName: "person.fill")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(isMe ? Theme.auroraCyan : Theme.textSecondary)
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(Theme.starGold)
+                        .offset(x: 6, y: -6)
                 }
             }
             Text(name).font(.system(size: 12, weight: .bold, design: .rounded))

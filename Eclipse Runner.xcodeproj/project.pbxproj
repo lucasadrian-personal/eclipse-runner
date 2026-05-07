@@ -20,6 +20,7 @@
 		7E5235D9DCC9481D58AAB3E7 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B295D0C2946D82623B871394 /* GameView.swift */; };
 		8CCF38903B5D2F10564FC530 /* BattleCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21C71CFBAF147DADC0D84E2 /* BattleCoordinator.swift */; };
 		903D19436607581CA1725C25 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD8E3E414E0DECB1F79B4E2 /* OnboardingView.swift */; };
+		96961475270F1DFCCC3FEDF1 /* BattleRealtimeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94E7C13FDF215D5639B38D79 /* BattleRealtimeService.swift */; };
 		9B007DDEC51AD2A1A338406B /* CosmicGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5276669A4A50B37AED2E8DF3 /* CosmicGameScene.swift */; };
 		9D6C53DDDC745478490DD188 /* LeaderboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8058856B85C31E6AD143BA71 /* LeaderboardService.swift */; };
 		9DB54882F6997EDA401EE209 /* CosmicBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADFC3211534D5ED948C32564 /* CosmicBackground.swift */; };
@@ -54,6 +55,7 @@
 		65962979B79BC978A784F4ED /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		7F47329AC59E5DF836399B18 /* GameConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameConfig.swift; sourceTree = "<group>"; };
 		8058856B85C31E6AD143BA71 /* LeaderboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaderboardService.swift; sourceTree = "<group>"; };
+		94E7C13FDF215D5639B38D79 /* BattleRealtimeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleRealtimeService.swift; sourceTree = "<group>"; };
 		9AD8E3E414E0DECB1F79B4E2 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		ADFC3211534D5ED948C32564 /* CosmicBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmicBackground.swift; sourceTree = "<group>"; };
 		AF2BBA42B452D6CCEC6712BE /* DailyBurstView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBurstView.swift; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 		6175BD63BBA4E73001E56FDF /* Backend */ = {
 			isa = PBXGroup;
 			children = (
+				94E7C13FDF215D5639B38D79 /* BattleRealtimeService.swift */,
 				D876B9EC5FA8E954F9CF559D /* BattleService.swift */,
 				0A4A83B98BCA27C50566BA5E /* DailyBurstService.swift */,
 				8058856B85C31E6AD143BA71 /* LeaderboardService.swift */,
@@ -291,6 +294,7 @@
 				529F5C1D4A64640FDB5C5D02 /* AstronautView.swift in Sources */,
 				016D243142611A2EA6141A1C /* AudioManager.swift in Sources */,
 				8CCF38903B5D2F10564FC530 /* BattleCoordinator.swift in Sources */,
+				96961475270F1DFCCC3FEDF1 /* BattleRealtimeService.swift in Sources */,
 				C4A5F21C7D45B3F524DE64CC /* BattleService.swift in Sources */,
 				E82BDFAA8770BD71B341257A /* BattleView.swift in Sources */,
 				9DB54882F6997EDA401EE209 /* CosmicBackground.swift in Sources */,

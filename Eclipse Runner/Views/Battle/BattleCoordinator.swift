@@ -36,12 +36,19 @@ final class BattleCoordinator: ObservableObject {
     @Published var rivalryStats: RivalryStats? = nil
     @Published var incomingChallenge: BattleRoom? = nil
 
+    // Live opponent data via Realtime Broadcast
+    @Published var opponentLiveScore: Int = 0
+    @Published var opponentLiveSkinID: String = "classic"
+    @Published var opponentName: String = ""
+    @Published var opponentScoreJustUpdated: Bool = false
+
     private(set) var pilotName: String = ""
     private(set) var lastOpponentName: String = ""
 
     private var pollTimer: Timer?
     private var waitTimer: Timer?
     private var incomingTimer: Timer?
+    private var scorePulseTimer: Timer?
 
     // MARK: - Random matchmaking
     func startSearch(pilotName: String) {
@@ -115,9 +122,33 @@ final class BattleCoordinator: ObservableObject {
         }
     }
 
+    // MARK: - Connect Realtime for live scores
+    func connectRealtime(skinID: String) {
+        guard let room = currentRoom else { return }
+        BattleRealtimeService.shared.connect(roomID: room.id, myPilotName: pilotName)
+        BattleRealtimeService.shared.onOpponentScore = { [weak self] broadcast in
+            guard let self else { return }
+            self.opponentLiveScore = broadcast.score
+            self.opponentLiveSkinID = broadcast.skinID
+            if self.opponentName.isEmpty { self.opponentName = broadcast.pilot }
+            // Trigger pulse animation
+            self.opponentScoreJustUpdated = true
+            self.scorePulseTimer?.invalidate()
+            self.scorePulseTimer = Timer.scheduledTimer(withTimeInterval: 0.6, repeats: false) { [weak self] _ in
+                Task { @MainActor [weak self] in self?.opponentScoreJustUpdated = false }
+            }
+        }
+    }
+
+    // MARK: - Broadcast my live score (called from game loop)
+    func broadcastLiveScore(_ score: Int, skinID: String) {
+        BattleRealtimeService.shared.broadcastScore(score, skinID: skinID)
+    }
+
     // MARK: - Submit score after game ends
     func submitMyScore(_ score: Int) {
         myScore = score
+        BattleRealtimeService.shared.disconnect()
         guard let room = currentRoom else { return }
         phase = .waitingResult
         BattleService.shared.submitScore(roomID: room.id, pilotName: pilotName, score: score) { [weak self] _ in
@@ -151,6 +182,7 @@ final class BattleCoordinator: ObservableObject {
 
     func cancel() {
         stopTimers()
+        BattleRealtimeService.shared.disconnect()
         if let room = currentRoom, room.status == "waiting" {
             BattleService.shared.cancelRoom(roomID: room.id)
         }
@@ -160,10 +192,15 @@ final class BattleCoordinator: ObservableObject {
 
     func reset() {
         stopTimers()
+        BattleRealtimeService.shared.disconnect()
         currentRoom = nil
         myScore = 0
         waitingSecondsLeft = 60
         rivalryStats = nil
+        opponentLiveScore = 0
+        opponentLiveSkinID = "classic"
+        opponentName = ""
+        opponentScoreJustUpdated = false
         phase = .idle
     }
 
@@ -272,20 +309,24 @@ final class BattleCoordinator: ObservableObject {
         }
     }
 
-    private func stopIncomingTimer() {
-        incomingTimer?.invalidate()
-        incomingTimer = nil
-    }
-
     private func stopTimers() {
         stopPolling()
         waitTimer?.invalidate()
         waitTimer = nil
+        scorePulseTimer?.invalidate()
+        scorePulseTimer = nil
+    }
+
+    private func stopIncomingTimer() {
+        incomingTimer?.invalidate()
+        incomingTimer = nil
     }
 
     deinit {
         pollTimer?.invalidate()
         waitTimer?.invalidate()
         incomingTimer?.invalidate()
+        scorePulseTimer?.invalidate()
+        BattleRealtimeService.shared.disconnect()
     }
 }
