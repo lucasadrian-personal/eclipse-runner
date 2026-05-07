@@ -18,6 +18,7 @@
 		6A40A4F36E87168D4BEF1829 /* CosmicDriftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */; };
 		797F88C26E278347201969A5 /* SkinCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2A9998ED76EC8729FFC0EF /* SkinCatalog.swift */; };
 		7E5235D9DCC9481D58AAB3E7 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B295D0C2946D82623B871394 /* GameView.swift */; };
+		8CCF38903B5D2F10564FC530 /* BattleCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D21C71CFBAF147DADC0D84E2 /* BattleCoordinator.swift */; };
 		903D19436607581CA1725C25 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AD8E3E414E0DECB1F79B4E2 /* OnboardingView.swift */; };
 		9B007DDEC51AD2A1A338406B /* CosmicGameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5276669A4A50B37AED2E8DF3 /* CosmicGameScene.swift */; };
 		9D6C53DDDC745478490DD188 /* LeaderboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8058856B85C31E6AD143BA71 /* LeaderboardService.swift */; };
@@ -28,9 +29,11 @@
 		AFB0D4225B5606D071B593FC /* Placeholders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC98D643428D9CCD27735B2 /* Placeholders.swift */; };
 		B36F2A8EDC9F9E6C12647969 /* PhysicsCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C75551CBF60FDD8FDBC7A1BE /* PhysicsCategory.swift */; };
 		BA9B2074BBA277F6477A4D93 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F5D179940E869372A9A723 /* L10n.swift */; };
+		C4A5F21C7D45B3F524DE64CC /* BattleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D876B9EC5FA8E954F9CF559D /* BattleService.swift */; };
 		C8AF5A519F23465841D3319F /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */; };
 		D1805FB5B0191D7201E2ADBC /* DailyBurstView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2BBA42B452D6CCEC6712BE /* DailyBurstView.swift */; };
 		D85D4F3DA76416B240960E58 /* GameConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F47329AC59E5DF836399B18 /* GameConfig.swift */; };
+		E82BDFAA8770BD71B341257A /* BattleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60349EFF676F9862281FC76 /* BattleView.swift */; };
 		EA5466C1EAE2C9C57FC7FCE4 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC5C8593312A8B53F1AEDCF /* ShopView.swift */; };
 		F1C3E1C359DED9EA5C7216E5 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650096945F0C5A4E8B89DAC6 /* Theme.swift */; };
 /* End PBXBuildFile section */
@@ -58,7 +61,10 @@
 		B2CBB13FF5C20A8779C27842 /* AstronautView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AstronautView.swift; sourceTree = "<group>"; };
 		B8F5D179940E869372A9A723 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
 		BE25D69E0E2DA4F256D3C856 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		C60349EFF676F9862281FC76 /* BattleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleView.swift; sourceTree = "<group>"; };
 		C75551CBF60FDD8FDBC7A1BE /* PhysicsCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsCategory.swift; sourceTree = "<group>"; };
+		D21C71CFBAF147DADC0D84E2 /* BattleCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleCoordinator.swift; sourceTree = "<group>"; };
+		D876B9EC5FA8E954F9CF559D /* BattleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleService.swift; sourceTree = "<group>"; };
 		E07F55F5D27C099F908C292B /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		F00D130490ED5B9835344F78 /* StarfieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarfieldView.swift; sourceTree = "<group>"; };
 		F07D42011013CED5387A2DFE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -80,6 +86,15 @@
 				7A32BF114B11384B064DBA01 /* Views */,
 			);
 			path = "Eclipse Runner";
+			sourceTree = "<group>";
+		};
+		290F722F139668B5AFD1CC3A /* Battle */ = {
+			isa = PBXGroup;
+			children = (
+				D21C71CFBAF147DADC0D84E2 /* BattleCoordinator.swift */,
+				C60349EFF676F9862281FC76 /* BattleView.swift */,
+			);
+			path = Battle;
 			sourceTree = "<group>";
 		};
 		4D2FF61D46263A342F2B43E8 /* Products */ = {
@@ -110,6 +125,7 @@
 		6175BD63BBA4E73001E56FDF /* Backend */ = {
 			isa = PBXGroup;
 			children = (
+				D876B9EC5FA8E954F9CF559D /* BattleService.swift */,
 				0A4A83B98BCA27C50566BA5E /* DailyBurstService.swift */,
 				8058856B85C31E6AD143BA71 /* LeaderboardService.swift */,
 				29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */,
@@ -128,6 +144,7 @@
 		7A32BF114B11384B064DBA01 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				290F722F139668B5AFD1CC3A /* Battle */,
 				9B884E2605C202758F021438 /* Components */,
 				68DBCB78B1589519926C4EB3 /* DailyBurst */,
 				94A39968651927C29168786A /* Home */,
@@ -273,6 +290,9 @@
 			files = (
 				529F5C1D4A64640FDB5C5D02 /* AstronautView.swift in Sources */,
 				016D243142611A2EA6141A1C /* AudioManager.swift in Sources */,
+				8CCF38903B5D2F10564FC530 /* BattleCoordinator.swift in Sources */,
+				C4A5F21C7D45B3F524DE64CC /* BattleService.swift in Sources */,
+				E82BDFAA8770BD71B341257A /* BattleView.swift in Sources */,
 				9DB54882F6997EDA401EE209 /* CosmicBackground.swift in Sources */,
 				6A40A4F36E87168D4BEF1829 /* CosmicDriftApp.swift in Sources */,
 				9B007DDEC51AD2A1A338406B /* CosmicGameScene.swift in Sources */,

@@ -20,6 +20,9 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
     // Active skin — set before didMove(to:)
     var activeSkin: AstronautSkin = SkinCatalog.all[0]
 
+    // Battle seed — when set, obstacles use a deterministic sequence
+    var battleSeed: Int = 0
+
     // Nodes
     private let player          = SKSpriteNode()
     private var bgLayers: [SKNode] = []

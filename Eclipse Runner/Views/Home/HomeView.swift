@@ -10,6 +10,7 @@ struct HomeView: View {
     let onHowToPlay: () -> Void
     let onSettings: () -> Void
     let onShop: () -> Void
+    let onBattle: () -> Void
 
     @State private var pulse = false
 
@@ -30,6 +31,7 @@ struct HomeView: View {
                 playButton
                 secondaryRow
                 leaderboardCard
+                howToPlayCard
                 Spacer(minLength: 24)
             }
             .padding(.horizontal, 20)
@@ -249,18 +251,89 @@ struct HomeView: View {
 
     private var secondaryRow: some View {
         HStack(alignment: .top, spacing: 12) {
-            SecondaryTile(icon: "questionmark.circle.fill",
-                          title: L10n.howToPlay,
-                          subtitle: L10n.oneTapControls,
-                          tint: Theme.auroraMint,
-                          action: onHowToPlay)
+            BattleTile(action: onBattle)
             DailyBurstTile(action: onDailyBurst)
         }
         .fixedSize(horizontal: false, vertical: true)
     }
+
+    // MARK: - How To Play (bottom card)
+
+    private var howToPlayCard: some View {
+        Button(action: onHowToPlay) {
+            HStack(spacing: 14) {
+                Image(systemName: "questionmark.circle.fill")
+                    .font(.system(size: 22, weight: .bold))
+                    .foregroundStyle(Theme.auroraMint)
+                    .frame(width: 44, height: 44)
+                    .background(Theme.auroraMint.opacity(0.15), in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L10n.howToPlay)
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text(L10n.oneTapControls)
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundStyle(Theme.textSecondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+            .padding(16)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Theme.surfaceStroke, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
 }
 
 // MARK: - Subviews
+
+private struct BattleTile: View {
+    let action: () -> Void
+    @State private var glow = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Theme.nebulaPink.opacity(0.18))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "bolt.fill")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Theme.nebulaPink)
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Battle 1v1")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text("Challenge a real pilot")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundStyle(Theme.nebulaPink.opacity(0.85))
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .background(
+                Theme.nebulaPink.opacity(0.08),
+                in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(Theme.nebulaPink.opacity(glow ? 0.55 : 0.25), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true)) { glow = true }
+        }
+    }
+}
 
 private struct StatPill: View {
     @EnvironmentObject private var lang: LanguageManager
@@ -379,44 +452,6 @@ private struct DailyBurstTile: View {
     }
 }
 
-private struct SecondaryTile: View {
-    @EnvironmentObject private var lang: LanguageManager
-    let icon: String
-    let title: String
-    let subtitle: String
-    let tint: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundStyle(tint)
-                    .frame(width: 38, height: 38)
-                    .background(tint.opacity(0.15), in: Circle())
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Theme.textPrimary)
-                    Text(subtitle)
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(Theme.textSecondary)
-                }
-                Spacer(minLength: 0)
-            }
-            .padding(14)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(Theme.surfaceStroke, lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-}
-
 struct LeaderboardRow: View {
     let entry: LeaderboardEntry
     var compact: Bool = false
@@ -465,7 +500,7 @@ struct LeaderboardRow: View {
 
 #Preview {
     NavigationStack {
-        HomeView(onPlay: {}, onDailyBurst: {}, onLeaderboard: {}, onHowToPlay: {}, onSettings: {}, onShop: {})
+        HomeView(onPlay: {}, onDailyBurst: {}, onLeaderboard: {}, onHowToPlay: {}, onSettings: {}, onShop: {}, onBattle: {})
             .environmentObject(GameStore())
             .environmentObject(LanguageManager.shared)
     }
