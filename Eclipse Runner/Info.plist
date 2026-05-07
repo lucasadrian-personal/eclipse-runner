@@ -26,6 +26,17 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Eclipse Runner uses Bluetooth to connect with nearby players for offline 1v1 battles.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_eclipse-runner._tcp</string>
+		<string>_eclipse-runner._udp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Eclipse Runner uses your local network to find nearby players for offline 1v1 battles.</string>
+	<key>NSPrivacyPolicyURL</key>
+	<string>https://www.eclipserunner.app/privacy</string>
 	<key>SUPABASE_ANON_KEY</key>
 	<string>$(SUPABASE_ANON_KEY)</string>
 	<key>SUPABASE_URL</key>

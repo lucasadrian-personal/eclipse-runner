@@ -5,6 +5,7 @@ import SwiftUI
 struct ShopView: View {
     @EnvironmentObject private var store: GameStore
     @EnvironmentObject private var lang: LanguageManager
+    @EnvironmentObject private var iap: ShopIAPManager
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedTab: ShopTab = .skins
@@ -46,6 +47,17 @@ struct ShopView: View {
         }
         .alert(L10n.shopNotEnoughLY, isPresented: $showPurchaseError) {
             Button(L10n.ok, role: .cancel) {}
+        }
+        .alert("Purchase Failed", isPresented: Binding(
+            get: { iap.purchaseError != nil },
+            set: { if !$0 { iap.purchaseError = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(iap.purchaseError ?? "")
+        }
+        .onAppear {
+            Task { await iap.restorePurchases(store: store) }
         }
     }
 
@@ -208,11 +220,18 @@ struct ShopView: View {
                     .stroke(canAfford ? Theme.starGold.opacity(0.5) : Theme.surfaceStroke, lineWidth: 1))
             }
             .buttonStyle(.plain)
-        case .iap:
-            Button { /* IAP flow — handled by ShopIAPManager */ } label: {
+        case .iap(let productID):
+            let priceStr = iap.priceString(for: productID)
+            Button {
+                Task { await iap.purchase(productID: productID, store: store) }
+            } label: {
                 HStack(spacing: 6) {
-                    Image(systemName: "crown.fill")
-                    Text(L10n.shopGetPremium)
+                    if iap.isPurchasing {
+                        ProgressView().tint(.white).scaleEffect(0.8)
+                    } else {
+                        Image(systemName: "crown.fill")
+                        Text(priceStr.isEmpty ? L10n.shopGetPremium : priceStr)
+                    }
                 }
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
                 .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
@@ -224,6 +243,7 @@ struct ShopView: View {
                 )
             }
             .buttonStyle(.plain)
+            .disabled(iap.isPurchasing)
         }
     }
 
@@ -287,11 +307,18 @@ struct ShopView: View {
     private var shieldPacksList: some View {
         VStack(spacing: 12) {
             ForEach(SkinCatalog.shieldPacks) { pack in
-                ShieldPackRow(pack: pack) {
-                    // IAP flow placeholder — ShopIAPManager will handle it
-                    store.addShields(pack.count)   // demo grant for prototype
+                ShieldPackRow(pack: pack, priceOverride: iap.priceString(for: pack.id)) {
+                    Task { await iap.purchase(productID: pack.id, store: store) }
                 }
             }
+        }
+        .alert("Purchase Failed", isPresented: Binding(
+            get: { iap.purchaseError != nil },
+            set: { if !$0 { iap.purchaseError = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(iap.purchaseError ?? "")
         }
     }
 
@@ -542,7 +569,12 @@ struct SkinGridCell: View {
 
 struct ShieldPackRow: View {
     let pack: ShieldPack
+    var priceOverride: String = ""
     let onBuy: () -> Void
+
+    private var displayPrice: String {
+        priceOverride.isEmpty ? pack.price : priceOverride
+    }
 
     var body: some View {
         HStack(spacing: 16) {
@@ -562,7 +594,7 @@ struct ShieldPackRow: View {
             }
             Spacer()
             Button(action: onBuy) {
-                Text(pack.price)
+                Text(displayPrice)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundStyle(Color(red: 0.04, green: 0.06, blue: 0.18))
                     .padding(.horizontal, 16).padding(.vertical, 10)

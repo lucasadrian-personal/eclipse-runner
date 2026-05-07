@@ -4,6 +4,7 @@ import SwiftUI
 struct CosmicDriftApp: App {
     @StateObject private var gameStore = GameStore()
     @StateObject private var langManager = LanguageManager.shared
+    @StateObject private var iapManager = ShopIAPManager.shared
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
     init() {
@@ -23,6 +24,7 @@ struct CosmicDriftApp: App {
             }
             .environmentObject(gameStore)
             .environmentObject(langManager)
+            .environmentObject(iapManager)
             .preferredColorScheme(.dark)
         }
     }

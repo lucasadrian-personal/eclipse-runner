@@ -1,6 +1,6 @@
 name: Eclipse Runner
 options:
-  bundleIdPrefix: com.example
+  bundleIdPrefix: com.lucasadrian
   developmentLanguage: en
 
 settings:
@@ -24,7 +24,7 @@ targets:
     deploymentTarget: '17.0'
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.example.eclipserunner
+        PRODUCT_BUNDLE_IDENTIFIER: com.lucasadrian.eclipserunner
     sources:
       - path: Eclipse Runner
     info:
@@ -49,6 +49,12 @@ targets:
         UIRequiredDeviceCapabilities: [ arm64 ]
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
+        NSLocalNetworkUsageDescription: "Eclipse Runner uses your local network to find nearby players for offline 1v1 battles."
+        NSBonjourServices:
+          - "_eclipse-runner._tcp"
+          - "_eclipse-runner._udp"
+        NSBluetoothAlwaysUsageDescription: "Eclipse Runner uses Bluetooth to connect with nearby players for offline 1v1 battles."
+        NSPrivacyPolicyURL: "https://www.eclipserunner.app/privacy"
 
 schemes:
   Eclipse Runner:

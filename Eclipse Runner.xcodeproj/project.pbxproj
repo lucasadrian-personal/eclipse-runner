@@ -15,6 +15,7 @@
 		3683D16BC538B0E495538388 /* StarfieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00D130490ED5B9835344F78 /* StarfieldView.swift */; };
 		451373A1553BA6BC8AA56AE9 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE25D69E0E2DA4F256D3C856 /* RootView.swift */; };
 		529F5C1D4A64640FDB5C5D02 /* AstronautView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2CBB13FF5C20A8779C27842 /* AstronautView.swift */; };
+		61690E6CDA45BCC0CC6A49C9 /* ShopIAPManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D51ED9C28A18490B2CCB5580 /* ShopIAPManager.swift */; };
 		6A40A4F36E87168D4BEF1829 /* CosmicDriftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FE52F3F71C20E0B29F839CD /* CosmicDriftApp.swift */; };
 		746A639CE6D373760E12AFB0 /* BattleNearbyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05E0BAEA56B27ABB1225BB8F /* BattleNearbyService.swift */; };
 		797F88C26E278347201969A5 /* SkinCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E2A9998ED76EC8729FFC0EF /* SkinCatalog.swift */; };
@@ -68,6 +69,7 @@
 		C60349EFF676F9862281FC76 /* BattleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleView.swift; sourceTree = "<group>"; };
 		C75551CBF60FDD8FDBC7A1BE /* PhysicsCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsCategory.swift; sourceTree = "<group>"; };
 		D21C71CFBAF147DADC0D84E2 /* BattleCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleCoordinator.swift; sourceTree = "<group>"; };
+		D51ED9C28A18490B2CCB5580 /* ShopIAPManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopIAPManager.swift; sourceTree = "<group>"; };
 		D876B9EC5FA8E954F9CF559D /* BattleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BattleService.swift; sourceTree = "<group>"; };
 		E07F55F5D27C099F908C292B /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		F00D130490ED5B9835344F78 /* StarfieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarfieldView.swift; sourceTree = "<group>"; };
@@ -134,6 +136,7 @@
 				D876B9EC5FA8E954F9CF559D /* BattleService.swift */,
 				0A4A83B98BCA27C50566BA5E /* DailyBurstService.swift */,
 				8058856B85C31E6AD143BA71 /* LeaderboardService.swift */,
+				D51ED9C28A18490B2CCB5580 /* ShopIAPManager.swift */,
 				29C41C6A0674C56C4A350DEF /* SupabaseConfig.swift */,
 			);
 			path = Backend;
@@ -318,6 +321,7 @@
 				B36F2A8EDC9F9E6C12647969 /* PhysicsCategory.swift in Sources */,
 				AFB0D4225B5606D071B593FC /* Placeholders.swift in Sources */,
 				451373A1553BA6BC8AA56AE9 /* RootView.swift in Sources */,
+				61690E6CDA45BCC0CC6A49C9 /* ShopIAPManager.swift in Sources */,
 				EA5466C1EAE2C9C57FC7FCE4 /* ShopView.swift in Sources */,
 				797F88C26E278347201969A5 /* SkinCatalog.swift in Sources */,
 				3683D16BC538B0E495538388 /* StarfieldView.swift in Sources */,
@@ -363,7 +367,7 @@
 			buildSettings = {
 				INFOPLIST_FILE = "Eclipse Runner/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.eclipserunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lucasadrian.eclipserunner;
 			};
 			name = Release;
 		};
@@ -390,7 +394,7 @@
 			buildSettings = {
 				INFOPLIST_FILE = "Eclipse Runner/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.eclipserunner;
+				PRODUCT_BUNDLE_IDENTIFIER = com.lucasadrian.eclipserunner;
 			};
 			name = Debug;
 		};
