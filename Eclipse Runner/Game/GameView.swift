@@ -50,9 +50,10 @@ final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
             guard let self else { return }
             if self.gameMode == .daily {
                 self.store?.registerDailyRun(score: score)
-            } else {
+            } else if self.gameMode == .normal {
                 self.store?.registerRun(score: score)
             }
+            // .battle mode intentionally skips global leaderboard registration
             self.gameOverInfo = GameOverInfo(score: score, best: best, isNewBest: isNewBest)
         }
     }
@@ -77,7 +78,7 @@ struct GameOverInfo: Equatable {
 }
 
 // MARK: - Game mode
-enum GameMode { case normal, daily }
+enum GameMode { case normal, daily, battle }
 
 // MARK: - Main GameView
 struct GameView: View {

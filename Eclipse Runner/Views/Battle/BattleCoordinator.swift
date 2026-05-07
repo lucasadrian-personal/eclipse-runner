@@ -107,7 +107,11 @@ final class BattleCoordinator: ObservableObject {
         incomingChallenge = nil
         stopIncomingTimer()
         BattleService.shared.joinByCode(room.roomCode ?? "", pilotName: pilotName) { [weak self] joined, error in
-            self?.handleRoomResult(room: joined ?? room, error: error)
+            Task { @MainActor [weak self] in
+                NSLog("[Coord] acceptIncomingChallenge callback: room=%@ error=%@",
+                      joined?.id ?? "nil", error?.localizedDescription ?? "nil")
+                self?.handleRoomResult(room: joined ?? room, error: error)
+            }
         }
     }
 

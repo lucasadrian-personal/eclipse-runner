@@ -415,23 +415,32 @@ final class BattleService {
         var req = URLRequest(url: url)
         req.httpMethod = "PATCH"
         addHeaders(&req, cfg: cfg)
-        req.setValue("return=representation", forHTTPHeaderField: "Prefer")
+        // Use return=minimal — we re-fetch the room separately to avoid 204-vs-200 parsing ambiguity
+        req.setValue("return=minimal", forHTTPHeaderField: "Prefer")
         req.httpBody = bodyData
         session.dataTask(with: req) { [weak self] data, resp, error in
             guard let self else { return }
-            let status = (resp as? HTTPURLResponse)?.statusCode ?? -1
-            NSLog("[Battle] joinRoom: HTTP %d", status)
-            if let data { NSLog("[Battle] joinRoom: response=%@", String(data: data, encoding: .utf8) ?? "?") }
+            let httpStatus = (resp as? HTTPURLResponse)?.statusCode ?? -1
+            NSLog("[Battle] joinRoom PATCH: HTTP %d", httpStatus)
             if let e = error { DispatchQueue.main.async { completion(nil, e) }; return }
-            let rooms = data.flatMap { try? JSONDecoder().decode([BattleRoom].self, from: $0) } ?? []
-            if let updated = rooms.first {
-                // Successfully claimed the room — add participant
-                self.addParticipant(pilotName: pilotName, room: updated, cfg: cfg, completion: completion)
-            } else {
-                // Room was already taken or gone
-                let err = NSError(domain: "Battle", code: 409,
+            guard (200..<300).contains(httpStatus) else {
+                // PATCH failed (room already taken, gone, or RLS denied)
+                let err = NSError(domain: "Battle", code: httpStatus,
                                   userInfo: [NSLocalizedDescriptionKey: "Room is no longer available"])
                 DispatchQueue.main.async { completion(nil, err) }
+                return
+            }
+            // PATCH succeeded (200 or 204) — re-fetch to get current room state
+            self.fetchRoom(roomID: room.id, cfg: cfg) { [weak self] updated in
+                guard let self else { return }
+                guard let updated else {
+                    let err = NSError(domain: "Battle", code: 404,
+                                      userInfo: [NSLocalizedDescriptionKey: "Room not found after join"])
+                    DispatchQueue.main.async { completion(nil, err) }
+                    return
+                }
+                NSLog("[Battle] joinRoom re-fetch: status=%@", updated.status)
+                self.addParticipant(pilotName: pilotName, room: updated, cfg: cfg, completion: completion)
             }
         }.resume()
     }

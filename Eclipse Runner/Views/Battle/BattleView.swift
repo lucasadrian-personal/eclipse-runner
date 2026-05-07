@@ -393,7 +393,7 @@ struct BattleGameView: View {
             }
             .onAppear {
                 if !gameCoord.isReady {
-                    gameCoord.setup(screenSize: geo.size, store: store, mode: .normal)
+                    gameCoord.setup(screenSize: geo.size, store: store, mode: .battle)
                     // Apply room seed for deterministic obstacles
                     gameCoord.scene?.battleSeed = room.seed
                 }
