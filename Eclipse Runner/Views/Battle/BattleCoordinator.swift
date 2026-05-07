@@ -48,8 +48,13 @@ final class BattleCoordinator: ObservableObject {
         guard SupabaseConfig.current != nil else { phase = .offline; return }
         self.pilotName = pilotName
         phase = .searching(message: "Finding opponent")
+        NSLog("[Coord] startSearch: pilot=%@", pilotName)
         BattleService.shared.findOrCreateRoom(pilotName: pilotName) { [weak self] room, error in
-            self?.handleRoomResult(room: room, error: error)
+            Task { @MainActor [weak self] in
+                NSLog("[Coord] startSearch callback: room=%@ error=%@",
+                      room?.id ?? "nil", error?.localizedDescription ?? "nil")
+                self?.handleRoomResult(room: room, error: error)
+            }
         }
     }
 
@@ -60,7 +65,7 @@ final class BattleCoordinator: ObservableObject {
         let opp = lastOpponentName
         phase = .searching(message: "Challenging \(opp)")
         BattleService.shared.challengeSameOpponent(myName: pilotName, opponentName: opp) { [weak self] room, error in
-            self?.handleRoomResult(room: room, error: error)
+            Task { @MainActor [weak self] in self?.handleRoomResult(room: room, error: error) }
         }
     }
 
@@ -69,8 +74,13 @@ final class BattleCoordinator: ObservableObject {
         guard SupabaseConfig.current != nil else { phase = .offline; return }
         self.pilotName = pilotName
         phase = .searching(message: "Creating private room")
+        NSLog("[Coord] createPrivateRoom: pilot=%@", pilotName)
         BattleService.shared.createPrivateRoom(pilotName: pilotName) { [weak self] room, error in
-            self?.handleRoomResult(room: room, error: error)
+            Task { @MainActor [weak self] in
+                NSLog("[Coord] createPrivateRoom callback: room=%@ error=%@",
+                      room?.id ?? "nil", error?.localizedDescription ?? "nil")
+                self?.handleRoomResult(room: room, error: error)
+            }
         }
     }
 
@@ -79,8 +89,13 @@ final class BattleCoordinator: ObservableObject {
         guard SupabaseConfig.current != nil else { phase = .offline; return }
         self.pilotName = pilotName
         phase = .searching(message: "Joining room")
+        NSLog("[Coord] joinByCode: code=%@ pilot=%@", code, pilotName)
         BattleService.shared.joinByCode(code, pilotName: pilotName) { [weak self] room, error in
-            self?.handleRoomResult(room: room, error: error)
+            Task { @MainActor [weak self] in
+                NSLog("[Coord] joinByCode callback: room=%@ error=%@",
+                      room?.id ?? "nil", error?.localizedDescription ?? "nil")
+                self?.handleRoomResult(room: room, error: error)
+            }
         }
     }
 

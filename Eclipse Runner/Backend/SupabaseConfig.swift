@@ -13,7 +13,12 @@ struct SupabaseConfig {
             let key = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_ANON_KEY") as? String,
             !url.isEmpty, !key.isEmpty,
             url != "$(SUPABASE_URL)"
-        else { return nil }
+        else {
+            let urlVal = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_URL") as? String ?? "missing"
+            NSLog("[SupabaseConfig] current=nil — URL='%@'", urlVal)
+            return nil
+        }
+        NSLog("[SupabaseConfig] current=OK — URL='%@'", url)
         return SupabaseConfig(projectURL: url.trimmingCharacters(in: .whitespacesAndNewlines),
                               anonKey: key.trimmingCharacters(in: .whitespacesAndNewlines))
     }

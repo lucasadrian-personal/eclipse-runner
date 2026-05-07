@@ -96,10 +96,12 @@ final class BattleService {
 
     func createPrivateRoom(pilotName: String, completion: @escaping (BattleRoom?, Error?) -> Void) {
         guard let cfg = SupabaseConfig.current else {
+            NSLog("[Battle] createPrivateRoom: no Supabase config")
             completion(nil, NSError(domain: "Battle", code: -1,
                                     userInfo: [NSLocalizedDescriptionKey: "No Supabase config"]))
             return
         }
+        NSLog("[Battle] createPrivateRoom: starting for %@", pilotName)
         createRoom(pilotName: pilotName, invitedPilot: nil, isPrivate: true, cfg: cfg, completion: completion)
     }
 
@@ -108,11 +110,13 @@ final class BattleService {
     func joinByCode(_ code: String, pilotName: String,
                     completion: @escaping (BattleRoom?, Error?) -> Void) {
         guard let cfg = SupabaseConfig.current else {
+            NSLog("[Battle] joinByCode: no Supabase config")
             completion(nil, NSError(domain: "Battle", code: -1,
                                     userInfo: [NSLocalizedDescriptionKey: "No Supabase config"]))
             return
         }
         let clean = code.uppercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        NSLog("[Battle] joinByCode: looking for code=%@, pilot=%@", clean, pilotName)
         var comps = URLComponents(string: "\(cfg.projectURL)/rest/v1/battle_rooms")!
         comps.queryItems = [
             .init(name: "select",     value: "*"),
@@ -125,10 +129,14 @@ final class BattleService {
         var req = URLRequest(url: url)
         req.httpMethod = "GET"
         addHeaders(&req, cfg: cfg)
-        session.dataTask(with: req) { [weak self] data, _, error in
+        session.dataTask(with: req) { [weak self] data, resp, error in
             guard let self else { return }
+            let status = (resp as? HTTPURLResponse)?.statusCode ?? -1
+            NSLog("[Battle] joinByCode: HTTP %d", status)
+            if let data { NSLog("[Battle] joinByCode: response=%@", String(data: data, encoding: .utf8) ?? "?") }
             if let e = error { DispatchQueue.main.async { completion(nil, e) }; return }
             let rooms = data.flatMap { try? JSONDecoder().decode([BattleRoom].self, from: $0) } ?? []
+            NSLog("[Battle] joinByCode: found %d rooms", rooms.count)
             guard let room = rooms.first else {
                 let err = NSError(domain: "Battle", code: 404,
                                   userInfo: [NSLocalizedDescriptionKey: "Code not found or expired"])
@@ -353,6 +361,7 @@ final class BattleService {
                              cfg: SupabaseConfig,
                              completion: @escaping (BattleRoom?, Error?) -> Void) {
         guard let url = URL(string: "\(cfg.projectURL)/rest/v1/battle_rooms") else {
+            NSLog("[Battle] createRoom: bad URL")
             completion(nil, nil); return
         }
         var bodyDict: [String: Any] = ["host_name": pilotName]
@@ -361,18 +370,31 @@ final class BattleService {
             bodyDict["room_code"] = Self.generateCode()
         }
         guard let bodyData = try? JSONSerialization.data(withJSONObject: [bodyDict]) else {
+            NSLog("[Battle] createRoom: JSON serialize failed")
             completion(nil, nil); return
         }
+        NSLog("[Battle] createRoom: POST to %@ body=%@", url.absoluteString, String(data: bodyData, encoding: .utf8) ?? "?")
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         addHeaders(&req, cfg: cfg)
         req.setValue("return=representation", forHTTPHeaderField: "Prefer")
         req.httpBody = bodyData
-        session.dataTask(with: req) { [weak self] data, _, error in
+        session.dataTask(with: req) { [weak self] data, resp, error in
             guard let self else { return }
-            if let e = error { DispatchQueue.main.async { completion(nil, e) }; return }
+            let status = (resp as? HTTPURLResponse)?.statusCode ?? -1
+            NSLog("[Battle] createRoom: HTTP %d", status)
+            if let data { NSLog("[Battle] createRoom: response=%@", String(data: data, encoding: .utf8) ?? "?") }
+            if let e = error {
+                NSLog("[Battle] createRoom: error=%@", e.localizedDescription)
+                DispatchQueue.main.async { completion(nil, e) }; return
+            }
             let rooms = data.flatMap { try? JSONDecoder().decode([BattleRoom].self, from: $0) } ?? []
-            guard let room = rooms.first else { DispatchQueue.main.async { completion(nil, nil) }; return }
+            NSLog("[Battle] createRoom: decoded %d rooms", rooms.count)
+            guard let room = rooms.first else {
+                let err = NSError(domain: "Battle", code: status,
+                                  userInfo: [NSLocalizedDescriptionKey: "Room creation failed (HTTP \(status))"])
+                DispatchQueue.main.async { completion(nil, err) }; return
+            }
             self.addParticipant(pilotName: pilotName, room: room, cfg: cfg, completion: completion)
         }.resume()
     }
@@ -389,19 +411,27 @@ final class BattleService {
         guard let bodyData = try? JSONSerialization.data(withJSONObject: body) else {
             completion(nil, nil); return
         }
+        NSLog("[Battle] joinRoom: id=%@ pilot=%@", room.id, pilotName)
         var req = URLRequest(url: url)
         req.httpMethod = "PATCH"
         addHeaders(&req, cfg: cfg)
         req.setValue("return=representation", forHTTPHeaderField: "Prefer")
         req.httpBody = bodyData
-        session.dataTask(with: req) { [weak self] data, _, error in
+        session.dataTask(with: req) { [weak self] data, resp, error in
             guard let self else { return }
+            let status = (resp as? HTTPURLResponse)?.statusCode ?? -1
+            NSLog("[Battle] joinRoom: HTTP %d", status)
+            if let data { NSLog("[Battle] joinRoom: response=%@", String(data: data, encoding: .utf8) ?? "?") }
             if let e = error { DispatchQueue.main.async { completion(nil, e) }; return }
             let rooms = data.flatMap { try? JSONDecoder().decode([BattleRoom].self, from: $0) } ?? []
             if let updated = rooms.first {
+                // Successfully claimed the room — add participant
                 self.addParticipant(pilotName: pilotName, room: updated, cfg: cfg, completion: completion)
             } else {
-                self.findOrCreateRoom(pilotName: pilotName, completion: completion)
+                // Room was already taken or gone
+                let err = NSError(domain: "Battle", code: 409,
+                                  userInfo: [NSLocalizedDescriptionKey: "Room is no longer available"])
+                DispatchQueue.main.async { completion(nil, err) }
             }
         }.resume()
     }
@@ -409,19 +439,24 @@ final class BattleService {
     private func addParticipant(pilotName: String, room: BattleRoom, cfg: SupabaseConfig,
                                 completion: @escaping (BattleRoom?, Error?) -> Void) {
         guard let url = URL(string: "\(cfg.projectURL)/rest/v1/battle_participants") else {
-            completion(room, nil); return
+            NSLog("[Battle] addParticipant: bad URL, returning room anyway")
+            DispatchQueue.main.async { completion(room, nil) }; return
         }
         let safe = String(pilotName.prefix(32))
         let body: [[String: Any]] = [["room_id": room.id, "pilot_name": safe]]
         guard let bodyData = try? JSONSerialization.data(withJSONObject: body) else {
-            completion(room, nil); return
+            DispatchQueue.main.async { completion(room, nil) }; return
         }
+        NSLog("[Battle] addParticipant: pilot=%@ room=%@", safe, room.id)
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         addHeaders(&req, cfg: cfg)
         req.setValue("return=minimal", forHTTPHeaderField: "Prefer")
         req.httpBody = bodyData
-        session.dataTask(with: req) { _, _, error in
+        session.dataTask(with: req) { data, resp, error in
+            let status = (resp as? HTTPURLResponse)?.statusCode ?? -1
+            NSLog("[Battle] addParticipant: HTTP %d", status)
+            if let data { NSLog("[Battle] addParticipant: response=%@", String(data: data, encoding: .utf8) ?? "?") }
             if let e = error { NSLog("[Battle] addParticipant error: %@", e.localizedDescription) }
             DispatchQueue.main.async { completion(room, nil) }
         }.resume()
