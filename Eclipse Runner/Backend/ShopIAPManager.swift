@@ -13,13 +13,13 @@ final class ShopIAPManager: ObservableObject {
 
     // Product IDs
     static let skinProductIDs: Set<String> = [
-        "com.eclipserunner.skin.forest",
-        "com.eclipserunner.skin.ghost",
-        "com.eclipserunner.skin.galactic"
+        "com.lucasadrian.eclipserunner.skin.forest",
+        "com.lucasadrian.eclipserunner.skin.ghost",
+        "com.lucasadrian.eclipserunner.skin.galactic"
     ]
     static let shieldProductIDs: Set<String> = [
-        "com.eclipserunner.shields1",
-        "com.eclipserunner.shields5"
+        "com.lucasadrian.eclipserunner.shields1",
+        "com.lucasadrian.eclipserunner.shields5"
     ]
     static let allProductIDs: Set<String> = skinProductIDs.union(shieldProductIDs)
 
@@ -113,8 +113,8 @@ final class ShopIAPManager: ObservableObject {
             store.grantSkin(transaction.productID)
         } else {
             switch transaction.productID {
-            case "com.eclipserunner.shields1": store.addShields(3)
-            case "com.eclipserunner.shields5": store.addShields(10)
+            case "com.lucasadrian.eclipserunner.shields1": store.addShields(3)
+            case "com.lucasadrian.eclipserunner.shields5": store.addShields(10)
             default: break
             }
         }

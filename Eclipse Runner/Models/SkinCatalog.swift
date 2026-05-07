@@ -70,8 +70,8 @@ struct SkinCatalog {
 
     // Free shield packs (IAP)
     static let shieldPacks: [ShieldPack] = [
-        ShieldPack(id: "com.eclipserunner.shields1", name: "Shield Pack", count: 3, price: "€0.99", icon: "shield.fill"),
-        ShieldPack(id: "com.eclipserunner.shields5", name: "Shield Bundle", count: 10, price: "€2.99", icon: "shield.lefthalf.filled")
+        ShieldPack(id: "com.lucasadrian.eclipserunner.shields1", name: "Shield Pack", count: 3, price: "€0.99", icon: "shield.fill"),
+        ShieldPack(id: "com.lucasadrian.eclipserunner.shields5", name: "Shield Bundle", count: 10, price: "€2.99", icon: "shield.lefthalf.filled")
     ]
 
     static let all: [AstronautSkin] = [
@@ -121,7 +121,7 @@ struct SkinCatalog {
                       flameR: 1.00, flameG: 0.30, flameB: 0.10),
 
         AstronautSkin(id: "forest_green", name: "Forest Green", rarity: .rare,
-                      unlock: .iap("com.eclipserunner.skin.forest"),
+                      unlock: .iap("com.lucasadrian.eclipserunner.skin.forest"),
                       suitR: 0.12, suitG: 0.48, suitB: 0.22,
                       accentR: 0.10, accentG: 0.36, accentB: 0.18,
                       visorR: 0.55, visorG: 1.00, visorB: 0.65,
@@ -129,14 +129,14 @@ struct SkinCatalog {
 
         // ── LEGENDARY ───────────────────────────────────────────────────────────
         AstronautSkin(id: "ghost", name: "Ghost",            rarity: .legendary,
-                      unlock: .iap("com.eclipserunner.skin.ghost"),
+                      unlock: .iap("com.lucasadrian.eclipserunner.skin.ghost"),
                       suitR: 0.85, suitG: 0.88, suitB: 0.98,
                       accentR: 0.70, accentG: 0.75, accentB: 0.95,
                       visorR: 0.90, visorG: 0.96, visorB: 1.00,
                       flameR: 0.80, flameG: 0.90, flameB: 1.00),
 
         AstronautSkin(id: "galactic", name: "Galactic",      rarity: .legendary,
-                      unlock: .iap("com.eclipserunner.skin.galactic"),
+                      unlock: .iap("com.lucasadrian.eclipserunner.skin.galactic"),
                       suitR: 0.28, suitG: 0.10, suitB: 0.55,
                       accentR: 0.50, accentG: 0.20, accentB: 0.80,
                       visorR: 0.85, visorG: 0.55, visorB: 1.00,

@@ -555,10 +555,12 @@ struct SkinGridCell: View {
                 Text("\(cost)").font(.system(size: 11, weight: .bold, design: .rounded))
             }
             .foregroundStyle(isOwned ? Theme.textTertiary : Theme.starGold)
-        case .iap:
+        case .iap(let productID):
+            let priceStr = ShopIAPManager.shared.priceString(for: productID)
             HStack(spacing: 3) {
                 Image(systemName: "crown.fill").font(.system(size: 10))
-                Text(L10n.shopPremium).font(.system(size: 11, weight: .bold, design: .rounded))
+                Text(priceStr.isEmpty ? L10n.shopPremium : priceStr)
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
             }
             .foregroundStyle(isOwned ? Theme.textTertiary : Theme.nebulaPink)
         }
