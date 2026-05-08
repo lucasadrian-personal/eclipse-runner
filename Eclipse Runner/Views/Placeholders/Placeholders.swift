@@ -616,7 +616,7 @@ struct SettingsPlaceholderView: View {
     }
 
     private var privacyRow: some View {
-        Link(destination: URL(string: "https://www.privacypolicies.com/live/eclipse-runner")!) {
+        Link(destination: URL(string: "https://eclipserunner.app/privacy")!) {
             HStack {
                 Image(systemName: "hand.raised.fill")
                     .font(.system(size: 14, weight: .semibold))
