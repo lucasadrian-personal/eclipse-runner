@@ -108,6 +108,8 @@ struct L10n {
     static var cachedRankings:    String { t("Showing cached rankings · Go online to refresh",
                                              "Rankings en caché · Conéctate para actualizar") }
     static var scanningGalaxy:    String { t("Scanning the galaxy…", "Escaneando la galaxia…") }
+    static var noRankingsYet:     String { t("No rankings yet", "Sin clasificaciones aún") }
+    static var playToAppear:      String { t("Play a game to appear\non the Galactic Leaderboard!", "¡Juega para aparecer\nen la Clasificación Galáctica!") }
     static var liveLabel:         String { t("LIVE",   "LIVE") }
     static var cachedLabel:       String { t("CACHED", "CACHÉ") }
 

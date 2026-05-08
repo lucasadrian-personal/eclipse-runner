@@ -50,8 +50,12 @@ struct LeaderboardPlaceholderView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     header
-                    podium
-                    restOfBoard
+                    if store.leaderboard.isEmpty && !store.leaderboardLoading {
+                        emptyState
+                    } else {
+                        podium
+                        restOfBoard
+                    }
                     Spacer(minLength: 40)
                 }
                 .padding(.horizontal, 20)
@@ -62,7 +66,7 @@ struct LeaderboardPlaceholderView: View {
                 try? await Task.sleep(nanoseconds: 800_000_000)
             }
 
-            if store.leaderboardLoading && store.leaderboard == LeaderboardEntry.sample {
+            if store.leaderboardLoading && store.leaderboard.isEmpty {
                 loadingOverlay
             }
         }
@@ -88,34 +92,47 @@ struct LeaderboardPlaceholderView: View {
                 .font(.system(size: 13, weight: .medium, design: .rounded))
                 .foregroundStyle(store.isOnline ? Theme.auroraMint : Theme.textTertiary)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding(.top, 4)
     }
 
-    // MARK: - Top 3 podium
+    // MARK: - Top 3 podium (flexible: works with 1, 2 or 3+ entries)
     @ViewBuilder
     private var podium: some View {
-        if store.leaderboard.count >= 3 {
+        let entries = store.leaderboard
+        if entries.count >= 3 {
             HStack(alignment: .bottom, spacing: 10) {
-                PodiumCard(entry: store.leaderboard[1], height: 100)
-                PodiumCard(entry: store.leaderboard[0], height: 128)
-                PodiumCard(entry: store.leaderboard[2], height: 82)
+                PodiumCard(entry: entries[1], height: 100)
+                PodiumCard(entry: entries[0], height: 128)
+                PodiumCard(entry: entries[2], height: 82)
             }
             .padding(.vertical, 8)
+        } else if entries.count == 2 {
+            HStack(alignment: .bottom, spacing: 10) {
+                PodiumCard(entry: entries[1], height: 100)
+                PodiumCard(entry: entries[0], height: 128)
+            }
+            .padding(.vertical, 8)
+        } else if entries.count == 1 {
+            PodiumCard(entry: entries[0], height: 128)
+                .frame(maxWidth: 180)
+                .padding(.vertical, 8)
         }
     }
 
-    // MARK: - Ranks 4+
+    // MARK: - Ranks 4+ (or full list if < 4 entries)
     @ViewBuilder
     private var restOfBoard: some View {
-        let rest = store.leaderboard.dropFirst(3)
+        let podiumCount = min(store.leaderboard.count, 3)
+        let rest = Array(store.leaderboard.dropFirst(podiumCount))
         if !rest.isEmpty {
             VStack(spacing: 0) {
-                ForEach(Array(rest)) { entry in
+                ForEach(rest.indices, id: \.self) { i in
+                    let entry = rest[i]
                     LeaderboardRow(entry: entry)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 2)
-                    if entry.id != rest.last?.id {
+                    if i < rest.count - 1 {
                         Divider()
                             .background(Theme.surfaceStroke)
                             .padding(.horizontal, 14)
@@ -128,6 +145,22 @@ struct LeaderboardPlaceholderView: View {
                     .stroke(Theme.surfaceStroke, lineWidth: 1)
             )
         }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "trophy")
+                .font(.system(size: 48, weight: .bold))
+                .foregroundStyle(Theme.starGold.opacity(0.5))
+            Text(L10n.noRankingsYet)
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.textPrimary)
+            Text(L10n.playToAppear)
+                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.vertical, 60)
     }
 
     private var statusBadge: some View {
