@@ -1,32 +1,15 @@
 import SwiftUI
 import SpriteKit
 
-// MARK: - Optimised SKView wrapper
-// Uses UIViewRepresentable to configure SKView directly, unlocking settings
-// that SpriteView doesn't expose (ignoresSiblingOrder, shouldCullNonVisibleNodes, etc.)
-struct GameSKView: UIViewRepresentable {
+// MARK: - GameSKView
+// Thin wrapper around SpriteView. Performance flags (ignoresSiblingOrder,
+// preferredFramesPerSecond, isAsynchronous) are applied inside the scene's
+// didMove(to:) so they are always set after the SKView is fully laid out.
+struct GameSKView: View {
     let scene: SKScene
 
-    func makeUIView(context: Context) -> SKView {
-        let v = SKView()
-        // Lock to 60 FPS
-        v.preferredFramesPerSecond   = 60
-        // Skip per-frame z-sort; we assign explicit zPositions in the scene
-        v.ignoresSiblingOrder        = true
-        // Render on the Metal GPU thread asynchronously
-        v.isAsynchronous             = true
-        // Transparent background so CosmicBackground shows through
-        v.allowsTransparency         = true
-        v.backgroundColor            = .clear
-        v.presentScene(scene)
-        return v
-    }
-
-    func updateUIView(_ uiView: SKView, context: Context) {
-        // Only re-present if the scene actually changed (e.g. after retry)
-        if uiView.scene !== scene {
-            uiView.presentScene(scene)
-        }
+    var body: some View {
+        SpriteView(scene: scene, options: [.allowsTransparency])
     }
 }
 

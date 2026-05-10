@@ -26,6 +26,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
     // Nodes
     private let player          = SKSpriteNode()
     private var bgLayers: [SKNode] = []
+    private var sceneInitialised = false   // guard against didChangeSize before didMove
 
     // State
     private let difficulty      = DifficultyManager()
@@ -41,15 +42,36 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - didMove
     override func didMove(to view: SKView) {
+        // Apply SKView performance flags now that the view is fully laid out
+        view.preferredFramesPerSecond = 60
+        view.ignoresSiblingOrder      = true
+        view.isAsynchronous           = true
+
         physicsWorld.gravity = CGVector(dx: 0, dy: GameConfig.gravity)
         physicsWorld.contactDelegate = self
         physicsWorld.speed = 1.0
         backgroundColor = .clear
 
+        sceneInitialised = true
         setupParallaxBg()
         setupWorldBounds()
         setupPlayer()
         addReadyHint()
+    }
+
+    // Called by SpriteKit whenever the SKView resizes the scene (e.g. first layout pass)
+    override func didChangeSize(_ oldSize: CGSize) {
+        guard sceneInitialised, size.width > 0, size.height > 0 else { return }
+        // Only act if size actually changed from non-zero to new value
+        guard oldSize != size else { return }
+        // Reposition player to vertical center with new size
+        if flow == .ready {
+            player.position = CGPoint(x: size.width * 0.28, y: size.height * 0.5)
+        }
+        // Reposition hint label
+        if let hint = childNode(withName: "hint") {
+            hint.position = CGPoint(x: size.width / 2, y: size.height * 0.72)
+        }
     }
 
     // MARK: - Parallax background stars
