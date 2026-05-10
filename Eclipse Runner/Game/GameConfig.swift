@@ -27,7 +27,7 @@ enum GameConfig {
     static let gapReductionStep: CGFloat   = 5
 
     static let obstacleWidth: CGFloat      = 68
-    static let obstacleSpawnInterval: TimeInterval = 1.55
+    static let obstacleSpawnInterval: TimeInterval = 1.80
 
     static let scrollIncreaseEveryPoints: Int = 10
     static let gapDecreaseEveryPoints: Int    = 13

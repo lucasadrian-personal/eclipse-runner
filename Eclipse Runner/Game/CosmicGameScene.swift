@@ -241,28 +241,43 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         let hardTop    = size.height - GameConfig.groundHeight - gapH * 0.5 - 20
         guard hardBottom < hardTop else { return }
 
-        // --- Reachability constraint ---
-        // Time for this pair to travel from spawn X to player X (≈28% of width)
-        let travelDist = size.width * 0.72 + GameConfig.obstacleWidth * 0.5
-        let travelTime = Double(travelDist / scrollSpeed)
+        // --- Physics-accurate reachability constraint ---
+        // Time for obstacle to travel from spawn X to player X (≈28% of width)
+        let travelDist  = size.width * 0.72 + GameConfig.obstacleWidth * 0.5
+        let travelTime  = CGFloat(travelDist / scrollSpeed)
 
-        // Max vertical distance player can cover in travelTime:
-        //   going full-up:  impulse → clamp at maxRiseSpeed for travelTime
-        //   going full-down: gravity pulls down at maxFallSpeed
-        // We use a conservative 80% of theoretical max to keep it challenging but always fair.
-        let maxRise = CGFloat(travelTime) * abs(GameConfig.maxRiseSpeed) * 0.80
-        let maxFall = CGFloat(travelTime) * abs(GameConfig.maxFallSpeed) * 0.80
+        // Downward reachability: player falls under gravity from current gap center.
+        // y(t) = v0*t + 0.5*g*t²  where v0=0 (worst case: player just tapped)
+        // gravity in SpriteKit points/s² — use GameConfig.gravity * 60 (scene uses unit gravity)
+        let g           = abs(GameConfig.gravity) * 60.0  // ≈ 588 pts/s²
+        let freeFall    = 0.5 * g * travelTime * travelTime
+        // Also cap by maxFallSpeed × time
+        let maxFall     = min(freeFall, abs(GameConfig.maxFallSpeed) * travelTime) * 0.90
 
-        // Reference center (previous gap or screen center on first obstacle)
+        // Upward reachability: player can tap roughly every 0.55s.
+        // Each tap resets vy to flapImpulse/mass then gravity pulls it back.
+        // Approximate net upward gain per tap cycle ≈ impulse/mass * tapInterval - 0.5*g*tapInterval²
+        // But simpler and safer: use measured net upward speed ≈ 55% of maxRiseSpeed sustained.
+        // We allow 3 taps max in travelTime, each tap gives flapImpulse/mass pts/s initial vy,
+        // then decays. Conservatively, net upward travel ≈ 55 pts per tap cycle.
+        let tapInterval: CGFloat = 0.55
+        let tapsAvailable        = max(1.0, floor(Double(travelTime / tapInterval)))
+        // Each tap: net upward gain = impulse/mass × tapInterval - 0.5 × g × tapInterval²
+        let impulseVy    = GameConfig.flapImpulse / GameConfig.playerMass  // pts/s after tap
+        let netPerTap    = min(impulseVy * tapInterval - 0.5 * g * tapInterval * tapInterval,
+                               abs(GameConfig.maxRiseSpeed) * tapInterval)
+        let maxRise      = CGFloat(tapsAvailable) * max(netPerTap, 30) * 0.70  // 70% conservative
+
+        // Reference center (previous gap center or screen center on first obstacle)
         let refCenter: CGFloat = lastGapCenterY > 0 ? lastGapCenterY : size.height * 0.5
 
-        // Clamp the new gap center so it's always reachable from previous gap center
+        // Clamp new gap center so it's always reachable from reference
         let reachMin = max(hardBottom, refCenter - maxFall)
         let reachMax = min(hardTop,   refCenter + maxRise)
-        let clampedMin = min(reachMin, reachMax)  // safety if inverted
-        let clampedMax = max(reachMin, reachMax)
+        let safeMin  = min(reachMin, reachMax)
+        let safeMax  = max(reachMin, reachMax)
 
-        let gapCenterY = CGFloat.random(in: clampedMin...clampedMax)
+        let gapCenterY = CGFloat.random(in: safeMin...safeMax)
         lastGapCenterY = gapCenterY
 
         let bottomH = gapCenterY - gapH / 2
