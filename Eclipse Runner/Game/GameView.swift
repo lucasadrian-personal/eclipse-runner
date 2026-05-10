@@ -1,7 +1,37 @@
 import SwiftUI
 import SpriteKit
 
-// MARK: - Scene coordinator
+// MARK: - Optimised SKView wrapper
+// Uses UIViewRepresentable to configure SKView directly, unlocking settings
+// that SpriteView doesn't expose (ignoresSiblingOrder, shouldCullNonVisibleNodes, etc.)
+struct GameSKView: UIViewRepresentable {
+    let scene: SKScene
+
+    func makeUIView(context: Context) -> SKView {
+        let v = SKView()
+        // Lock to 60 FPS — no unnecessary render passes
+        v.preferredFramesPerSecond   = 60
+        // Skip per-frame z-sort; we assign explicit zPositions ourselves
+        v.ignoresSiblingOrder        = true
+        // Cull nodes outside the camera viewport — fewer draws per frame
+        v.shouldCullNonVisibleNodes  = true
+        // Render on the metal GPU thread asynchronously
+        v.isAsynchronous             = true
+        // Transparent background so CosmicBackground shows through
+        v.allowsTransparency         = true
+        v.backgroundColor            = .clear
+        v.presentScene(scene)
+        return v
+    }
+
+    func updateUIView(_ uiView: SKView, context: Context) {
+        // Only re-present if the scene actually changed (e.g. after retry)
+        if uiView.scene !== scene {
+            uiView.presentScene(scene)
+        }
+    }
+}
+
 @MainActor
 final class GameCoordinator: ObservableObject, CosmicGameSceneDelegate {
     @Published var score: Int = 0
@@ -126,7 +156,7 @@ struct GameView: View {
 
     private func gameLayer(size: CGSize) -> some View {
         ZStack(alignment: .top) {
-            SpriteView(scene: coord.scene!, options: [.allowsTransparency])
+            GameSKView(scene: coord.scene!)
                 .ignoresSafeArea()
                 .id(sceneID)
             VStack(spacing: 0) {

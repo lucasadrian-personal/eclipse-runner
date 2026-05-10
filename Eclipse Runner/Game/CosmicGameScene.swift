@@ -46,6 +46,11 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.speed = 1.0
         backgroundColor = .clear
 
+        // GPU / render optimisations on the host SKView
+        view.ignoresSiblingOrder      = true   // skip z-sort pass every frame
+        view.shouldCullNonVisibleNodes = true  // skip off-screen nodes
+        view.preferredFramesPerSecond  = 60    // explicit 60 FPS cap
+
         setupParallaxBg()
         setupWorldBounds()
         setupPlayer()
@@ -60,6 +65,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         for layer in 0..<3 {
             let node = SKNode()
             node.name = "bgLayer\(layer)"
+            node.zPosition = CGFloat(layer) + 1   // layers 1,2,3
             for _ in 0..<counts[layer] {
                 let dot = SKShapeNode(circleOfRadius: CGFloat(layer) * 0.5 + 0.6)
                 dot.fillColor = .white
@@ -116,6 +122,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         let dn   = SKAction.moveBy(x: 0, y: -6, duration: 1.1)
         dn.timingMode = .easeInEaseOut
         player.run(.repeatForever(.sequence([up, dn])), withKey: "idleFloat")
+        player.zPosition = 10   // always above obstacles and bg layers
 
         addChild(player)
     }
@@ -127,6 +134,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         label.fontSize = 22
         label.fontColor = SKColor(red: 0.36, green: 0.90, blue: 1.00, alpha: 1)
         label.position = CGPoint(x: size.width / 2, y: size.height * 0.72)
+        label.zPosition = 20   // above all game elements
         addChild(label)
 
         let blink = SKAction.sequence([
@@ -280,6 +288,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         node.fillColor   = SKColor(red: 0.14, green: 0.55, blue: 0.65, alpha: 1)
         node.strokeColor = SKColor(red: 0.36, green: 0.90, blue: 1.00, alpha: 0.6)
         node.lineWidth   = 1.5
+        node.zPosition   = 5   // above bg layers (1-3), below player (10)
 
         let body = SKPhysicsBody(rectangleOf: CGSize(width: w, height: height))
         body.isDynamic = false
@@ -353,6 +362,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
                 ? SKColor(red: 0.97, green: 0.64, blue: 0.23, alpha: 1)
                 : SKColor(red: 1.00, green: 0.92, blue: 0.60, alpha: 1)
             dot.strokeColor = .clear
+            dot.zPosition   = 9   // just below player (10)
             dot.position = CGPoint(x: player.position.x - 4,
                                    y: player.position.y - player.size.height * 0.42)
             addChild(dot)
@@ -370,6 +380,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             let dot = SKShapeNode(circleOfRadius: CGFloat.random(in: 2...3.5))
             dot.fillColor = SKColor(red: 1.0, green: 0.86, blue: 0.45, alpha: 1)
             dot.strokeColor = .clear
+            dot.zPosition   = 11  // just above player (10)
             dot.position = player.position
             addChild(dot)
             let dx = CGFloat.random(in: -28...28)
@@ -385,17 +396,22 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     // MARK: - Update loop
     override func update(_ currentTime: TimeInterval) {
+        // Cap dt at 1/60 (never allow jumps larger than one 60fps frame)
         if lastUpdateTime == 0 { lastUpdateTime = currentTime }
-        let dt = min(currentTime - lastUpdateTime, 1.0 / 30.0)
+        let dt = min(currentTime - lastUpdateTime, 1.0 / 60.0)
         lastUpdateTime = currentTime
 
-        // Parallax background — updated every frame for buttery smoothness
-        let bgSpeeds: [CGFloat] = [18, 34, 55]
+        // Parallax background — precomputed dx per layer, no per-child heap allocs
+        let bgSpeed0 = 18 * CGFloat(dt)
+        let bgSpeed1 = 34 * CGFloat(dt)
+        let bgSpeed2 = 55 * CGFloat(dt)
+        let bgOffsets: [CGFloat] = [bgSpeed0, bgSpeed1, bgSpeed2]
+        let sceneW = size.width
         for (i, layer) in bgLayers.enumerated() {
-            let dx = bgSpeeds[i] * CGFloat(dt)
+            let dx = bgOffsets[i]
             for child in layer.children {
                 child.position.x -= dx
-                if child.position.x < 0 { child.position.x += size.width }
+                if child.position.x < 0 { child.position.x += sceneW }
             }
         }
 
@@ -482,7 +498,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         let flash = SKSpriteNode(color: .white, size: size)
         flash.position = CGPoint(x: size.width / 2, y: size.height / 2)
         flash.alpha = 0.60
-        flash.zPosition = 100
+        flash.zPosition = 100   // topmost — covers everything
         addChild(flash)
         flash.run(.sequence([.fadeOut(withDuration: 0.30), .removeFromParent()]))
 
