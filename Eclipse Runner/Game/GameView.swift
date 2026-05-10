@@ -9,13 +9,11 @@ struct GameSKView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> SKView {
         let v = SKView()
-        // Lock to 60 FPS — no unnecessary render passes
+        // Lock to 60 FPS
         v.preferredFramesPerSecond   = 60
-        // Skip per-frame z-sort; we assign explicit zPositions ourselves
+        // Skip per-frame z-sort; we assign explicit zPositions in the scene
         v.ignoresSiblingOrder        = true
-        // Cull nodes outside the camera viewport — fewer draws per frame
-        v.shouldCullNonVisibleNodes  = true
-        // Render on the metal GPU thread asynchronously
+        // Render on the Metal GPU thread asynchronously
         v.isAsynchronous             = true
         // Transparent background so CosmicBackground shows through
         v.allowsTransparency         = true
