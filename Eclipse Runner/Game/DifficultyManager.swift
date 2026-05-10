@@ -7,11 +7,18 @@ struct DifficultySnapshot {
 
 final class DifficultyManager {
     func snapshot(forScore score: Int) -> DifficultySnapshot {
-        let scrollSteps = score / GameConfig.scrollIncreaseEveryPoints
-        let gapSteps    = score / GameConfig.gapDecreaseEveryPoints
+        // Puntos 0–5: zona de gracia — velocidad y hueco máximos fijos
+        guard score > 5 else {
+            return DifficultySnapshot(scrollMultiplier: 1.0,
+                                      currentGapHeight: GameConfig.baseGapHeight)
+        }
+        // A partir del punto 6, la dificultad escala un 10% más rápido
+        let s           = score - 5
+        let scrollSteps = s / GameConfig.scrollIncreaseEveryPoints
+        let gapSteps    = s / GameConfig.gapDecreaseEveryPoints
 
         let multiplier = min(
-            1.0 + CGFloat(scrollSteps) * 0.05,
+            1.0 + CGFloat(scrollSteps) * 0.055,
             GameConfig.maxScrollMultiplier
         )
         let gap = max(
