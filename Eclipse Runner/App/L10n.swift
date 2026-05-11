@@ -125,8 +125,8 @@ struct L10n {
     static var htpWindBody:       String { t("Cosmic winds will nudge you up or down. Adjust on the fly.",
                                              "El viento cósmico te empujará arriba o abajo. Adáptate rápido.") }
     static var htpSpeed:          String { t("Speed climbs",  "La velocidad aumenta") }
-    static var htpSpeedBody:      String { t("Every 10 points cranks the difficulty. Stay sharp.",
-                                             "Cada 10 puntos aumenta la dificultad. Mantente alerta.") }
+    static var htpSpeedBody:      String { t("Every 10 points speed increases. Every 8 points the gap narrows — down to a razor-thin opening. Stay sharp.",
+                                             "Cada 10 puntos aumenta la velocidad. Cada 8, el hueco se estrecha — hasta quedar casi sin margen. Mantente alerta.") }
     static var htpDailyBurst:     String { t("Daily Burst",   "Reto Diario") }
     static var htpDailyBurstBody: String { t("Every day a fresh world challenge resets at midnight UTC. You get 2 attempts — only your best score counts. Climb the daily ranking!",
                                              "Cada día un nuevo reto mundial se reinicia a medianoche UTC. Tienes 2 intentos — solo cuenta tu mejor puntuación. ¡Sube en el ranking diario!") }
@@ -192,8 +192,8 @@ struct L10n {
     static var onboardSub2:     String { t("Tap to thrust upward.\nRelease and gravity pulls you down.\nTime your taps perfectly.",
                                            "Toca para impulsarte hacia arriba.\nSuelta para caer con la gravedad.\nCalcula bien tus toques.") }
     static var onboardTitle3:   String { t("Speed Increases", "La velocidad aumenta") }
-    static var onboardSub3:     String { t("Every 10 points the difficulty ramps up.\nSolar gusts add unpredictable wind.\nStay sharp — the void is relentless.",
-                                           "Cada 10 puntos aumenta la dificultad.\nLos vientos solares añaden imprevisibilidad.\nMantente alerta — el vacío no perdona.") }
+    static var onboardSub3:     String { t("Speed increases every 10 points.\nThe gap narrows every 8 — until there's barely room to breathe.\nSolar gusts add unpredictable wind. Stay sharp.",
+                                           "La velocidad sube cada 10 puntos.\nEl hueco se estrecha cada 8 — hasta que apenas hay margen.\nRáfagas solares añaden viento impredecible. Mantente alerta.") }
     static var onboardTitle4:   String { t("Daily Burst", "Reto Diario") }
     static var onboardSub4:     String { t("A new world challenge every day.\nYou get 2 attempts — best score counts.\nClimb the global daily ranking!",
                                            "Un nuevo reto mundial cada día.\nTienes 2 intentos — cuenta tu mejor puntuación.\n¡Sube en el ranking diario global!") }

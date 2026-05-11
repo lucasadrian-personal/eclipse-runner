@@ -23,14 +23,14 @@ enum GameConfig {
     static let maxScrollMultiplier: CGFloat = 1.35
 
     static let baseGapHeight: CGFloat      = 210
-    static let minGapHeight: CGFloat       = 140
-    static let gapReductionStep: CGFloat   = 5
+    static let minGapHeight: CGFloat       = 120
+    static let gapReductionStep: CGFloat   = 8
 
     static let obstacleWidth: CGFloat      = 68
     static let obstacleSpawnInterval: TimeInterval = 1.80
 
     static let scrollIncreaseEveryPoints: Int = 10
-    static let gapDecreaseEveryPoints: Int    = 13
+    static let gapDecreaseEveryPoints: Int    = 8
 
     static let windDuration: TimeInterval  = 2.0
     static let windIntervalMin: TimeInterval = 8.0
