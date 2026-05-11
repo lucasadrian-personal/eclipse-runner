@@ -28,6 +28,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
     private var bgLayers: [SKNode] = []
     private var thrusterTextures: [SKTexture] = []   // pre-baked — no SKShapeNode at tap time
     private var scoreTextures: [SKTexture]    = []
+    private var asteroidTextureCache: [Int: SKTexture] = [:]  // keyed by height rounded to 10px
     private var sceneInitialised = false   // guard against didChangeSize before didMove
 
     // State
@@ -316,24 +317,51 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         bottom.run(seq); top.run(seq); gate.run(seq)
     }
 
-    // MARK: - Asteroid texture
-    private func makeAsteroid(height: CGFloat) -> SKShapeNode {
-        let w = GameConfig.obstacleWidth
-        let node = SKShapeNode(rectOf: CGSize(width: w, height: height), cornerRadius: 10)
+    // MARK: - Asteroid spawn node
+    /// Returns an SKSpriteNode using a cached Metal texture — zero SKShapeNode at runtime.
+    private func makeAsteroid(height: CGFloat) -> SKSpriteNode {
+        let w   = GameConfig.obstacleWidth
+        let h   = max(height, 1)
+        // Round height to nearest 10px bucket to maximise cache hits
+        let key = Int((h / 10).rounded()) * 10
 
-        // Neon teal gradient look — use fill + overlay dots for rocky feel
-        node.fillColor   = SKColor(red: 0.14, green: 0.55, blue: 0.65, alpha: 1)
-        node.strokeColor = SKColor(red: 0.36, green: 0.90, blue: 1.00, alpha: 0.6)
-        node.lineWidth   = 1.5
-        node.zPosition   = 5   // above bg layers (1-3), below player (50)
+        let tex: SKTexture
+        if let cached = asteroidTextureCache[key] {
+            tex = cached
+        } else {
+            tex = renderAsteroidTexture(width: w, height: CGFloat(key))
+            asteroidTextureCache[key] = tex
+        }
 
-        let body = SKPhysicsBody(rectangleOf: CGSize(width: w, height: height))
+        let node = SKSpriteNode(texture: tex, size: CGSize(width: w, height: h))
+        node.zPosition = 5
+
+        let body = SKPhysicsBody(rectangleOf: CGSize(width: w, height: h))
         body.isDynamic = false
         body.categoryBitMask    = PhysicsCategory.obstacle
         body.contactTestBitMask = PhysicsCategory.player
-        body.collisionBitMask   = PhysicsCategory.none   // contact-only, no physical bounce
+        body.collisionBitMask   = PhysicsCategory.none
         node.physicsBody = body
         return node
+    }
+
+    /// Renders the neon-teal asteroid texture once per unique height bucket.
+    private func renderAsteroidTexture(width w: CGFloat, height h: CGFloat) -> SKTexture {
+        let size = CGSize(width: w, height: max(h, 1))
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let img = renderer.image { ctx in
+            let cg   = ctx.cgContext
+            let rect = CGRect(origin: .zero, size: size)
+            let path = UIBezierPath(roundedRect: rect, cornerRadius: 10)
+            // Fill
+            cg.setFillColor(UIColor(red: 0.14, green: 0.55, blue: 0.65, alpha: 1).cgColor)
+            cg.addPath(path.cgPath); cg.fillPath()
+            // Stroke
+            cg.setStrokeColor(UIColor(red: 0.36, green: 0.90, blue: 1.00, alpha: 0.6).cgColor)
+            cg.setLineWidth(1.5)
+            cg.addPath(path.cgPath); cg.strokePath()
+        }
+        return SKTexture(image: img)
     }
 
     // MARK: - Astronaut texture (UIKit draw → SKTexture)
@@ -391,7 +419,8 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     // MARK: - Particle texture cache
-    /// Called once in didMove. Pre-bakes dot textures so tap-time cost is zero.
+    /// Called once in didMove. Pre-bakes dot textures and common asteroid heights
+    /// so spawn-time cost is zero — no SKShapeNode ever compiled at runtime.
     private func buildParticleTextures() {
         guard let view = self.view else { return }
         thrusterTextures = [2.0, 3.0, 4.0].map { r in
@@ -405,6 +434,12 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
             shape.fillColor   = .white
             shape.strokeColor = .clear
             return view.texture(from: shape) ?? SKTexture()
+        }
+        // Pre-warm asteroid texture cache for common height buckets (every 10px from 50–500)
+        let w = GameConfig.obstacleWidth
+        for bucket in stride(from: 50, through: 500, by: 10) {
+            let h = CGFloat(bucket)
+            asteroidTextureCache[bucket] = renderAsteroidTexture(width: w, height: h)
         }
     }
 
