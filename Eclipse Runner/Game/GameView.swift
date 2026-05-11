@@ -9,7 +9,7 @@ struct GameSKView: View {
     let scene: SKScene
 
     var body: some View {
-        SpriteView(scene: scene, options: [.allowsTransparency])
+        SpriteView(scene: scene)
     }
 }
 

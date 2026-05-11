@@ -26,6 +26,8 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
     // Nodes
     private let player          = SKSpriteNode()
     private var bgLayers: [SKNode] = []
+    private var thrusterTextures: [SKTexture] = []   // pre-baked — no SKShapeNode at tap time
+    private var scoreTextures: [SKTexture]    = []
     private var sceneInitialised = false   // guard against didChangeSize before didMove
 
     // State
@@ -50,12 +52,13 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.gravity = CGVector(dx: 0, dy: GameConfig.gravity)
         physicsWorld.contactDelegate = self
         physicsWorld.speed = 1.0
-        backgroundColor = .clear
+        backgroundColor = SKColor(red: 0.04, green: 0.04, blue: 0.10, alpha: 1)  // deep space black
 
         sceneInitialised = true
         setupParallaxBg()
         setupWorldBounds()
         setupPlayer()
+        buildParticleTextures()
         addReadyHint()
     }
 
@@ -387,35 +390,58 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         ctx.fillPath()
     }
 
+    // MARK: - Particle texture cache
+    /// Called once in didMove. Pre-bakes dot textures so tap-time cost is zero.
+    private func buildParticleTextures() {
+        guard let view = self.view else { return }
+        thrusterTextures = [2.0, 3.0, 4.0].map { r in
+            let shape = SKShapeNode(circleOfRadius: r)
+            shape.fillColor   = .white
+            shape.strokeColor = .clear
+            return view.texture(from: shape) ?? SKTexture()
+        }
+        scoreTextures = [2.0, 2.8, 3.5].map { r in
+            let shape = SKShapeNode(circleOfRadius: r)
+            shape.fillColor   = .white
+            shape.strokeColor = .clear
+            return view.texture(from: shape) ?? SKTexture()
+        }
+    }
+
     // MARK: - Thruster particles
     private func spawnThrusterParticles() {
+        guard !thrusterTextures.isEmpty else { return }
         for _ in 0..<5 {
-            let dot = SKShapeNode(circleOfRadius: CGFloat.random(in: 2...4))
+            let tex = thrusterTextures[Int.random(in: 0..<thrusterTextures.count)]
+            let dot = SKSpriteNode(texture: tex)
             let hot = Bool.random()
-            dot.fillColor = hot
-                ? SKColor(red: 0.97, green: 0.64, blue: 0.23, alpha: 1)
-                : SKColor(red: 1.00, green: 0.92, blue: 0.60, alpha: 1)
-            dot.strokeColor = .clear
-            dot.zPosition   = 49   // just below player (50)
-            dot.position = CGPoint(x: player.position.x - 4,
-                                   y: player.position.y - player.size.height * 0.42)
+            dot.color = hot
+                ? UIColor(red: 0.97, green: 0.64, blue: 0.23, alpha: 1)
+                : UIColor(red: 1.00, green: 0.92, blue: 0.60, alpha: 1)
+            dot.colorBlendFactor = 1.0
+            dot.zPosition = 49
+            dot.position  = CGPoint(x: player.position.x - 4,
+                                    y: player.position.y - player.size.height * 0.42)
             addChild(dot)
             let dx = CGFloat.random(in: -10...10)
             let dy = CGFloat.random(in: -30 ... -8)
             let move = SKAction.moveBy(x: dx, y: dy, duration: 0.28)
             let fade = SKAction.fadeOut(withDuration: 0.18)
+            move.timingMode = .easeOut
             dot.run(.sequence([.group([move, fade]), .removeFromParent()]))
         }
     }
 
     // MARK: - Score particles
     private func spawnScoreParticles() {
+        guard !scoreTextures.isEmpty else { return }
         for _ in 0..<8 {
-            let dot = SKShapeNode(circleOfRadius: CGFloat.random(in: 2...3.5))
-            dot.fillColor = SKColor(red: 1.0, green: 0.86, blue: 0.45, alpha: 1)
-            dot.strokeColor = .clear
-            dot.zPosition   = 51  // just above player (50)
-            dot.position = player.position
+            let tex = scoreTextures[Int.random(in: 0..<scoreTextures.count)]
+            let dot = SKSpriteNode(texture: tex)
+            dot.color            = UIColor(red: 1.0, green: 0.86, blue: 0.45, alpha: 1)
+            dot.colorBlendFactor = 1.0
+            dot.zPosition = 51
+            dot.position  = player.position
             addChild(dot)
             let dx = CGFloat.random(in: -28...28)
             let dy = CGFloat.random(in: 10...38)

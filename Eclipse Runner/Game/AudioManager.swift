@@ -19,6 +19,11 @@ final class AudioManager {
     private let sampleRate: Double = 44_100
     private var isRunning = false
 
+    // Pre-cached buffers built once at init — zero CPU cost at tap time
+    private lazy var cachedFlapBuffer: AVAudioPCMBuffer  = buildFlap()
+    private lazy var cachedScoreBuffer: AVAudioPCMBuffer = buildScore()
+    private lazy var cachedCrashBuffer: AVAudioPCMBuffer = buildCrash()
+
     /// Persisted mute state — when true, all playback is silenced.
     var isMuted: Bool {
         get { UserDefaults.standard.bool(forKey: "cd.audioMuted") }
@@ -66,26 +71,21 @@ final class AudioManager {
 
     func playFlap() {
         guard isRunning, !isMuted else { return }
-        let buf = buildFlap()
-        flapNode.stop()
-        flapNode.scheduleBuffer(buf, completionHandler: nil)
-        flapNode.play()
+        // Use pre-built buffer — zero synthesis CPU at tap time
+        flapNode.scheduleBuffer(cachedFlapBuffer, at: nil, options: .interrupts, completionHandler: nil)
+        if !flapNode.isPlaying { flapNode.play() }
     }
 
     func playScore() {
         guard isRunning, !isMuted else { return }
-        let buf = buildScore()
-        scoreNode.stop()
-        scoreNode.scheduleBuffer(buf, completionHandler: nil)
-        scoreNode.play()
+        scoreNode.scheduleBuffer(cachedScoreBuffer, at: nil, options: .interrupts, completionHandler: nil)
+        if !scoreNode.isPlaying { scoreNode.play() }
     }
 
     func playCrash() {
         guard isRunning, !isMuted else { return }
-        let buf = buildCrash()
-        crashNode.stop()
-        crashNode.scheduleBuffer(buf, completionHandler: nil)
-        crashNode.play()
+        crashNode.scheduleBuffer(cachedCrashBuffer, at: nil, options: .interrupts, completionHandler: nil)
+        if !crashNode.isPlaying { crashNode.play() }
     }
 
     // MARK: - Sound synthesis helpers
