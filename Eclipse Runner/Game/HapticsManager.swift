@@ -10,6 +10,13 @@ final class HapticsManager {
         set { UserDefaults.standard.set(newValue, forKey: "cd.hapticsDisabled") }
     }
 
+    func impactFlap() {
+        guard !isDisabled else { return }
+        let g = UIImpactFeedbackGenerator(style: .soft)
+        g.prepare()
+        g.impactOccurred(intensity: 0.6)
+    }
+
     func impactLight() {
         guard !isDisabled else { return }
         let g = UIImpactFeedbackGenerator(style: .light)

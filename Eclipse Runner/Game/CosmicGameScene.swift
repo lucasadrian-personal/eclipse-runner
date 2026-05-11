@@ -124,7 +124,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         let body = SKPhysicsBody(circleOfRadius: GameConfig.playerRadius)
         body.allowsRotation  = false
         body.mass            = GameConfig.playerMass
-        body.linearDamping   = 0.0
+        body.linearDamping   = 0.15
         body.restitution     = 0.0
         body.friction        = 0.0
         body.isDynamic       = false             // paused until first tap
@@ -185,12 +185,14 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
 
     private func flap() {
         guard let body = player.physicsBody else { return }
-        body.velocity = CGVector(dx: 0, dy: 0)
+        // Blend current vertical velocity (keep 30% momentum) for a smooth acceleration curve
+        let blendedVy = body.velocity.dy * 0.3
+        body.velocity = CGVector(dx: 0, dy: blendedVy)
         body.applyImpulse(CGVector(dx: 0, dy: GameConfig.flapImpulse))
-        HapticsManager.shared.impactLight()
+        HapticsManager.shared.impactFlap()
         AudioManager.shared.playFlap()
         spawnThrusterParticles()
-        player.zRotation = 0.20  // gentle nose-up on thrust
+        // Let the rotation lerp in update() handle tilt naturally — no snap here
     }
 
     // MARK: - Loops
@@ -467,7 +469,7 @@ final class CosmicGameScene: SKScene, SKPhysicsContactDelegate {
         let targetRotation: CGFloat = dy >= 0
             ? (dy / GameConfig.maxRiseSpeed) * 0.25
             : (dy / GameConfig.maxFallSpeed) * 0.45
-        let lerpFactor: CGFloat = 1.0 - pow(0.18, CGFloat(dt))
+        let lerpFactor: CGFloat = 1.0 - pow(0.06, CGFloat(dt))
         player.zRotation += (targetRotation - player.zRotation) * lerpFactor
     }
 

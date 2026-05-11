@@ -6,7 +6,7 @@ enum GameConfig {
     // Gravity -9.8 with mass 0.018 and impulse 300 gives a proven Flappy-Bird
     // feel: snappy upward arc, natural fall. Paired with velocity clamps.
     static let gravity: CGFloat            = -9.8
-    static let flapImpulse: CGFloat        = 300.0
+    static let flapImpulse: CGFloat        = 200.0
 
     static let playerRadius: CGFloat       = 18
     static let playerMass: CGFloat         = 0.018
