@@ -81,7 +81,7 @@ final class BattleService {
                                     userInfo: [NSLocalizedDescriptionKey: "No Supabase config"]))
             return
         }
-        // Only join rooms that have no invitation (public rooms)
+        // Only join public rooms: no invitation and no private room code.
         fetchWaitingRoom(cfg: cfg, publicOnly: true) { [weak self] room in
             guard let self else { return }
             if let room {
@@ -324,6 +324,7 @@ final class BattleService {
             .init(name: "limit",      value: "1")
         ]
         if publicOnly { items.append(.init(name: "invited_pilot", value: "is.null")) }
+        if publicOnly { items.append(.init(name: "room_code", value: "is.null")) }
         comps.queryItems = items
         guard let url = comps.url else { completion(nil); return }
         var req = URLRequest(url: url)

@@ -162,8 +162,8 @@ final class BattleCoordinator: ObservableObject {
         resetOpponentState()
         let nearby = BattleNearbyService.shared
         nearby.setup(pilotName: pilotName, skinID: skinID)
-        wireNearbyCallbacks()
         nearby.startHosting()
+        wireNearbyCallbacks()
         phase = .nearbyHosting
     }
 
@@ -174,8 +174,8 @@ final class BattleCoordinator: ObservableObject {
         resetOpponentState()
         let nearby = BattleNearbyService.shared
         nearby.setup(pilotName: pilotName, skinID: skinID)
-        wireNearbyCallbacks()
         nearby.startBrowsing()
+        wireNearbyCallbacks()
         phase = .nearbyBrowsing
     }
 

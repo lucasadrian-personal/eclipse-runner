@@ -51,8 +51,7 @@ targets:
           - UIInterfaceOrientationPortrait
         NSLocalNetworkUsageDescription: "Eclipse Runner uses your local network to find nearby players for offline 1v1 battles."
         NSBonjourServices:
-          - "_eclipse-runner._tcp"
-          - "_eclipse-runner._udp"
+          - "_eclrunner-1v1._tcp"
         NSBluetoothAlwaysUsageDescription: "Eclipse Runner uses Bluetooth to connect with nearby players for offline 1v1 battles."
         NSPrivacyPolicyURL: "https://www.eclipserunner.app/privacy"
 
